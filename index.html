@@ -3,48 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Punjabi Learning Games</title>
+<title>ਪੰਜਾਬੀ ਗੇਮਾਂ</title>
 
 <style>
 body{
   margin:0;
-  font-family:system-ui, sans-serif;
-  background:linear-gradient(135deg,#0f1020,#1b1d3a);
+  font-family: system-ui, sans-serif;
+  background: linear-gradient(135deg,#0f1020,#1b1d3a);
   color:white;
-  min-height:100vh;
-  display:flex;
-  justify-content:center;
-  align-items:center;
 }
-.box{
-  width:min(500px,95%);
-  text-align:center;
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
 }
-h1{margin-bottom:20px}
+h1{text-align:center}
+.grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap:12px;
+  margin-top:20px;
+}
 a{
-  display:block;
   text-decoration:none;
-  margin:12px 0;
-  padding:14px;
   background:#ffd54a;
   color:#111;
+  padding:14px;
   border-radius:14px;
-  font-weight:800;
-  font-size:18px;
+  font-weight:700;
+  text-align:center;
 }
-a:hover{background:#ffca28}
 </style>
 </head>
 
 <body>
-<div class="box">
-  <h1>🧠 ਪੰਜਾਬੀ ਸਿੱਖਣ ਗੇਮਾਂ</h1>
+<div class="container">
+<h1>🧠 ਪੰਜਾਬੀ ਲਰਨਿੰਗ ਗੇਮਾਂ</h1>
 
-  <a href="Virodhishabad.html">🎴 ਵਿਰੋਧੀ ਸ਼ਬਦ – Memory Game</a>
-  <a href="Bubble game.html">🫧 Bubble Game</a>
-  <a href="runner3.html">🏃 Runner Game</a>
-  <a href="ਪੰਜਾਬੀ ਸ਼ਬਦ puzzle2.html">🧩 Puzzle Game</a>
+<div class="grid">
 
+<a href="Bubble game.html">Bubble Game</a>
+<a href="Mix ਵਿਅਾਕਰਣ.html">Mix ਵਿਆਕਰਣ</a>
+<a href="Virodhishabad.html">Virodhishabad</a>
+<a href="runner3.html">Runner 3</a>
+
+<a href="ਪੰਜਾਬੀ ਸ਼ਬਦ puzzle2.html">ਪੰਜਾਬੀ ਸ਼ਬਦ Puzzle</a>
+<a href="ਮੁਹਾਵਰੇ1.html">ਮੁਹਾਵਰੇ</a>
+<a href="ਲਿੰਗ ਬਦਲੇ.html">ਲਿੰਗ ਬਦਲੋ</a>
+<a href="ਵਿਆਕਰਣ.html">ਵਿਆਕਰਣ</a>
+
+<a href="ਵਿਰੋਧੀ ਸ਼ਬਦ memory.html">ਵਿਰੋਧੀ ਸ਼ਬਦ Memory</a>
+<a href="ਵਿਸ਼ੇਸ਼ਣ ਖਾਲੀ ਸਥਾਨ ਭਰੋ.html">ਵਿਸ਼ੇਸ਼ਣ ਖਾਲੀ ਸਥਾਨ ਭਰੋ</a>
+
+</div>
 </div>
 </body>
 </html>
