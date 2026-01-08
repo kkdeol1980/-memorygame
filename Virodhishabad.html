@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#121433" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>ਪੰਜਾਬੀ ਵਿਰੋਧੀ ਸ਼ਬਦ — Memory Game</title>
+
+<style>
+  :root{
+    --bg1:#0f1020; --bg2:#1b1d3a; --text:#f6f7ff;
+    --gold:#ffd54a; --good:#2ecc71;
+
+    --gap: clamp(10px, 2vw, 18px);
+    --cardH: clamp(80px, 14vh, 150px);
+    --cardFont: clamp(18px, 3vw, 34px);
+    --uiFont: clamp(13px, 2vw, 18px);
+    --radius: 18px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background: linear-gradient(180deg,var(--bg1),var(--bg2));
+    color: var(--text);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+
+    padding:
+      max(12px, env(safe-area-inset-top))
+      max(12px, env(safe-area-inset-right))
+      max(12px, env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* iPhone: avoid accidental zoom on taps */
+  button, .card { touch-action: manipulation; }
+
+  .wrap{width:min(1100px,100%)}
+
+  .top{
+    display:flex; flex-wrap:wrap; gap:10px;
+    justify-content:space-between; align-items:center;
+    margin-bottom:10px;
+  }
+  .title{
+    font-weight:900;
+    font-size: clamp(18px, 3vw, 26px);
+    line-height:1.1;
+  }
+
+  .stats{display:flex; gap:8px; flex-wrap:wrap}
+  .badge{
+    background:#ffffff14; border:1px solid #ffffff20;
+    border-radius:999px; padding:6px 12px;
+    font-size: var(--uiFont);
+    white-space:nowrap;
+  }
+  .badge b{color:var(--gold)}
+
+  .controls{display:flex; gap:8px; flex-wrap:wrap; margin:10px 0 6px}
+  button{
+    border:none; border-radius:14px;
+    padding:10px 14px;
+    font-weight:800;
+    font-size: var(--uiFont);
+    cursor:pointer;
+    background:linear-gradient(135deg,#ffd54a,#ff7ad9);
+    color:#101018;
+  }
+  button.alt{background:linear-gradient(135deg,#a8e7ff,#b6a6ff)}
+  button.ghost{
+    background:#ffffff14; color:var(--text);
+    border:1px solid #ffffff22;
+  }
+
+  .sub{
+    opacity:.9; font-size: var(--uiFont);
+    margin:6px 0 12px; line-height:1.35;
+  }
+
+  .board{
+    display:grid;
+    gap: var(--gap);
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  }
+
+  .card{
+    height: var(--cardH);
+    perspective: 900px;
+    border-radius: var(--radius);
+    user-select:none;
+    -webkit-user-select:none;
+  }
+
+  .inner{
+    width:100%; height:100%;
+    position:relative;
+    transform-style:preserve-3d;
+    transition:transform .35s cubic-bezier(.2,.8,.2,1);
+  }
+  .card.flipped .inner{transform:rotateY(180deg)}
+
+  .face{
+    position:absolute; inset:0;
+    border-radius: var(--radius);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:900;
+    font-size: var(--cardFont);
+    backface-visibility:hidden;
+    text-align:center;
+    padding:10px;
+  }
+
+  .front{
+    background: linear-gradient(135deg,#1f2251,#14153a);
+    border:1px solid #ffffff22;
+  }
+  .front::after{content:"?"; font-size:1.4em; opacity:.95}
+
+  .back{
+    transform:rotateY(180deg);
+    background: linear-gradient(135deg,#ffffff,#e9e7ff);
+    color:#131326;
+    border:1px solid #ffffffaa;
+  }
+
+  .card.matched .front{
+    box-shadow:0 0 0 3px rgba(46,204,113,.7), 0 0 20px rgba(46,204,113,.35);
+    border-color: rgba(46,204,113,.7);
+  }
+
+  .toast{
+    margin-top:12px;
+    padding:12px;
+    border-radius:14px;
+    background:#ffffff14;
+    border:1px solid #ffffff20;
+    text-align:center;
+    font-weight:800;
+    font-size: var(--uiFont);
+    min-height:44px;
+    display:flex; align-items:center; justify-content:center;
+  }
+
+  /* Projector mode: BIG */
+  body.projector{
+    --cardH: clamp(120px, 20vh, 200px);
+    --cardFont: clamp(28px, 4vw, 46px);
+    --uiFont: clamp(16px, 2.4vw, 22px);
+    --gap: clamp(14px, 2.2vw, 24px);
+  }
+</style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="title">🧠 ਪੰਜਾਬੀ ਵਿਰੋਧੀ ਸ਼ਬਦ — Memory Game</div>
+      <div class="stats">
+        <div class="badge">ਲੇਵਲ: <b id="level">1</b></div>
+        <div class="badge">ਸਕੋਰ: <b id="score">0</b></div>
+        <div class="badge">ਟਾਈਮ: <b id="time">0</b>s</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="ghost" id="soundBtn" aria-pressed="true">🔊 Sound</button>
+      <button class="alt" id="projectorBtn" aria-pressed="false">📽️ Projector</button>
+      <button class="ghost" id="fsBtn">⛶ Fullscreen</button>
+      <button id="restartBtn">Restart</button>
+    </div>
+
+    <div class="sub">
+      ਦੋ ਕਾਰਡ ਖੋਲ੍ਹੋ — ਜੇ ਉਹ <b>ਵਿਰੋਧੀ ਸ਼ਬਦ</b> ਹਨ ਤਾਂ ✅ Match!
+      (iPhone: first tap ਨਾਲ sound unlock ਹੁੰਦੀ ਹੈ)
+    </div>
+
+    <div class="board" id="board"></div>
+    <div class="toast" id="toast">🎯 Level 1 ਸ਼ੁਰੂ!</div>
+  </div>
+
+<script>
+/* ✅ Correct Punjabi spellings (ਉੱਪਰ fixed) */
+const LEVELS = [
+  [
+    ["ਚੰਗਾ","ਮਾੜਾ"],
+    ["ਵੱਡਾ","ਛੋਟਾ"],
+    ["ਦਿਨ","ਰਾਤ"],
+    ["ਨਵਾਂ","ਪੁਰਾਣਾ"],
+    ["ਗਰਮ","ਠੰਡਾ"],
+    ["ਉੱਚਾ","ਨੀਵਾਂ"]
+  ],
+  [
+    ["ਸੱਚ","ਝੂਠ"],
+    ["ਅੰਦਰ","ਬਾਹਰ"],
+    ["ਤੇਜ਼","ਹੌਲੀ"],
+    ["ਖੁਸ਼","ਉਦਾਸ"],
+    ["ਸਾਫ਼","ਗੰਦਾ"],
+    ["ਅੱਗੇ","ਪਿੱਛੇ"],
+    ["ਮੋਟਾ","ਪਤਲਾ"],
+    ["ਉੱਪਰ","ਹੇਠਾਂ"]
+  ],
+  [
+    ["ਜਿੱਤ","ਹਾਰ"],
+    ["ਹਲਕਾ","ਭਾਰੀ"],
+    ["ਨਜ਼ਦੀਕ","ਦੂਰ"],
+    ["ਖੁੱਲ੍ਹਾ","ਬੰਦ"],
+    ["ਸਸਤਾ","ਮਹਿੰਗਾ"],
+    ["ਜਵਾਨ","ਬੁੱਢਾ"],
+    ["ਸ਼ੁਰੂ","ਅੰਤ"],
+    ["ਜ਼ਿਆਦਾ","ਘੱਟ"]
+  ]
+];
+
+/* State */
+let level = 1, score = 0, seconds = 0, timer = null;
+let first = null, second = null, lock = false, matched = 0, totalPairs = 0;
+
+/* UI */
+const board = document.getElementById("board");
+const levelEl = document.getElementById("level");
+const scoreEl = document.getElementById("score");
+const timeEl  = document.getElementById("time");
+const toast   = document.getElementById("toast");
+const restartBtn = document.getElementById("restartBtn");
+const projectorBtn = document.getElementById("projectorBtn");
+const soundBtn = document.getElementById("soundBtn");
+const fsBtn = document.getElementById("fsBtn");
+
+/* Sound (works after first tap on iPhone) */
+let soundOn = true;
+let audioCtx = null;
+
+function ensureAudio(){
+  if(!soundOn) return;
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){}
+  }
+  if(audioCtx && audioCtx.state === "suspended"){
+    audioCtx.resume().catch(()=>{});
+  }
+}
+function beep(freq=440, dur=0.08, gain=0.07){
+  if(!soundOn) return;
+  try{
+    ensureAudio();
+    if(!audioCtx) return;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.frequency.value = freq;
+    g.gain.value = gain;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start();
+    o.stop(audioCtx.currentTime + dur);
+  }catch(e){}
+}
+const sFlip=()=>beep(560,0.05,0.06);
+const sMatch=()=>{beep(740,0.06,0.08); setTimeout(()=>beep(980,0.08,0.08),60);};
+const sWrong=()=>beep(220,0.10,0.05);
+const sWin=()=>{beep(523,0.08,0.08); setTimeout(()=>beep(659,0.08,0.08),90); setTimeout(()=>beep(784,0.10,0.09),180);};
+
+/* Helpers */
+function setToast(msg){
+  toast.textContent = msg;
+}
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function startTimer(){
+  if(timer) clearInterval(timer);
+  seconds = 0;
+  timeEl.textContent = seconds;
+  timer = setInterval(()=>{ seconds++; timeEl.textContent = seconds; }, 1000);
+}
+function stopTimer(){
+  if(timer) clearInterval(timer);
+  timer = null;
+}
+function isAntonym(a,b){
+  return LEVELS[level-1].some(p => (p[0]===a && p[1]===b) || (p[0]===b && p[1]===a));
+}
+
+/* ✅ iPhone-safe tap handler:
+   - attach BOTH touchend and click
+   - prevent double-fire using a small lock per element
+*/
+function attachTap(el, fn){
+  let tappedRecently = false;
+
+  const run = (e)=>{
+    // iPhone: stop ghost clicks
+    if(e && e.cancelable) e.preventDefault();
+    if(tappedRecently) return;
+    tappedRecently = true;
+    fn();
+    setTimeout(()=>{ tappedRecently = false; }, 350);
+  };
+
+  el.addEventListener("touchend", run, {passive:false});
+  el.addEventListener("click", run);
+}
+
+/* Build */
+function buildLevel(newLevel){
+  level = newLevel;
+  levelEl.textContent = level;
+
+  board.innerHTML = "";
+  first = null; second = null; lock = false; matched = 0;
+
+  const pairs = LEVELS[level-1];
+  totalPairs = pairs.length;
+
+  const words = shuffle(pairs.flat().slice());
+
+  words.forEach(word=>{
+    const card = document.createElement("div");
+    card.className = "card";
+    card.dataset.word = word;
+
+    card.innerHTML = `
+      <div class="inner">
+        <div class="face front" aria-hidden="true"></div>
+        <div class="face back">${word}</div>
+      </div>
+    `;
+
+    attachTap(card, ()=>onCard(card));
+    board.appendChild(card);
+  });
+
+  startTimer();
+  setToast(`🎯 Level ${level} ਸ਼ੁਰੂ! ਵਿਰੋਧੀ ਸ਼ਬਦ ਦੇ ਜੋੜੇ ਲੱਭੋ।`);
+}
+
+/* Game click */
+function onCard(card){
+  if(lock) return;
+  if(card.classList.contains("flipped") || card.classList.contains("matched")) return;
+
+  ensureAudio(); // iPhone unlock
+  sFlip();
+  card.classList.add("flipped");
+
+  if(!first){
+    first = card;
+    return;
+  }
+
+  second = card;
+  lock = true;
+
+  const a = first.dataset.word;
+  const b = second.dataset.word;
+
+  if(isAntonym(a,b)){
+    sMatch();
+    score += 10;
+    scoreEl.textContent = score;
+
+    first.classList.add("matched");
+    second.classList.add("matched");
+    matched++;
+
+    first = null; second = null; lock = false;
+
+    if(matched === totalPairs){
+      stopTimer();
+      sWin();
+      setToast(`🏆 Level ${level} Complete! Time: ${seconds}s | Score: ${score}`);
+      setTimeout(()=>{
+        if(level < LEVELS.length) buildLevel(level + 1);
+        else setToast(`🎉 Game Finished! Final Score: ${score}`);
+      }, 1200);
+    }
+  } else {
+    sWrong();
+    score = Math.max(0, score - 2);
+    scoreEl.textContent = score;
+
+    setToast("❌ ਗਲਤ ਜੋੜਾ! ਮੁੜ ਕੋਸ਼ਿਸ਼ ਕਰੋ।");
+
+    setTimeout(()=>{
+      first.classList.remove("flipped");
+      second.classList.remove("flipped");
+      first = null; second = null; lock = false;
+    }, 800);
+  }
+}
+
+/* Buttons */
+attachTap(restartBtn, ()=>{
+  score = 0;
+  scoreEl.textContent = score;
+  buildLevel(1);
+});
+
+attachTap(soundBtn, ()=>{
+  soundOn = !soundOn;
+  soundBtn.textContent = soundOn ? "🔊 Sound" : "🔇 Sound";
+  soundBtn.setAttribute("aria-pressed", String(soundOn));
+  if(soundOn) ensureAudio();
+});
+
+attachTap(projectorBtn, ()=>{
+  const on = document.body.classList.toggle("projector");
+  projectorBtn.setAttribute("aria-pressed", String(on));
+  projectorBtn.textContent = on ? "📽️ Projector: ON" : "📽️ Projector";
+});
+
+/* Fullscreen (iPhone Safari may block; PC/projector works) */
+attachTap(fsBtn, async ()=>{
+  const el = document.documentElement;
+  try{
+    if(!document.fullscreenElement) await el.requestFullscreen();
+    else await document.exitFullscreen();
+  }catch(e){
+    setToast("ℹ️ iPhone Safari ‘ਤੇ Fullscreen block ਹੋ ਸਕਦਾ ਹੈ — Projector mode ਵਰਤੋ।");
+  }
+});
+
+/* Start */
+buildLevel(1);
+</script>
+</body>
+</html>
