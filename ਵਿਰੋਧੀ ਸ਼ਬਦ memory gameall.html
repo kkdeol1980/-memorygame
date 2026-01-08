@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#121433">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ਪੰਜਾਬੀ ਵਿਰੋਧੀ ਸ਼ਬਦ Memory Game</title>
+
+<style>
+:root{
+  --bg1:#0f1020;
+  --bg2:#1b1d3a;
+  --card:#1f2251;
+  --good:#2ecc71;
+  --bad:#ff5c77;
+  --gold:#ffd54a;
+  --text:#ffffff;
+
+  --gap:clamp(10px,2vw,18px);
+  --cardH:clamp(80px,14vh,150px);
+  --cardFont:clamp(18px,3vw,34px);
+  --uiFont:clamp(13px,2vw,18px);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:system-ui, sans-serif;
+  background:linear-gradient(180deg,var(--bg1),var(--bg2));
+  color:var(--text);
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  padding:12px;
+  -webkit-tap-highlight-color:transparent;
+}
+
+button,.card{touch-action:manipulation}
+
+.wrap{width:min(1100px,100%)}
+
+.top{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.title{
+  font-weight:900;
+  font-size:clamp(18px,3vw,26px);
+}
+
+.stats{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.badge{
+  background:#ffffff14;
+  border-radius:999px;
+  padding:6px 12px;
+  font-size:var(--uiFont);
+}
+
+.controls{
+  display:flex;
+  gap:8px;
+  margin-top:8px;
+  flex-wrap:wrap;
+}
+
+button{
+  border:none;
+  border-radius:14px;
+  padding:8px 14px;
+  font-weight:700;
+  font-size:var(--uiFont);
+  cursor:pointer;
+  background:linear-gradient(135deg,#ffd54a,#ff7ad9);
+}
+
+button.alt{
+  background:linear-gradient(135deg,#a8e7ff,#b6a6ff);
+}
+
+.board{
+  margin-top:16px;
+  display:grid;
+  gap:var(--gap);
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+}
+
+.card{
+  height:var(--cardH);
+  perspective:800px;
+}
+
+.inner{
+  width:100%;
+  height:100%;
+  position:relative;
+  transform-style:preserve-3d;
+  transition:transform .35s;
+}
+
+.card.flipped .inner{transform:rotateY(180deg)}
+
+.face{
+  position:absolute;
+  inset:0;
+  border-radius:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:var(--cardFont);
+  font-weight:900;
+  backface-visibility:hidden;
+  text-align:center;
+  padding:6px;
+}
+
+.front{
+  background:linear-gradient(135deg,var(--card),#14153a);
+}
+.front::after{content:"?";font-size:1.4em}
+
+.back{
+  transform:rotateY(180deg);
+  background:#fff;
+  color:#111;
+}
+
+.card.matched .front{
+  box-shadow:0 0 0 3px var(--good),0 0 20px #2ecc7188;
+}
+
+.toast{
+  margin-top:14px;
+  padding:10px;
+  border-radius:14px;
+  background:#ffffff14;
+  text-align:center;
+  font-weight:700;
+  font-size:var(--uiFont);
+}
+
+body.projector{
+  --cardH:clamp(120px,20vh,190px);
+  --cardFont:clamp(26px,4vw,44px);
+  --uiFont:clamp(16px,3vw,22px);
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<div class="top">
+  <div class="title">🧠 ਪੰਜਾਬੀ ਵਿਰੋਧੀ ਸ਼ਬਦ – Memory Game</div>
+  <div class="stats">
+    <div class="badge">ਲੇਵਲ: <b id="level">1</b></div>
+    <div class="badge">ਸਕੋਰ: <b id="score">0</b></div>
+    <div class="badge">ਟਾਈਮ: <b id="time">0</b>s</div>
+  </div>
+</div>
+
+<div class="controls">
+  <button id="sound">🔊 Sound</button>
+  <button class="alt" id="projector">📽️ Projector</button>
+  <button class="alt" id="restart">Restart</button>
+</div>
+
+<div class="board" id="board"></div>
+<div class="toast" id="toast">Level 1 ਸ਼ੁਰੂ!</div>
+
+</div>
+
+<script>
+/* 🔹 LEVEL DATA (ALL SPELLINGS CORRECT) */
+const LEVELS=[
+ [
+  ["ਚੰਗਾ","ਮਾੜਾ"],
+  ["ਵੱਡਾ","ਛੋਟਾ"],
+  ["ਦਿਨ","ਰਾਤ"],
+  ["ਨਵਾਂ","ਪੁਰਾਣਾ"],
+  ["ਗਰਮ","ਠੰਡਾ"],
+  ["ਉੱਚਾ","ਨੀਵਾਂ"]
+ ],
+ [
+  ["ਸੱਚ","ਝੂਠ"],
+  ["ਅੰਦਰ","ਬਾਹਰ"],
+  ["ਤੇਜ਼","ਹੌਲੀ"],
+  ["ਖੁਸ਼","ਉਦਾਸ"],
+  ["ਸਾਫ਼","ਗੰਦਾ"],
+  ["ਅੱਗੇ","ਪਿੱਛੇ"],
+  ["ਮੋਟਾ","ਪਤਲਾ"],
+  ["ਉੱਪਰ","ਹੇਠਾਂ"]   // ✅ CORRECTED
+ ],
+ [
+  ["ਜਿੱਤ","ਹਾਰ"],
+  ["ਹਲਕਾ","ਭਾਰੀ"],
+  ["ਨਜ਼ਦੀਕ","ਦੂਰ"],
+  ["ਖੁੱਲ੍ਹਾ","ਬੰਦ"],
+  ["ਸਸਤਾ","ਮਹਿੰਗਾ"],
+  ["ਜਵਾਨ","ਬੁੱਢਾ"],
+  ["ਸ਼ੁਰੂ","ਅੰਤ"],
+  ["ਜ਼ਿਆਦਾ","ਘੱਟ"]
+ ]
+];
+
+let level=1,score=0,time=0,timer;
+let first=null,lock=false,matched=0,soundOn=true;
+const board=document.getElementById("board");
+const toast=document.getElementById("toast");
+
+let audioCtx;
+function beep(f){
+ if(!soundOn)return;
+ if(!audioCtx)audioCtx=new (window.AudioContext||webkitAudioContext)();
+ const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+ o.frequency.value=f; g.gain.value=.07;
+ o.connect(g); g.connect(audioCtx.destination);
+ o.start(); o.stop(audioCtx.currentTime+.08);
+}
+
+function startLevel(l){
+ level=l; matched=0; first=null; lock=false;
+ document.getElementById("level").textContent=level;
+ board.innerHTML="";
+ clearInterval(timer); time=0;
+ timer=setInterval(()=>document.getElementById("time").textContent=++time,1000);
+
+ let words=LEVELS[level-1].flat().sort(()=>Math.random()-.5);
+ words.forEach(w=>{
+  let c=document.createElement("div");
+  c.className="card";
+  c.dataset.word=w;
+  c.innerHTML=`<div class="inner">
+    <div class="face front"></div>
+    <div class="face back">${w}</div>
+  </div>`;
+  c.addEventListener("pointerup",()=>clickCard(c));
+  board.appendChild(c);
+ });
+ toast.textContent=`Level ${level} ਸ਼ੁਰੂ!`;
+}
+
+function clickCard(card){
+ if(lock||card.classList.contains("flipped"))return;
+ beep(600); card.classList.add("flipped");
+ if(!first){first=card;return;}
+ lock=true;
+ const a=first.dataset.word,b=card.dataset.word;
+ const ok=LEVELS[level-1].some(p=>p.includes(a)&&p.includes(b));
+ if(ok){
+  beep(900); score+=10; matched++;
+  card.classList.add("matched"); first.classList.add("matched");
+  reset();
+  if(matched===LEVELS[level-1].length){
+   clearInterval(timer);
+   toast.textContent="Level Complete!";
+   setTimeout(()=>level<LEVELS.length&&startLevel(level+1),1200);
+  }
+ }else{
+  beep(200); score=Math.max(0,score-2);
+  setTimeout(()=>{card.classList.remove("flipped");first.classList.remove("flipped");reset();},800);
+ }
+ document.getElementById("score").textContent=score;
+}
+
+function reset(){first=null;lock=false;}
+
+document.getElementById("restart").onclick=()=>{score=0;startLevel(1);}
+document.getElementById("sound").onclick=()=>soundOn=!soundOn;
+document.getElementById("projector").onclick=()=>document.body.classList.toggle("projector");
+
+startLevel(1);
+</script>
+</body>
+</html>

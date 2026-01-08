@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+  <meta charset="UTF-8">
+  <title>Punjabi Word Search Game</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Noto Sans Gurmukhi", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      padding: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      background: radial-gradient(circle at top left, #f97316, #0f172a 45%, #1d4ed8 80%);
+      color: #e5e7eb;
+    }
+
+    .container {
+      background: radial-gradient(circle at top, rgba(15,23,42,0.98), rgba(15,23,42,0.95));
+      border-radius: 18px;
+      padding: 16px;
+      width: 100%;
+      max-width: 900px;
+      box-shadow:
+        0 0 0 1px rgba(148,163,184,0.2),
+        0 20px 40px rgba(15,23,42,0.9),
+        0 0 30px rgba(59,130,246,0.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(251,191,36,0.08), transparent 55%),
+        radial-gradient(circle at 90% 0%, rgba(59,130,246,0.15), transparent 55%),
+        radial-gradient(circle at 10% 100%, rgba(34,197,94,0.18), transparent 55%);
+      opacity: 0.9;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    h1 {
+      font-size: clamp(1.6rem, 4vw, 2rem);
+      margin-bottom: 4px;
+      text-align: center;
+      color: #fef3c7;
+      text-shadow: 0 0 15px rgba(251,191,36,0.65);
+    }
+
+    .subheading {
+      text-align: center;
+      font-size: clamp(0.8rem, 2.5vw, 0.95rem);
+      color: #e5e7eb;
+      margin-bottom: 14px;
+      opacity: 0.9;
+    }
+
+    .top-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: #e5e7eb;
+    }
+
+    select {
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.8);
+      background: rgba(15,23,42,0.9);
+      color: #e5e7eb;
+      padding: 5px 10px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      max-width: 140px;
+    }
+
+    select:focus {
+      outline: 2px solid #facc15;
+      outline-offset: 2px;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 7px 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #f97316, #fde047);
+      color: #1f2937;
+      box-shadow:
+        0 0 0 1px rgba(248,250,252,0.1),
+        0 10px 22px rgba(234,179,8,0.5);
+      transition:
+        transform 0.1s ease,
+        box-shadow 0.2s ease,
+        filter 0.2s ease;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow:
+        0 0 0 1px rgba(248,250,252,0.3),
+        0 15px 30px rgba(250,204,21,0.6);
+      filter: brightness(1.02);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow:
+        0 0 0 1px rgba(248,250,252,0.35),
+        0 6px 16px rgba(234,179,8,0.6);
+    }
+
+    .status-bar {
+      font-size: 0.85rem;
+      color: #e5e7eb;
+      text-align: right;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: linear-gradient(120deg, rgba(59,130,246,0.3), rgba(30,64,175,0.1));
+      box-shadow: 0 0 15px rgba(59,130,246,0.35);
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .status-highlight {
+      color: #bbf7d0;
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(22,163,74,0.7);
+    }
+
+    .main {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr);
+      gap: 14px;
+      margin-top: 8px;
+    }
+
+    #grid {
+      display: grid;
+      gap: 2px;
+      padding: 8px;
+      border-radius: 14px;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(56,189,248,0.23), transparent 55%),
+        radial-gradient(circle at 100% 100%, rgba(244,114,182,0.18), transparent 55%),
+        linear-gradient(145deg, rgba(15,23,42,0.96), rgba(15,23,42,0.96));
+      border: 1px solid rgba(148,163,184,0.6);
+      box-shadow:
+        0 0 0 1px rgba(15,23,42,0.9),
+        0 14px 30px rgba(15,23,42,0.9),
+        0 0 24px rgba(129,140,248,0.7);
+      user-select: none;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+    }
+
+    .cell {
+      width: min(7vw, 30px);
+      height: min(7vw, 30px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: min(4vw, 1.1rem);
+      border-radius: 8px;
+      cursor: pointer;
+      background: radial-gradient(circle at 30% 20%, rgba(248,250,252,0.95), rgba(209,213,219,0.9));
+      color: #111827;
+      transition:
+        background 0.18s,
+        transform 0.08s,
+        box-shadow 0.18s,
+        color 0.18s;
+      box-shadow:
+        0 0 0 1px rgba(148,163,184,0.9),
+        0 4px 10px rgba(15,23,42,0.5);
+      text-align: center;
+      padding: 0 2px;
+    }
+
+    .cell:nth-child(odd) {
+      background: radial-gradient(circle at 30% 20%, #f9fafb, #e5e7eb);
+    }
+
+    .cell:hover {
+      transform: translateY(-1px) scale(1.03);
+      box-shadow:
+        0 0 0 1px rgba(59,130,246,0.7),
+        0 6px 14px rgba(37,99,235,0.7);
+    }
+
+    .cell.selected {
+      background: radial-gradient(circle at 20% 0%, #bfdbfe, #60a5fa);
+      color: #0b1120;
+      box-shadow:
+        0 0 0 1px rgba(37,99,235,1),
+        0 8px 18px rgba(37,99,235,0.9);
+      transform: translateY(-1px) scale(1.04);
+    }
+
+    @keyframes foundPop {
+      0%   { transform: scale(0.9); }
+      40%  { transform: scale(1.12); }
+      70%  { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    .cell.found {
+      background: radial-gradient(circle at 10% 0%, #bbf7d0, #16a34a);
+      color: #022c22;
+      font-weight: 800;
+      box-shadow:
+        0 0 0 1px rgba(22,163,74,1),
+        0 10px 22px rgba(22,163,74,0.9),
+        0 0 20px rgba(34,197,94,0.9);
+      animation: foundPop 0.22s ease-out;
+    }
+
+    .word-panel {
+      border-radius: 14px;
+      padding: 10px 12px;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(249,115,22,0.45), transparent 60%),
+        radial-gradient(circle at 100% 100%, rgba(96,165,250,0.35), transparent 60%),
+        linear-gradient(155deg, rgba(15,23,42,0.96), rgba(15,23,42,0.98));
+      border: 1px solid rgba(148,163,184,0.85);
+      box-shadow:
+        0 0 0 1px rgba(15,23,42,0.9),
+        0 14px 30px rgba(15,23,42,0.9),
+        0 0 24px rgba(248,250,252,0.2);
+    }
+
+    .word-panel h2 {
+      font-size: 1rem;
+      margin-bottom: 4px;
+      color: #fef9c3;
+      text-shadow: 0 0 6px rgba(250,204,21,0.7);
+    }
+
+    .word-panel small {
+      font-size: 0.78rem;
+      color: #e5e7eb;
+      opacity: 0.9;
+    }
+
+    #wordList {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 10px;
+    }
+
+    .word-item {
+      font-size: 0.92rem;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.85);
+      color: #e5e7eb;
+      border: 1px solid rgba(148,163,184,0.8);
+      position: relative;
+      box-shadow: 0 0 10px rgba(15,23,42,0.8);
+      transition: background 0.18s, transform 0.12s, box-shadow 0.18s, color 0.18s;
+      white-space: nowrap;
+    }
+
+    .word-item::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #f97316;
+      box-shadow: 0 0 8px rgba(249,115,22,0.9);
+      display: inline-block;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .word-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 12px rgba(129,140,248,0.9);
+    }
+
+    .word-item.found-word {
+      text-decoration: line-through;
+      color: #bbf7d0;
+      background: linear-gradient(135deg, rgba(22,163,74,0.9), rgba(34,197,94,0.95));
+      border-color: rgba(187,247,208,1);
+      box-shadow:
+        0 0 12px rgba(34,197,94,0.85),
+        0 0 20px rgba(22,163,74,0.75);
+    }
+
+    .word-item.found-word::before {
+      background: #bbf7d0;
+      box-shadow: 0 0 10px rgba(187,247,208,0.95);
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 8px; }
+      .container { padding: 12px; border-radius: 14px; }
+      .main { grid-template-columns: 1fr; }
+      .status-bar { width: 100%; margin-top: 2px; }
+      #grid { justify-content: center; }
+    }
+
+    @media (max-width: 480px) {
+      .top-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .controls { justify-content: flex-start; }
+      #grid { padding: 6px; gap: 2px; }
+      .cell {
+        width: min(8vw, 26px);
+        height: min(8vw, 26px);
+        font-size: min(4.5vw, 1rem);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ਪੰਜਾਬੀ ਸ਼ਬਦ ਪਜ਼ਲ</h1>
+    <p class="subheading">
+      ਸ਼ਬਦ ਲੱਭੋ: ਅੱਖਰਾਂ ਦੇ ਰੰਗੀਲੇ ਜਾਲ ਵਿੱਚੋਂ ਲਾਈਨ ਬਣਾਕੇ ਚੁਣੋ (ਉੱਪਰ→ਹੇਠਾਂ ਜਾਂ ਖੱਬੇ→ਸੱਜੇ)
+    </p>
+
+    <div class="top-bar">
+      <div class="controls">
+        <label for="categorySelect">ਸ਼੍ਰੇਣੀ:</label>
+        <select id="categorySelect"></select>
+
+        <label for="difficultySelect">ਆਕਾਰ:</label>
+        <select id="difficultySelect">
+          <option value="10">ਛੋਟਾ (10×10)</option>
+          <option value="12" selected>ਦਰਮਿਆਨਾ (12×12)</option>
+          <option value="14">ਵੱਡਾ (14×14)</option>
+        </select>
+
+        <button id="newGameBtn">ਨਵਾਂ ਪਜ਼ਲ</button>
+      </div>
+
+      <div class="status-bar">
+        ਮਿਲੇ ਸ਼ਬਦ: <span id="foundCount">0</span>/<span id="totalCount">0</span> |
+        <span id="message"></span>
+      </div>
+    </div>
+
+    <div class="main">
+      <div id="grid"></div>
+      <div class="word-panel">
+        <h2>ਲੱਭਣ ਵਾਲੇ ਸ਼ਬਦ</h2>
+        <small>(ਸ਼ਬਦ ਸਿਰਫ਼ ਖੱਬੇ→ਸੱਜੇ ਜਾਂ ਉੱਪਰ→ਹੇਠਾਂ ਹੋਣਗੇ)</small>
+        <div id="wordList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ✅ Corrected word lists
+    const categories = {
+      "ਸਰੀਰ ਦੇ ਭਾਗ": ["ਸਿਰ", "ਅੱਖ", "ਕੰਨ", "ਨੱਕ", "ਮੂੰਹ", "ਹੱਥ", "ਪੈਰ", "ਦੰਦ", "ਜੀਭ", "ਲੱਤ"],
+      "ਜਾਨਵਰ": ["ਕੁੱਤਾ", "ਬਿੱਲੀ", "ਘੋੜਾ", "ਗਊ", "ਮੱਝ", "ਸ਼ੇਰ", "ਹਾਥੀ", "ਬਾਂਦਰ", "ਬੱਕਰੀ", "ਮੱਛੀ"],
+      "ਫਲ": ["ਸੇਬ", "ਕੇਲਾ", "ਅੰਗੂਰ", "ਅੰਬ", "ਸੰਤਰਾ", "ਅਨਾਰ", "ਜਾਮਨੂੰ", "ਆੜੂ", "ਲੀਚੀ","ਬੇਰ"],
+      "ਰੋਜ਼ਾਨਾ ਜ਼ਿੰਦਗੀ": ["ਨਾਸ਼ਤਾ", "ਭੋਜਨ", "ਦੁੱਧ", "ਰੋਟੀ", "ਸਬਜ਼ੀ", "ਪਾਣੀ", "ਘਰ", "ਬਜ਼ਾਰ", "ਗੱਡੀ", "ਸੜਕ"]
+    };
+
+    // Random letters for fill
+    const randomLetters = "ਅਆਇਈਉਊਏਐਓਔਕਖਗਘਚਛਜਝਟਠਡਢਤਥਦਧਨਪਫਬਭਮਯਰਲਵਸ਼ਸਹ";
+
+    // ❗ Only RIGHT and DOWN directions (ਖੱਬੇ→ਸੱਜੇ, ਉੱਪਰ→ਹੇਠਾਂ)
+    const directions = [
+      { dx: 1, dy: 0 },  // right
+      { dx: 0, dy: 1 }   // down
+    ];
+
+    let gridSize = 12;
+    let grid = [];
+    let placedWords = [];
+    let startCell = null;
+    let selectedCells = [];
+
+    const gridEl = document.getElementById("grid");
+    const wordListEl = document.getElementById("wordList");
+    const foundCountEl = document.getElementById("foundCount");
+    const totalCountEl = document.getElementById("totalCount");
+    const messageEl = document.getElementById("message");
+    const categorySelect = document.getElementById("categorySelect");
+    const difficultySelect = document.getElementById("difficultySelect");
+    const newGameBtn = document.getElementById("newGameBtn");
+
+    // Base-letter + matra cluster splitter
+    function splitGraphemes(word) {
+      const clusters = [];
+      const regex = /(\P{M}\p{M}*)/gu;
+      let match;
+      while ((match = regex.exec(word)) !== null) {
+        if (match[1]) clusters.push(match[1]);
+      }
+      return clusters;
+    }
+
+    function randomChoice(arr) {
+      return arr[Math.floor(Math.random() * arr.length)];
+    }
+
+    function initCategoryOptions() {
+      for (const catName of Object.keys(categories)) {
+        const opt = document.createElement("option");
+        opt.value = catName;
+        opt.textContent = catName;
+        categorySelect.appendChild(opt);
+      }
+    }
+
+    function createEmptyGrid(size) {
+      return Array.from({ length: size }, () => Array(size).fill(""));
+    }
+
+    function canPlaceWord(segments, x, y, dx, dy, size, grid) {
+      const len = segments.length;
+      const endX = x + dx * (len - 1);
+      const endY = y + dy * (len - 1);
+
+      if (endX < 0 || endX >= size || endY < 0 || endY >= size) {
+        return false;
+      }
+
+      for (let i = 0; i < len; i++) {
+        const nx = x + dx * i;
+        const ny = y + dy * i;
+        const existing = grid[ny][nx];
+        const seg = segments[i];
+        if (existing !== "" && existing !== seg) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function placeWord(word, size, grid) {
+      const segments = splitGraphemes(word);
+      const len = segments.length;
+      const maxAttempts = 200;
+
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const dir = randomChoice(directions); // only right / down
+        const startX = Math.floor(Math.random() * size);
+        const startY = Math.floor(Math.random() * size);
+        if (!canPlaceWord(segments, startX, startY, dir.dx, dir.dy, size, grid)) continue;
+
+        const cells = [];
+        for (let i = 0; i < len; i++) {
+          const x = startX + dir.dx * i;
+          const y = startY + dir.dy * i;
+          grid[y][x] = segments[i];
+          cells.push({ x, y });
+        }
+        return cells;
+      }
+      return null;
+    }
+
+    function fillEmptyCells(size, grid) {
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          if (!grid[y][x]) {
+            const ch = randomLetters[Math.floor(Math.random() * randomLetters.length)];
+            grid[y][x] = ch;
+          }
+        }
+      }
+    }
+
+    function renderGrid(size, grid) {
+      gridEl.innerHTML = "";
+      gridEl.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+
+      for (let y = 0; y < size; y++) {
+        for (let x = 0; x < size; x++) {
+          const cell = document.createElement("div");
+          cell.classList.add("cell");
+          cell.textContent = grid[y][x];
+          cell.dataset.x = x;
+          cell.dataset.y = y;
+          cell.addEventListener("click", onCellClick);
+          gridEl.appendChild(cell);
+        }
+      }
+    }
+
+    function renderWordList() {
+      wordListEl.innerHTML = "";
+      placedWords.forEach(w => {
+        const div = document.createElement("div");
+        div.classList.add("word-item");
+        div.textContent = w.word;
+        div.dataset.word = w.word;
+        wordListEl.appendChild(div);
+      });
+      updateCounts();
+    }
+
+    function updateCounts() {
+      const found = placedWords.filter(w => w.found).length;
+      foundCountEl.textContent = found;
+      totalCountEl.textContent = placedWords.length;
+
+      if (found === placedWords.length && placedWords.length > 0) {
+        messageEl.textContent = "ਸ਼ਾਬਾਸ਼! ਸਾਰੇ ਸ਼ਬਦ ਮਿਲ ਗਏ 🎉";
+        messageEl.classList.add("status-highlight");
+      } else {
+        messageEl.textContent = "";
+        messageEl.classList.remove("status-highlight");
+      }
+    }
+
+    function clearSelectionPreview() {
+      const cells = document.querySelectorAll(".cell.selected");
+      cells.forEach(c => c.classList.remove("selected"));
+      selectedCells = [];
+    }
+
+    function getCellElement(x, y) {
+      return gridEl.querySelector(`.cell[data-x="${x}"][data-y="${y}"]`);
+    }
+
+    function getCellsInLine(x1, y1, x2, y2) {
+      const dx = Math.sign(x2 - x1);
+      const dy = Math.sign(y2 - y1);
+
+      // Only straight lines (no diagonals now, but keep check simple)
+      if (dx === 0 && dy === 0) return [];
+      const diffX = Math.abs(x2 - x1);
+      const diffY = Math.abs(y2 - y1);
+      if (!(dx === 0 || dy === 0) || (dx !== 0 && dy !== 0)) {
+        return [];
+      }
+
+      const cells = [];
+      let x = x1;
+      let y = y1;
+      cells.push({ x, y });
+
+      while (x !== x2 || y !== y2) {
+        x += dx;
+        y += dy;
+        cells.push({ x, y });
+      }
+      return cells;
+    }
+
+    // ✅ New: match by cells path (not by string) – fixes ਗਰਦਨ type bugs
+    function isSamePath(pathA, pathB) {
+      if (pathA.length !== pathB.length) return false;
+      for (let i = 0; i < pathA.length; i++) {
+        if (pathA[i].x !== pathB[i].x || pathA[i].y !== pathB[i].y) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function isSamePathReversed(pathA, pathB) {
+      if (pathA.length !== pathB.length) return false;
+      const n = pathA.length;
+      for (let i = 0; i < n; i++) {
+        if (pathA[i].x !== pathB[n - 1 - i].x || pathA[i].y !== pathB[n - 1 - i].y) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    function onCellClick(e) {
+      const cell = e.currentTarget;
+      const x = parseInt(cell.dataset.x, 10);
+      const y = parseInt(cell.dataset.y, 10);
+
+      if (!startCell) {
+        clearSelectionPreview();
+        startCell = { x, y };
+        cell.classList.add("selected");
+        selectedCells = [{ x, y }];
+        return;
+      }
+
+      const endCell = { x, y };
+      const cellsLine = getCellsInLine(startCell.x, startCell.y, endCell.x, endCell.y);
+
+      if (cellsLine.length === 0) {
+        clearSelectionPreview();
+        startCell = null;
+        return;
+      }
+
+      // 🔍 Check against stored word paths
+      let matchedWord = null;
+      for (const w of placedWords) {
+        if (w.found) continue;
+        if (isSamePath(w.cells, cellsLine) || isSamePathReversed(w.cells, cellsLine)) {
+          matchedWord = w;
+          break;
+        }
+      }
+
+      if (matchedWord) {
+        cellsLine.forEach(c => {
+          const cellEl = getCellElement(c.x, c.y);
+          if (cellEl) {
+            cellEl.classList.remove("selected");
+            cellEl.classList.add("found");
+          }
+        });
+        matchedWord.found = true;
+
+        const item = wordListEl.querySelector(`.word-item[data-word="${matchedWord.word}"]`);
+        if (item) item.classList.add("found-word");
+        updateCounts();
+      } else {
+        clearSelectionPreview();
+        cellsLine.forEach(c => {
+          const cellEl = getCellElement(c.x, c.y);
+          if (cellEl) {
+            cellEl.classList.add("selected");
+            selectedCells.push({ x: c.x, y: c.y });
+          }
+        });
+        setTimeout(() => {
+          clearSelectionPreview();
+        }, 350);
+      }
+
+      startCell = null;
+    }
+
+    function newGame() {
+      gridSize = parseInt(difficultySelect.value, 10);
+      const categoryName = categorySelect.value;
+      const wordsSource = categories[categoryName] || [];
+
+      let maxWords;
+      if (gridSize <= 10) {
+        maxWords = 7;
+      } else if (gridSize <= 12) {
+        maxWords = 9;
+      } else {
+        maxWords = 12;
+      }
+
+      const shuffled = [...wordsSource].sort(() => Math.random() - 0.5);
+      const words = shuffled.slice(0, Math.min(maxWords, shuffled.length));
+
+      grid = createEmptyGrid(gridSize);
+      placedWords = [];
+
+      words.forEach(w => {
+        const cells = placeWord(w, gridSize, grid);
+        if (cells) {
+          placedWords.push({ word: w, cells, found: false });
+        }
+      });
+
+      fillEmptyCells(gridSize, grid);
+      renderGrid(gridSize, grid);
+      renderWordList();
+      startCell = null;
+      clearSelectionPreview();
+      messageEl.textContent = "";
+      messageEl.classList.remove("status-highlight");
+    }
+
+    function init() {
+      initCategoryOptions();
+      categorySelect.selectedIndex = 0;
+      newGameBtn.addEventListener("click", newGame);
+      difficultySelect.addEventListener("change", newGame);
+      categorySelect.addEventListener("change", newGame);
+      newGame();
+    }
+
+    init();
+  </script>
+</body>
+</html>

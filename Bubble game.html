@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="pa">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Punjabi Grammar Quiz Shooter</title>
+  <style>
+    :root { --bg:#0b1220; --card:#111a2e; --text:#eaf0ff; --muted:#9fb0d0; }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071022,#0b1220);font-family:system-ui,-apple-system,Segoe UI,Roboto,Noto Sans Gurmukhi,Arial;}
+    .wrap{max-width:1100px;margin:0 auto;padding:14px;display:flex;flex-direction:column;gap:12px;height:100%;}
+    header{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;}
+    .panel{background:rgba(17,26,46,.85);backdrop-filter: blur(8px);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:10px 12px;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+    .stats{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .chip{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);color:var(--text);font-size:14px}
+    .chip b{font-weight:800}
+    .title{color:var(--text);font-weight:800;font-size:16px}
+    .sub{color:var(--muted);font-size:12px;margin-top:2px}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    button{
+      background:#2a5cff;border:0;color:white;font-weight:800;
+      padding:9px 12px;border-radius:12px;cursor:pointer;
+      box-shadow:0 10px 20px rgba(42,92,255,.25);
+    }
+    button.secondary{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);box-shadow:none}
+    button:active{transform:translateY(1px)}
+    .gameRow{display:grid;grid-template-columns:1fr;gap:12px;flex:1;min-height:0}
+    .hud{display:flex;flex-direction:column;gap:10px}
+    .qbox{color:var(--text)}
+    .qbox .q{font-size:18px;font-weight:900;line-height:1.25}
+    .qbox .hint{font-size:13px;color:var(--muted);margin-top:6px}
+    .canvasWrap{position:relative;flex:1;min-height:0}
+    canvas{width:100%;height:100%;display:block;border-radius:18px;border:1px solid rgba(255,255,255,.08);background:radial-gradient(1200px 500px at 50% 30%, rgba(80,120,255,.12), transparent 60%), rgba(10,16,30,.65)}
+    .overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
+    .card{
+      pointer-events:auto;
+      width:min(560px,92%); text-align:center;
+      background:rgba(17,26,46,.92);border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;padding:16px 16px 14px;color:var(--text)
+    }
+    .card h1{margin:0 0 6px;font-size:20px}
+    .card p{margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.35}
+    .small{font-size:12px;color:var(--muted)}
+    .legend{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px}
+    .kbd{border:1px solid rgba(255,255,255,.14);border-bottom-width:3px;background:rgba(255,255,255,.06);padding:4px 8px;border-radius:10px;font-weight:800;color:var(--text);font-size:12px}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header class="panel">
+    <div>
+      <div class="title">Punjabi Grammar Quiz Shooter</div>
+      <div class="sub">ਸਹੀ ਉੱਤਰ ਵਾਲੀ ਗੋਲੀ (bubble) ‘ਤੇ ਕਲਿਕ/ਟੈਪ ਕਰੋ 🎯</div>
+    </div>
+    <div class="stats">
+      <div class="chip">Level: <b id="level">1</b></div>
+      <div class="chip">Q: <b id="qno">1</b>/<b id="qtotal">0</b></div>
+      <div class="chip">Score: <b id="score">0</b></div>
+      <div class="chip">Lives: <b id="lives">3</b></div>
+      <div class="chip">Time: <b id="time">0</b>s</div>
+    </div>
+    <div class="controls">
+      <button id="btnStart">Start</button>
+      <button id="btnPause" class="secondary">Pause</button>
+      <button id="btnRestart" class="secondary">Restart</button>
+      <button id="btnSound" class="secondary">Sound: ON</button>
+    </div>
+  </header>
+
+  <div class="gameRow">
+    <div class="panel hud">
+      <div class="qbox">
+        <div class="q" id="question">Press Start</div>
+        <div class="hint" id="hint">Tip: ਸਹੀ ਉੱਤਰ ਵਾਲੀ bubble ‘ਤੇ ਕਲਿਕ/ਟੈਪ ਕਰੋ।</div>
+      </div>
+      <div class="small">
+        ✅ Correct = +10 points • ❌ Wrong/TimeOut = -1 life • Level up = speed ਵੱਧਦੀ ਹੈ।
+      </div>
+    </div>
+
+    <div class="canvasWrap">
+      <canvas id="c"></canvas>
+
+      <div class="overlay" id="overlay">
+        <div class="card">
+          <h1 id="ovTitle">Ready?</h1>
+          <p id="ovText">Press <b>Start</b>. ਫਿਰ ਸਹੀ ਉੱਤਰ ਵਾਲੀ bubble ‘ਤੇ ਸ਼ੂਟ ਕਰੋ।</p>
+          <div class="legend">
+            <div class="kbd">Mouse / Tap</div>
+            <div class="kbd">Pause</div>
+            <div class="kbd">Restart</div>
+          </div>
+          <div style="margin-top:12px;">
+            <button id="btnStart2">Start</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/** --------------------------
+ * QUESTIONS (Your Level 1 + Level 2)
+ * -------------------------- */
+const levels = [
+  {
+    name: "Level 1",
+    timePerQuestion: 18,
+    bubbles: 4,
+    questions: [
+      { q: "ਪ੍ਰਸ਼ਨ 1: ਵਿਆਕਰਨ ਕੀ ਹੈ?", correct: "ਭਾਸ਼ਾ ਦੇ ਨਿਯਮਾਂ ਦਾ ਸਮੂਹ",
+        wrong: ["ਸ਼ਬਦਾਂ ਦਾ ਖੇਡ", "ਕੇਵਲ ਲਿਖਾਈ", "ਕੇਵਲ ਬੋਲਚਾਲ"] },
+
+      { q: "ਪ੍ਰਸ਼ਨ 2: ਵਿਆਕਰਨ ਕਿੰਨੇ ਪ੍ਰਕਾਰ ਦੀ ਹੈ?", correct: "2",
+        wrong: ["1", "3", "4"] },
+
+      { q: "ਪ੍ਰਸ਼ਨ 3: ਵਿਆਕਰਨ ਦੇ ਕਿੰਨੇ ਭਾਗ ਹਨ?", correct: "4",
+        wrong: ["2", "3", "5"] },
+
+      { q: "ਪ੍ਰਸ਼ਨ 4: ਵਿਆਕਰਨ ਦੀ ਜ਼ਰੂਰਤ ਕਿਉਂ ਹੈ?", correct: "ਕਿਸੇ ਵੀ ਭਾਸ਼ਾ ਨੂੰ ਸ਼ੁੱਧ ਬੋਲਣ ਅਤੇ ਲਿਖਣ ਲਈ",
+        wrong: ["ਸਿਰਫ ਗੀਤ ਲਿਖਣ ਲਈ", "ਖੇਡ ਖੇਡਣ ਲਈ", "ਕੇਵਲ ਪੜ੍ਹਨ ਲਈ"] },
+
+      { q: "ਪ੍ਰਸ਼ਨ 5: ਵਿਆਕਰਨ ਪੜ੍ਹਨੀ ਕਿਉਂ ਜ਼ਰੂਰੀ ਹੈ?", correct: "ਕਿਸੇ ਵੀ ਭਾਸ਼ਾ ਨੂੰ ਸਿੱਖਣ ਲਈ",
+        wrong: ["ਸਿਰਫ ਇਮਤਿਹਾਨ ਲਈ", "ਸਿਰਫ ਕਹਾਣੀ ਲਈ", "ਸਿਰਫ ਬੋਲਣ ਲਈ"] },
+
+      { q: "ਪ੍ਰਸ਼ਨ 6: ਭਾਸ਼ਾ ਕਿੰਨੇ ਪ੍ਰਕਾਰ ਦੀ ਹੈ?", correct: "2",
+        wrong: ["1", "3", "4"] },
+
+      { q: "ਪ੍ਰਸ਼ਨ 7: ਲਿਖਤੀ ਭਾਸ਼ਾ ਨੂੰ ਹੋਰ ਕੀ ਆਖਦੇ ਹਨ?", correct: "ਸਾਹਿਤਿਕ ਜਾਂ ਟਕਸਾਲੀ ਭਾਸ਼ਾ",
+        wrong: ["ਬੋਲਚਾਲ ਦੀ ਭਾਸ਼ਾ", "ਪਿੰਡ ਦੀ ਭਾਸ਼ਾ", "ਘਰੇਲੂ ਭਾਸ਼ਾ"] },
+
+      { q: "ਪ੍ਰਸ਼ਨ 8: ਮੌਖਿਕ ਭਾਸ਼ਾ ਨੂੰ ਹੋਰ ਕੀ ਆਖਦੇ ਹਨ?", correct: "ਬੋਲਚਾਲ ਦੀ ਭਾਸ਼ਾ",
+        wrong: ["ਸਾਹਿਤਿਕ ਭਾਸ਼ਾ", "ਟਕਸਾਲੀ ਭਾਸ਼ਾ", "ਲਿਖਤੀ ਭਾਸ਼ਾ"] },
+
+      { q: "ਪ੍ਰਸ਼ਨ 9: ਸਾਡੀ ਮਾਂ ਬੋਲੀ ਕਿਹੜੀ ਹੈ?", correct: "ਪੰਜਾਬੀ",
+        wrong: ["ਹਿੰਦੀ", "ਅੰਗਰੇਜ਼ੀ", "ਉਰਦੂ"] },
+
+      { q: "ਪ੍ਰਸ਼ਨ 10: ਸਾਡੀ ਰਾਸ਼ਟਰੀ ਭਾਸ਼ਾ ਕਿਹੜੀ ਹੈ?", correct: "ਹਿੰਦੀ",
+        wrong: ["ਪੰਜਾਬੀ", "ਅੰਗਰੇਜ਼ੀ", "ਉਰਦੂ"] },
+    ]
+  },
+
+  {
+    name: "Level 2",
+    timePerQuestion: 16,
+    bubbles: 5,
+    questions: [
+      { q: "1: ਵਿਆਕਰਨ ਵਿੱਚ ਧੁਨੀਆਂ ਦੀ ਵਿਆਖਿਆ ਵਾਲੇ ਭਾਗ ਨੂੰ ਕੀ ਕਹਿੰਦੇ ਹਨ?", correct: "ਧੁਨੀ ਬੋਧ",
+        wrong: ["ਸ਼ਬਦ ਬੋਧ", "ਵਾਕ ਬੋਧ", "ਅਰਥ ਬੋਧ"] },
+
+      { q: "2: ਵਿਆਕਰਨ ਵਿੱਚ ਸ਼ਬਦਾਂ ਦੀ ਵਿਆਖਿਆ ਵਾਲ਼ੇ ਭਾਗ ਨੂੰ ਕੀ ਕਹਿੰਦੇ ਹਨ?", correct: "ਸ਼ਬਦ ਬੋਧ",
+        wrong: ["ਧੁਨੀ ਬੋਧ", "ਵਾਕ ਬੋਧ", "ਅਰਥ ਬੋਧ"] },
+
+      // FIXED: correct is "ਵਾਕ ਬੋਧ"
+      { q: "3: ਵਿਆਕਰਨ ਵਿੱਚ ਵਾਕ ਦੀ ਵਿਆਖਿਆ ਵਾਲ਼ੇ ਭਾਗ ਨੂੰ ਕੀ ਆਖਦੇ ਹਨ?", correct: "ਵਾਕ ਬੋਧ",
+        wrong: ["ਧੁਨੀ ਬੋਧ", "ਸ਼ਬਦ ਬੋਧ", "ਅਰਥ ਬੋਧ"] },
+
+      { q: "4: ਵਿਆਕਰਨ ਵਿੱਚ ਅਰਥਾਂ ਦੀ ਵਿਆਖਿਆ ਵਾਲ਼ੇ ਭਾਗ ਨੂੰ ਕੀ ਆਖਦੇ ਹਨ?", correct: "ਅਰਥ ਬੋਧ",
+        wrong: ["ਧੁਨੀ ਬੋਧ", "ਸ਼ਬਦ ਬੋਧ", "ਵਾਕ ਬੋਧ"] },
+
+      { q: "5: ਪੁਰਾਤਨ ਗੁਰਮੁਖੀ ਵਿੱਚ ਕਿੰਨੇ ਅੱਖਰ ਸਨ?", correct: "35",
+        wrong: ["32", "38", "41"] },
+
+      { q: "6: ਅਜੋਕੀ ਗੁਰਮੁਖੀ ਵਿੱਚ ਕਿੰਨੇ ਅੱਖਰ ਹਨ?", correct: "41",
+        wrong: ["35", "38", "40"] },
+
+      { q: "7: ਪੰਜਾਬੀ ਵਿੱਚ ਕਿੰਨੇ ਸਵਰ ਅੱਖਰ ਹਨ?", correct: "3",
+        wrong: ["2", "5", "10"] },
+
+      { q: "8: ਪੰਜਾਬੀ ਵਿੱਚ ਕਿੰਨੇ ਵਿਅੰਜਨ ਅੱਖਰ ਹਨ?", correct: "38",
+        wrong: ["35", "41", "30"] },
+
+      { q: "9: ਗੁਰਮੁਖੀ ਵਿੱਚ ਅਨੁਨਾਸਕੀ ਅੱਖਰ ਕਿੰਨੇ ਹਨ?", correct: "5",
+        wrong: ["3", "4", "6"] },
+
+      { q: "10: ਗੁਰਮੁਖੀ ਵਿੱਚ ਦੁੱਤ ਅੱਖਰ ਕਿੰਨੇ ਹਨ?", correct: "3",
+        wrong: ["2", "4", "5"] },
+    ]
+  }
+];
+
+const $ = (id)=>document.getElementById(id);
+$("qtotal").textContent = levels.reduce((a,l)=>a+l.questions.length,0);
+
+/** --------------------------
+ * GAME STATE
+ * -------------------------- */
+const canvas = $("c");
+const ctx = canvas.getContext("2d");
+let W=0,H=0, DPR=1;
+
+function resize(){
+  DPR = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+  const rect = canvas.getBoundingClientRect();
+  W = Math.floor(rect.width * DPR);
+  H = Math.floor(rect.height * DPR);
+  canvas.width = W; canvas.height = H;
+}
+window.addEventListener("resize", resize);
+
+let running=false, paused=false, soundOn=true;
+let levelIndex=0, questionIndex=0;
+let score=0, lives=3;
+let timeLeft=0;
+let bubbles=[];
+let crosshair={x:0,y:0,show:false};
+let lastT=0;
+
+/** --------------------------
+ * SOUND (simple beeps)
+ * -------------------------- */
+let audioCtx=null;
+function beep(freq=440, dur=0.08, type="sine", gain=0.06){
+  if(!soundOn) return;
+  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = gain;
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start();
+  o.stop(audioCtx.currentTime + dur);
+}
+function sfxCorrect(){ beep(740,0.08,"triangle",0.07); setTimeout(()=>beep(980,0.08,"triangle",0.07),80); }
+function sfxWrong(){ beep(220,0.12,"sawtooth",0.05); }
+function sfxTick(){ beep(520,0.03,"square",0.02); }
+
+/** --------------------------
+ * UTIL
+ * -------------------------- */
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+/** --------------------------
+ * BUBBLES
+ * -------------------------- */
+function makeBubblesForQuestion(qObj, bubbleCount){
+  let choices = [qObj.correct, ...shuffle(qObj.wrong)];
+  while(choices.length < bubbleCount){
+    choices.push(qObj.wrong[choices.length % qObj.wrong.length] || qObj.correct);
+  }
+  choices = shuffle(choices.slice(0, bubbleCount)); // FINAL shuffle (very important)
+
+  const speedBase = 60 + levelIndex*18;
+  const out = [];
+  for(let i=0;i<choices.length;i++){
+    const r = (36 + Math.random()*18) * DPR;
+    const x = (80 + Math.random()*(W-160));
+    const y = (120 + Math.random()*(H-240));
+    const vx = (Math.random()<0.5?-1:1) * (speedBase + Math.random()*50) * DPR / 60;
+    const vy = (Math.random()<0.5?-1:1) * (speedBase + Math.random()*50) * DPR / 60;
+    out.push({ text: choices[i], correct: choices[i] === qObj.correct, x, y, r, vx, vy });
+  }
+  return out;
+}
+
+/** --------------------------
+ * QUESTION FLOW
+ * -------------------------- */
+function currentLevel(){ return levels[levelIndex]; }
+function currentQuestionObj(){ return currentLevel().questions[questionIndex]; }
+
+function setHUD(){
+  $("level").textContent = (levelIndex+1);
+  const doneBefore = levels.slice(0,levelIndex).reduce((a,l)=>a+l.questions.length,0);
+  $("qno").textContent = (doneBefore + questionIndex + 1);
+  $("score").textContent = score;
+  $("lives").textContent = lives;
+  $("time").textContent = Math.max(0, Math.ceil(timeLeft));
+  $("question").textContent = currentQuestionObj()?.q || "Done!";
+}
+
+function loadQuestion(){
+  const lvl = currentLevel();
+  const q = currentQuestionObj();
+  timeLeft = lvl.timePerQuestion;
+  bubbles = makeBubblesForQuestion(q, lvl.bubbles);
+  setHUD();
+}
+
+function nextQuestion(){
+  questionIndex++;
+  if(questionIndex >= currentLevel().questions.length){
+    levelIndex++;
+    questionIndex = 0;
+    if(levelIndex >= levels.length){
+      endGame(true);
+      return;
+    }
+  }
+  loadQuestion();
+}
+
+function endGame(won){
+  running=false; paused=false;
+  $("overlay").style.display="flex";
+  $("ovTitle").textContent = won ? "You finished! 🎉" : "Game Over 💥";
+  $("ovText").innerHTML = `Final Score: <b>${score}</b><br/>Press Restart to play again.`;
+}
+
+/** --------------------------
+ * INPUT
+ * -------------------------- */
+function pointerPos(e){
+  const rect = canvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return { x:(clientX-rect.left)*DPR, y:(clientY-rect.top)*DPR };
+}
+
+function shootAt(x,y){
+  if(!running || paused) return;
+  crosshair.x=x; crosshair.y=y; crosshair.show=true;
+
+  let hitIndex = -1;
+  for(let i=bubbles.length-1;i>=0;i--){
+    const b=bubbles[i];
+    const dx=x-b.x, dy=y-b.y;
+    if(dx*dx + dy*dy <= b.r*b.r){ hitIndex=i; break; }
+  }
+  if(hitIndex === -1){ beep(300,0.03,"sine",0.02); return; }
+
+  const hit = bubbles[hitIndex];
+  if(hit.correct){
+    score += 10;
+    sfxCorrect();
+    bubbles.splice(hitIndex,1);
+    setHUD();
+    setTimeout(()=>nextQuestion(), 380);
+  }else{
+    lives -= 1;
+    sfxWrong();
+    bubbles.splice(hitIndex,1);
+    setHUD();
+    if(lives <= 0) endGame(false);
+  }
+}
+
+canvas.addEventListener("mousemove",(e)=>{ const p=pointerPos(e); crosshair.x=p.x; crosshair.y=p.y; crosshair.show=true; });
+canvas.addEventListener("mouseleave",()=>{crosshair.show=false;});
+canvas.addEventListener("click",(e)=>{ const p=pointerPos(e); shootAt(p.x,p.y); });
+canvas.addEventListener("touchstart",(e)=>{ e.preventDefault(); const p=pointerPos(e); shootAt(p.x,p.y); },{passive:false});
+
+/** --------------------------
+ * LOOP + RENDER
+ * -------------------------- */
+function step(t){
+  requestAnimationFrame(step);
+  if(!running || paused) { draw(); return; }
+  if(!lastT) lastT=t;
+  const dt = Math.min(0.033, (t-lastT)/1000);
+  lastT=t;
+
+  for(const b of bubbles){
+    b.x += b.vx * (dt*60);
+    b.y += b.vy * (dt*60);
+    if(b.x - b.r < 0){ b.x=b.r; b.vx*=-1; }
+    if(b.x + b.r > W){ b.x=W-b.r; b.vx*=-1; }
+    if(b.y - b.r < 0){ b.y=b.r; b.vy*=-1; }
+    if(b.y + b.r > H){ b.y=H-b.r; b.vy*=-1; }
+  }
+
+  timeLeft -= dt;
+  if(Math.ceil(timeLeft) !== Math.ceil(timeLeft+dt) && timeLeft <= 5 && timeLeft > 0) sfxTick();
+
+  if(timeLeft <= 0){
+    lives -= 1;
+    sfxWrong();
+    if(lives <= 0){ setHUD(); endGame(false); return; }
+    nextQuestion();
+  }
+  setHUD();
+  draw();
+}
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+
+  // dotted grid
+  ctx.save();
+  ctx.globalAlpha = 0.25;
+  for(let y=20*DPR;y<H;y+=44*DPR){
+    for(let x=20*DPR;x<W;x+=44*DPR){
+      ctx.beginPath();
+      ctx.arc(x,y,1.2*DPR,0,Math.PI*2);
+      ctx.fillStyle="rgba(255,255,255,0.15)";
+      ctx.fill();
+    }
+  }
+  ctx.restore();
+
+  // bubbles
+  for(const b of bubbles){
+    const grad = ctx.createRadialGradient(b.x-b.r*0.3,b.y-b.r*0.3,b.r*0.3,b.x,b.y,b.r);
+    grad.addColorStop(0, "rgba(255,255,255,0.35)");
+    grad.addColorStop(1, "rgba(255,255,255,0.10)");
+    ctx.fillStyle = grad;
+    ctx.strokeStyle = "rgba(255,255,255,0.18)";
+    ctx.lineWidth = 2*DPR;
+
+    ctx.beginPath();
+    ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "rgba(234,240,255,0.95)";
+    ctx.font = `${Math.floor(16*DPR)}px system-ui, Noto Sans Gurmukhi, Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    // wrap
+    const maxW = b.r*1.55;
+    const words = String(b.text).split(" ");
+    const lines = [];
+    let line="";
+    for(const w of words){
+      const test = line ? (line+" "+w) : w;
+      if(ctx.measureText(test).width <= maxW){ line=test; }
+      else { if(line) lines.push(line); line=w; }
+    }
+    if(line) lines.push(line);
+    const lh = 18*DPR;
+    const startY = b.y - (lines.length-1)*lh/2;
+    lines.slice(0,3).forEach((ln,i)=>ctx.fillText(ln, b.x, startY + i*lh));
+  }
+
+  // crosshair
+  if(crosshair.show){
+    ctx.save();
+    ctx.globalAlpha=0.9;
+    ctx.strokeStyle="rgba(255,255,255,0.75)";
+    ctx.lineWidth=2*DPR;
+    const s=14*DPR;
+    ctx.beginPath();
+    ctx.moveTo(crosshair.x-s,crosshair.y);
+    ctx.lineTo(crosshair.x+s,crosshair.y);
+    ctx.moveTo(crosshair.x,crosshair.y-s);
+    ctx.lineTo(crosshair.x,crosshair.y+s);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+/** --------------------------
+ * BUTTONS
+ * -------------------------- */
+function startGame(){
+  if(!running){
+    running=true; paused=false;
+    levelIndex=0; questionIndex=0; score=0; lives=3;
+    resize();
+    loadQuestion();
+    $("overlay").style.display="none";
+    lastT=0;
+    beep(520,0.06,"triangle",0.06);
+  }else{
+    paused=false;
+    $("overlay").style.display="none";
+  }
+}
+function pauseGame(){
+  if(!running) return;
+  paused = !paused;
+  $("overlay").style.display = paused ? "flex" : "none";
+  $("ovTitle").textContent = "Paused";
+  $("ovText").innerHTML = `Score: <b>${score}</b> • Lives: <b>${lives}</b><br/>Press Start to continue.`;
+}
+function restartGame(){
+  running=false; paused=false;
+  levelIndex=0; questionIndex=0; score=0; lives=3;
+  $("overlay").style.display="flex";
+  $("ovTitle").textContent="Ready?";
+  $("ovText").innerHTML="Press <b>Start</b>. ਫਿਰ ਸਹੀ ਉੱਤਰ ਵਾਲੀ bubble ‘ਤੇ ਸ਼ੂਟ ਕਰੋ।";
+  setHUD();
+}
+
+$("btnStart").addEventListener("click", startGame);
+$("btnStart2").addEventListener("click", startGame);
+$("btnPause").addEventListener("click", pauseGame);
+$("btnRestart").addEventListener("click", restartGame);
+$("btnSound").addEventListener("click", ()=>{
+  soundOn = !soundOn;
+  $("btnSound").textContent = `Sound: ${soundOn ? "ON" : "OFF"}`;
+  if(soundOn) beep(660,0.06,"triangle",0.06);
+});
+
+resize();
+restartGame();
+requestAnimationFrame(step);
+</script>
+</body>
+</html>

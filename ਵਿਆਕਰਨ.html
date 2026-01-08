@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+  <meta charset="UTF-8">
+  <title>Punjabi Viyakaran Game 🎮 (Shuffled)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0b1020;
+      color: #ffffff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 750px;
+      background: #141a33;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+    }
+
+    h1 { font-size: 22px; margin-bottom: 4px; }
+    .subtitle { font-size: 12px; opacity: 0.8; margin-bottom: 10px; }
+
+    .status {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .badge {
+      background: #263056;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    select {
+      background: #222842;
+      color: white;
+      border-radius: 999px;
+      border: 1px solid #3a456f;
+      padding: 4px 10px;
+      outline: none;
+    }
+
+    .progress {
+      height: 8px;
+      background: #222842;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00e5ff, #00ff99);
+      transition: width 0.3s;
+    }
+
+    .card {
+      background: #1b2342;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .level-title { font-size: 14px; opacity: 0.9; margin-bottom: 6px; }
+    .question { font-size: 16px; margin-bottom: 10px; line-height: 1.5; }
+
+    .options { display: flex; flex-direction: column; gap: 7px; }
+
+    button.option {
+      background: #181f3b;
+      border: 1px solid #2b355f;
+      color: white;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 14px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    button.option:hover {
+      box-shadow: 0 0 0 1px #2f90ff;
+      transform: translateY(-1px);
+    }
+
+    button.option.correct { background: #155c34; border-color: #28c76f; }
+    button.option.wrong { background: #5b1a23; border-color: #ff4d4d; }
+
+    .feedback { margin-top: 8px; font-size: 13px; min-height: 18px; }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+    }
+
+    .next { background: linear-gradient(90deg, #00c6ff, #0072ff); color: white; }
+    .restart { background: transparent; border: 1px solid #49527a; color: #d0d6ff; }
+
+    .summary {
+      margin-top: 8px;
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .summary span { color: #3ef5ff; font-weight: 800; }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 18px; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+
+  <h1>Punjabi Viyakaran Game 🎮</h1>
+  <div class="subtitle">Options auto-shuffle ਹੁੰਦੇ ਹਨ ✅</div>
+
+  <div class="status">
+    <div class="badge">ਸਕੋਰ: <span id="score">0</span></div>
+    <div class="badge">ਪ੍ਰਸ਼ਨ: <span id="qNo">1</span>/<span id="qTotal">1</span></div>
+    <div class="badge">
+      Level:
+      <select id="levelSelect"></select>
+    </div>
+  </div>
+
+  <div class="progress">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+
+  <div class="card">
+    <div class="level-title" id="levelTitle"></div>
+    <div class="question" id="questionText"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+
+    <div class="controls">
+      <button class="btn next" id="nextBtn">ਅਗਲਾ ▶</button>
+      <button class="btn restart" id="restartBtn">ਮੁੜ ਤੋਂ 🔁</button>
+    </div>
+  </div>
+
+  <div class="summary" id="summary"></div>
+
+</div>
+
+<script>
+/* ---------------------------
+   1) QUESTIONS (correct + wrongs)
+   --------------------------- */
+const levels = [
+  {
+    id: 1,
+    name: "Level 1 – Basics",
+    questions: [
+      { q: "ਵਿਆਕਰਨ ਕੀ ਹੈ?", correct: "ਭਾਸ਼ਾ ਦੇ ਨਿਯਮਾਂ ਦਾ ਸਮੂਹ", wrong: ["ਕਵਿਤਾ ਲਿਖਣ ਦੀ ਕਲਾ","ਕਹਾਣੀ","ਸੰਗੀਤ"] },
+      { q: "ਵਿਆਕਰਨ ਕਿੰਨੇ ਪ੍ਰਕਾਰ ਦੀ ਹੈ?", correct: "2", wrong: ["3","4","5"] },
+      { q: "ਵਿਆਕਰਨ ਦੇ ਕਿੰਨੇ ਭਾਗ ਹਨ?", correct: "4", wrong: ["2","3","5"] },
+      { q: "ਵਿਆਕਰਨ ਦੀ ਜ਼ਰੂਰਤ ਕਿਉਂ ਹੈ?", correct: "ਕਿਸੇ ਵੀ ਭਾਸ਼ਾ ਨੂੰ ਸ਼ੁੱਧ ਬੋਲਣ ਅਤੇ ਲਿਖਣ ਲਈ", wrong: ["ਸਿਰਫ਼ ਕਵਿਤਾ ਲਈ","ਇਤਿਹਾਸ ਪੜ੍ਹਨ ਲਈ","ਖੇਡ ਲਈ"] },
+      { q: "ਵਿਆਕਰਨ ਪੜ੍ਹਨੀ ਕਿਉਂ ਜ਼ਰੂਰੀ ਹੈ?", correct: "ਕਿਸੇ ਵੀ ਭਾਸ਼ਾ ਨੂੰ ਸਿੱਖਣ ਲਈ", wrong: ["ਸੰਗੀਤ ਲਈ","ਗਣਿਤ ਲਈ","ਖੇਡ ਲਈ"] },
+      { q: "ਭਾਸ਼ਾ ਕਿੰਨੇ ਪ੍ਰਕਾਰ ਦੀ ਹੈ?", correct: "2", wrong: ["1","3","4"] },
+      { q: "ਲਿਖਤੀ ਭਾਸ਼ਾ ਨੂੰ ਹੋਰ ਕੀ ਆਖਦੇ ਹਨ?", correct: "ਸਾਹਿਤਿਕ ਜਾਂ ਟਕਸਾਲੀ ਭਾਸ਼ਾ", wrong: ["ਬੋਲਚਾਲ ਦੀ ਭਾਸ਼ਾ","ਦੇਸੀ ਭਾਸ਼ਾ","ਖੇਡ ਭਾਸ਼ਾ"] },
+      { q: "ਮੌਖਿਕ ਭਾਸ਼ਾ ਨੂੰ ਹੋਰ ਕੀ ਆਖਦੇ ਹਨ?", correct: "ਬੋਲਚਾਲ ਦੀ ਭਾਸ਼ਾ", wrong: ["ਸਾਹਿਤਿਕ ਭਾਸ਼ਾ","ਦਰਬਾਰੀ ਭਾਸ਼ਾ","ਟਕਸਾਲੀ ਭਾਸ਼ਾ"] },
+      { q: "ਸਾਡੀ ਮਾਂ ਬੋਲੀ ਕਿਹੜੀ ਹੈ?", correct: "ਪੰਜਾਬੀ", wrong: ["ਹਿੰਦੀ","ਅੰਗਰੇਜ਼ੀ","ਉਰਦੂ"] },
+      { q: "ਸਾਡੀ ਰਾਸ਼ਟਰੀ ਭਾਸ਼ਾ ਕਿਹੜੀ ਹੈ?", correct: "ਹਿੰਦੀ", wrong: ["ਪੰਜਾਬੀ","ਅੰਗਰੇਜ਼ੀ","ਸੰਸਕ੍ਰਿਤ"] }
+    ]
+  },
+  {
+    id: 2,
+    name: "Level 2 – Gurmukhi & Grammar",
+    questions: [
+      { q: "ਵਿਆਕਰਨ ਵਿੱਚ ਧੁਨੀਆਂ ਦੀ ਵਿਆਖਿਆ ਵਾਲੇ ਭਾਗ ਨੂੰ ਕੀ ਕਹਿੰਦੇ ਹਨ?", correct: "ਧੁਨੀ ਬੋਧ", wrong: ["ਸ਼ਬਦ ਬੋਧ","ਵਾਕ ਬੋਧ","ਅਰਥ ਬੋਧ"] },
+      { q: "ਵਿਆਕਰਨ ਵਿੱਚ ਸ਼ਬਦਾਂ ਦੀ ਵਿਆਖਿਆ ਵਾਲ਼ੇ ਭਾਗ ਨੂੰ ਕੀ ਕਹਿੰਦੇ ਹਨ?", correct: "ਸ਼ਬਦ ਬੋਧ", wrong: ["ਧੁਨੀ ਬੋਧ","ਵਾਕ ਬੋਧ","ਅਰਥ ਬੋਧ"] },
+      { q: "ਵਿਆਕਰਨ ਵਿੱਚ ਵਾਕ ਦੀ ਵਿਆਖਿਆ ਵਾਲ਼ੇ ਭਾਗ ਨੂੰ ਕੀ ਆਖਦੇ ਹਨ?", correct: "ਵਾਕ ਬੋਧ", wrong: ["ਸ਼ਬਦ ਬੋਧ","ਧੁਨੀ ਬੋਧ","ਅਰਥ ਬੋਧ"] },
+      { q: "ਵਿਆਕਰਨ ਵਿੱਚ ਅਰਥਾਂ ਦੀ ਵਿਆਖਿਆ ਵਾਲ਼ੇ ਭਾਗ ਨੂੰ ਕੀ ਆਖਦੇ ਹਨ?", correct: "ਅਰਥ ਬੋਧ", wrong: ["ਧੁਨੀ ਬੋਧ","ਸ਼ਬਦ ਬੋਧ","ਵਾਕ ਬੋਧ"] },
+      { q: "ਪੁਰਾਤਨ ਗੁਰਮੁਖੀ ਵਿੱਚ ਕਿੰਨੇ ਅੱਖਰ ਸਨ?", correct: "35", wrong: ["32","41","52"] },
+      { q: "ਅਜੋਕੀ ਗੁਰਮੁਖੀ ਵਿੱਚ ਕਿੰਨੇ ਅੱਖਰ ਹਨ?", correct: "41", wrong: ["35","38","45"] },
+      { q: "ਪੰਜਾਬੀ ਵਿੱਚ ਕਿੰਨੇ ਸਵਰ ਅੱਖਰ ਹਨ?", correct: "3", wrong: ["5","7","10"] },
+      { q: "ਪੰਜਾਬੀ ਵਿੱਚ ਕਿੰਨੇ ਵਿਅੰਜਨ ਅੱਖਰ ਹਨ?", correct: "38", wrong: ["35","41","30"] },
+      { q: "ਗੁਰਮੁਖੀ ਵਿੱਚ ਅਨੁਨਾਸਕੀ ਅੱਖਰ ਕਿੰਨੇ ਹਨ?", correct: "5", wrong: ["3","7","10"] },
+      { q: "ਗੁਰਮੁਖੀ ਵਿੱਚ ਦੁੱਤ ਅੱਖਰ ਕਿੰਨੇ ਹਨ?", correct: "3", wrong: ["1","2","5"] }
+    ]
+  }
+];
+
+/* ---------------------------
+   2) SHUFFLE helper
+   --------------------------- */
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+/* ---------------------------
+   3) GAME STATE
+   --------------------------- */
+let levelIndex = 0;
+let qIndex = 0;
+let score = 0;
+let answered = false;
+
+// We store shuffled options per question so it doesn't reshuffle mid-question
+let preparedQuestions = [];
+
+const scoreEl = document.getElementById("score");
+const qNoEl = document.getElementById("qNo");
+const qTotalEl = document.getElementById("qTotal");
+const levelSelectEl = document.getElementById("levelSelect");
+const levelTitleEl = document.getElementById("levelTitle");
+const questionEl = document.getElementById("questionText");
+const optionsEl = document.getElementById("options");
+const feedbackEl = document.getElementById("feedback");
+const progressEl = document.getElementById("progressFill");
+const summaryEl = document.getElementById("summary");
+
+const nextBtn = document.getElementById("nextBtn");
+const restartBtn = document.getElementById("restartBtn");
+
+/* ---------------------------
+   4) INIT LEVEL DROPDOWN
+   --------------------------- */
+levels.forEach((lvl, idx) => {
+  const opt = document.createElement("option");
+  opt.value = idx;
+  opt.textContent = `Level ${lvl.id}: ${lvl.name}`;
+  levelSelectEl.appendChild(opt);
+});
+
+levelSelectEl.addEventListener("change", () => {
+  levelIndex = parseInt(levelSelectEl.value, 10);
+  startLevel();
+});
+
+/* ---------------------------
+   5) PREPARE QUESTIONS (shuffle options and compute correctIndex)
+   --------------------------- */
+function prepareLevelQuestions() {
+  const lvl = levels[levelIndex];
+  preparedQuestions = lvl.questions.map((item) => {
+    const opts = [item.correct, ...item.wrong];
+    shuffleArray(opts);
+    const correctIndex = opts.indexOf(item.correct);
+    return {
+      q: item.q,
+      options: opts,
+      correctIndex
+    };
+  });
+}
+
+/* ---------------------------
+   6) START / LOAD
+   --------------------------- */
+function startLevel() {
+  qIndex = 0;
+  score = 0;
+  answered = false;
+  scoreEl.textContent = score;
+  summaryEl.textContent = "";
+
+  prepareLevelQuestions();
+
+  const lvl = levels[levelIndex];
+  qTotalEl.textContent = preparedQuestions.length;
+  levelTitleEl.textContent = `Level ${lvl.id}: ${lvl.name}`;
+
+  loadQuestion();
+}
+
+function loadQuestion() {
+  const lvl = levels[levelIndex];
+  const Q = preparedQuestions[qIndex];
+
+  qNoEl.textContent = qIndex + 1;
+  questionEl.textContent = Q.q;
+  feedbackEl.textContent = "";
+  optionsEl.innerHTML = "";
+  answered = false;
+
+  const percent = (qIndex / preparedQuestions.length) * 100;
+  progressEl.style.width = percent + "%";
+
+  Q.options.forEach((text, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "option";
+    btn.textContent = text;
+    btn.addEventListener("click", () => handleAnswer(idx));
+    optionsEl.appendChild(btn);
+  });
+}
+
+/* ---------------------------
+   7) ANSWER
+   --------------------------- */
+function handleAnswer(selectedIndex) {
+  if (answered) return;
+  answered = true;
+
+  const Q = preparedQuestions[qIndex];
+  const buttons = [...optionsEl.children];
+
+  buttons.forEach((b, idx) => {
+    if (idx === Q.correctIndex) b.classList.add("correct");
+    if (idx === selectedIndex && idx !== Q.correctIndex) b.classList.add("wrong");
+  });
+
+  if (selectedIndex === Q.correctIndex) {
+    score++;
+    scoreEl.textContent = score;
+    feedbackEl.textContent = "✔ ਸਹੀ ਜਵਾਬ!";
+  } else {
+    feedbackEl.textContent = "✘ ਗਲਤ ਜਵਾਬ।";
+  }
+}
+
+/* ---------------------------
+   8) NEXT / RESTART
+   --------------------------- */
+nextBtn.addEventListener("click", () => {
+  if (qIndex < preparedQuestions.length - 1) {
+    qIndex++;
+    loadQuestion();
+  } else {
+    progressEl.style.width = "100%";
+    summaryEl.innerHTML = `✅ Level ਮੁਕੰਮਲ! ਤੁਸੀਂ <span>${score}</span> / <span>${preparedQuestions.length}</span> ਸਹੀ ਜਵਾਬ ਦਿੱਤੇ ਹਨ।`;
+  }
+});
+
+restartBtn.addEventListener("click", startLevel);
+
+/* ---------------------------
+   9) START GAME
+   --------------------------- */
+startLevel();
+</script>
+
+</body>
+</html>

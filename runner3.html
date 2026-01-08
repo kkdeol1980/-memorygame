@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+  <meta charset="UTF-8">
+  <title>Punjabi Vyakaran Game – Nāv (ਨਾਂਵ) ਸ਼ਬਦ</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans Gurmukhi", sans-serif;
+    }
+
+    body {
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 12px;
+    }
+
+    .game-wrapper {
+      width: 100%;
+      max-width: 600px;
+      background: #020617;
+      border-radius: 24px;
+      padding: 20px 24px 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7);
+      border: 1px solid #1f2937;
+    }
+
+    .title {
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      text-align: center;
+      color: #9ca3af;
+      margin-bottom: 16px;
+    }
+
+    .stats-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 16px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.9);
+    }
+
+    .badge {
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: rgba(55,65,81,0.7);
+      font-size: 12px;
+    }
+
+    .question-card {
+      background: #020617;
+      border-radius: 18px;
+      padding: 16px 14px;
+      border: 1px solid #1e293b;
+      margin-bottom: 14px;
+    }
+
+    .question-label {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+
+    .question-text {
+      font-size: 26px;
+      font-weight: 700;
+      text-align: center;
+      padding: 6px;
+      color: #f9fafb;
+    }
+
+    .question-type {
+      font-size: 13px;
+      text-align: center;
+      color: #a5b4fc;
+      margin-top: 4px;
+    }
+
+    .options {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .option-btn {
+      border: 1px solid #374151;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 15px;
+      background: #111827;
+      color: #e5e7eb;
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease, border-color 0.08s ease;
+    }
+
+    .option-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      background: #020617;
+    }
+
+    .option-btn.correct {
+      background: #16a34a;
+      border-color: #22c55e;
+      color: #022c22;
+      box-shadow: 0 4px 16px rgba(34,197,94,0.6);
+    }
+
+    .option-btn.wrong {
+      background: #b91c1c;
+      border-color: #ef4444;
+      color: #fee2e2;
+      box-shadow: 0 4px 16px rgba(248,113,113,0.6);
+    }
+
+    .option-btn.disabled {
+      pointer-events: none;
+      opacity: 0.9;
+    }
+
+    .feedback {
+      font-size: 14px;
+      min-height: 38px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(15,23,42,0.95);
+      border: 1px solid #1f2937;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .feedback.correct-text {
+      color: #bbf7d0;
+    }
+
+    .feedback.wrong-text {
+      color: #fecaca;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      padding: 9px 18px;
+      border-radius: 999px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: #22c55e;
+      color: #022c22;
+      box-shadow: 0 4px 12px rgba(34,197,94,0.5);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(34,197,94,0.7);
+      background: #16a34a;
+    }
+
+    .btn-secondary {
+      background: #111827;
+      color: #e5e7eb;
+      border: 1px solid #4b5563;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      background: #020617;
+    }
+
+    .small-text {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      .question-text {
+        font-size: 22px;
+      }
+      .btn {
+        flex: 1;
+        justify-content: center;
+      }
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-wrapper">
+    <div class="title">Punjabi Vyakaran – ਨਾਂਵ ਸ਼ਬਦ Game</div>
+    <div class="subtitle">
+      ਹਰ ਪ੍ਰਸ਼ਨ ਵਿੱਚ ਦੇਖੋ ਕਿ ਸ਼ਬਦ <b>ਨਾਂਵ</b> ਹੈ ਜਾਂ ਨਹੀਂ, ਜਾਂ ਸਹੀ ਨਾਂਵ ਚੁਣੋ।
+    </div>
+
+    <div class="stats-bar">
+      <div>ਪ੍ਰਸ਼ਨ: <span id="question-number">0</span>/<span id="total-questions">0</span></div>
+      <div>ਅੰਕ: <span id="score">0</span></div>
+      <div class="badge" id="mode-badge">Practice Mode</div>
+    </div>
+
+    <div class="question-card">
+      <div class="question-label">ਸ਼ਬਦ / ਵਾਕ</div>
+      <div class="question-text" id="question-text">ਖੇਡ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਹੇਠਾਂ ਬਟਨ ਦਬਾਓ।</div>
+      <div class="question-type" id="question-type"></div>
+    </div>
+
+    <div class="options" id="options-container">
+      <!-- Options will appear here -->
+    </div>
+
+    <div class="feedback" id="feedback-box">
+      ਇੱਥੇ ਸਹੀ/ਗਲਤ ਅਤੇ ਵਿਆਖਿਆ ਆਏਗੀ।
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-secondary" id="start-btn">Start Game</button>
+      <button class="btn btn-primary hidden" id="next-btn">
+        Next &raquo;
+      </button>
+    </div>
+
+    <div class="small-text" style="margin-top: 8px;">
+      Tip: ਇਹ ਗੇਮ ਸਿਰਫ਼ <b>ਨਾਂਵ</b> (ਨਾਮ ਵਾਲੇ ਸ਼ਬਦ – ਜਿਵੇਂ ਘਰ, ਲੜਕਾ, ਕਿਤਾਬ) ਦੇ ਅਭਿਆਸ ਲਈ ਹੈ।
+    </div>
+  </div>
+
+  <script>
+    // ==========================
+    // Question Bank (ਨਾਂਵ based)
+    // ==========================
+
+    const questions = [
+      {
+        type: "identify",
+        word: "ਘਰ",
+        question: "ਇਹ ਸ਼ਬਦ ਕਿਸ ਕਿਸਮ ਦਾ ਹੈ?",
+        options: ["ਨਾਂਵ", "ਕ੍ਰਿਆ (ਕੰਮ)", "ਵਿਸ਼ੇਸ਼ਣ (ਗੁਣ)"],
+        answer: "ਨਾਂਵ",
+        explanation: "‘ਘਰ’ ਇੱਕ ਥਾਂ ਹੈ, ਚੀਜ਼ ਦਾ ਨਾਮ ਹੈ। ਨਾਮ ਵਾਲੇ ਸ਼ਬਦ ਨੂੰ ਨਾਂਵ ਕਹਿੰਦੇ ਹਨ।"
+      },
+      {
+        type: "identify",
+        word: "ਦੌੜਨਾ",
+        question: "‘ਦੌੜਨਾ’ ਕਿਸ ਕਿਸਮ ਦਾ ਸ਼ਬਦ ਹੈ?",
+        options: ["ਨਾਂਵ", "ਕ੍ਰਿਆ (ਕੰਮ)"],
+        answer: "ਕ੍ਰਿਆ (ਕੰਮ)",
+        explanation: "‘ਦੌੜਨਾ’ ਕੰਮ ਦੱਸਦਾ ਹੈ, ਇਸ ਲਈ ਇਹ ਕ੍ਰਿਆ ਹੈ, ਨਾਂਵ ਨਹੀਂ।"
+      },
+      {
+        type: "identify",
+        word: "ਕਿਤਾਬ",
+        question: "‘ਕਿਤਾਬ’ ਕਿਸ ਕਿਸਮ ਦਾ ਸ਼ਬਦ ਹੈ?",
+        options: ["ਨਾਂਵ", "ਕ੍ਰਿਆ (ਕੰਮ)"],
+        answer: "ਨਾਂਵ",
+        explanation: "‘ਕਿਤਾਬ’ ਇੱਕ ਚੀਜ਼ ਦਾ ਨਾਮ ਹੈ, ਇਸ ਲਈ ਇਹ ਨਾਂਵ ਹੈ।"
+      },
+      {
+        type: "identify",
+        word: "ਸੁੰਦਰ",
+        question: "‘ਸੁੰਦਰ’ ਕਿਸ ਕਿਸਮ ਦਾ ਸ਼ਬਦ ਹੈ?",
+        options: ["ਨਾਂਵ", "ਵਿਸ਼ੇਸ਼ਣ (ਗੁਣ)"],
+        answer: "ਵਿਸ਼ੇਸ਼ਣ (ਗੁਣ)",
+        explanation: "‘ਸੁੰਦਰ’ ਕਿਸੇ ਦੀ ਖੂਬੀ ਦੱਸਦਾ ਹੈ, ਗੁਣ ਦੱਸਦਾ ਹੈ, ਇਸ ਲਈ ਇਹ ਵਿਸ਼ੇਸ਼ਣ ਹੈ, ਨਾਂਵ ਨਹੀਂ।"
+      },
+      {
+        type: "identify",
+        word: "ਲੜਕਾ",
+        question: "‘ਲੜਕਾ’ ਕਿਸ ਕਿਸਮ ਦਾ ਸ਼ਬਦ ਹੈ?",
+        options: ["ਨਾਂਵ", "ਕ੍ਰਿਆ (ਕੰਮ)"],
+        answer: "ਨਾਂਵ",
+        explanation: "‘ਲੜਕਾ’ ਇੱਕ ਇਨਸਾਨ ਦਾ ਨਾਮ ਹੈ (ਇਕ ਕਿਸਮ ਦਾ), ਇਸ ਲਈ ਨਾਂਵ ਹੈ।"
+      },
+      {
+        type: "identify",
+        word: "ਖੁਸ਼",
+        question: "‘ਖੁਸ਼’ ਕਿਸ ਕਿਸਮ ਦਾ ਸ਼ਬਦ ਹੈ?",
+        options: ["ਨਾਂਵ", "ਵਿਸ਼ੇਸ਼ਣ (ਗੁਣ)"],
+        answer: "ਵਿਸ਼ੇਸ਼ਣ (ਗੁਣ)",
+        explanation: "‘ਖੁਸ਼’ ਭਾਵਨਾ/ਹਾਲਤ ਦੱਸਦਾ ਹੈ, ਗੁਣ ਦੱਸਦਾ ਹੈ, ਇਸ ਲਈ ਨਾਂਵ ਨਹੀਂ।"
+      },
+      {
+        type: "noun-or-not",
+        word: "ਸਕੂਲ",
+        question: "ਕੀ ‘ਸਕੂਲ’ ਨਾਂਵ ਸ਼ਬਦ ਹੈ?",
+        options: ["ਹਾਂ, ਨਾਂਵ ਹੈ", "ਨਹੀਂ, ਨਾਂਵ ਨਹੀਂ"],
+        answer: "ਹਾਂ, ਨਾਂਵ ਹੈ",
+        explanation: "‘ਸਕੂਲ’ ਥਾਂ ਦਾ ਨਾਮ ਹੈ, ਇਸ ਲਈ ਇਹ ਨਾਂਵ ਸ਼ਬਦ ਹੈ।"
+      },
+      {
+        type: "noun-or-not",
+        word: "ਚੱਲਦੇ",
+        question: "ਕੀ ‘ਚੱਲਦੇ’ ਨਾਂਵ ਸ਼ਬਦ ਹੈ?",
+        options: ["ਹਾਂ, ਨਾਂਵ ਹੈ", "ਨਹੀਂ, ਨਾਂਵ ਨਹੀਂ"],
+        answer: "ਨਹੀਂ, ਨਾਂਵ ਨਹੀਂ",
+        explanation: "‘ਚੱਲਦੇ’ ਕ੍ਰਿਆ ਦਾ ਰੂਪ ਹੈ (ਕੰਮ ਕਰਨਾ), ਇਸ ਲਈ ਇਹ ਨਾਂਵ ਨਹੀਂ ਹੈ।"
+      },
+      {
+        type: "fill-blank",
+        word: "_____ ਵਿੱਚ ਬਹੁਤ ਕਿਤਾਬਾਂ ਹਨ।",
+        question: "ਖਾਲੀ ਥਾਂ ਵਿੱਚ ਕਿਹੜਾ ਨਾਂਵ ਆਵੇਗਾ?",
+        options: ["ਖੇਡ", "ਅਧਿਆਪਕ", "ਪੁਸਤਕਾਲਾ"],
+        answer: "ਪੁਸਤਕਾਲਾ",
+        explanation: "‘ਪੁਸਤਕਾਲਾ’ ਥਾਂ ਦਾ ਨਾਮ ਹੈ ਜਿਥੇ ਕਿਤਾਬਾਂ ਹੁੰਦੀਆਂ ਹਨ, ਇਸ ਲਈ ਨਾਂਵ ਹੈ ਅਤੇ ਵਾਕ ਪੂਰਾ ਠੀਕ ਬਣਦਾ ਹੈ।"
+      },
+      {
+        type: "fill-blank",
+        word: "ਮੇਰਾ _____ ਬਹੁਤ ਪਿਆਰਾ ਹੈ।",
+        question: "ਕਿਹੜਾ ਨਾਂਵ ਵਾਕ ਨੂੰ ਠੀਕ ਬਣਾਉਂਦਾ ਹੈ?",
+        options: ["ਦੌੜਨਾ", "ਕੁੱਤਾ", "ਮਿਹਨਤ"],
+        answer: "ਕੁੱਤਾ",
+        explanation: "‘ਕੁੱਤਾ’ ਇੱਕ ਜਾਨਵਰ ਦਾ ਨਾਮ ਹੈ, ਸਾਫ ਨਾਂਵ ਹੈ। ‘ਦੌੜਨਾ’ ਕ੍ਰਿਆ ਹੈ, ‘ਮਿਹਨਤ’ ਭਾਵਨਾ/ਗੁਣ ਵਾਂਗ ਵਰਤੀ ਜਾਂਦੀ ਹੈ।"
+      },
+      {
+        type: "identify",
+        word: "ਪਾਣੀ",
+        question: "‘ਪਾਣੀ’ ਕਿਸ ਕਿਸਮ ਦਾ ਸ਼ਬਦ ਹੈ?",
+        options: ["ਨਾਂਵ", "ਕ੍ਰਿਆ (ਕੰਮ)"],
+        answer: "ਨਾਂਵ",
+        explanation: "‘ਪਾਣੀ’ ਇਕ ਚੀਜ਼ ਦਾ ਨਾਮ ਹੈ ਜੋ ਅਸੀਂ ਪੀਂਦੇ ਹਾਂ, ਇਸ ਲਈ ਨਾਂਵ ਹੈ।"
+      },
+      {
+        type: "noun-or-not",
+        word: "ਲਿਖਣਾ",
+        question: "ਕੀ ‘ਲਿਖਣਾ’ ਨਾਂਵ ਹੈ?",
+        options: ["ਹਾਂ, ਨਾਂਵ ਹੈ", "ਨਹੀਂ, ਨਾਂਵ ਨਹੀਂ"],
+        answer: "ਨਹੀਂ, ਨਾਂਵ ਨਹੀਂ",
+        explanation: "‘ਲਿਖਣਾ’ ਕੰਮ ਦੱਸਦਾ ਹੈ (ਕ੍ਰਿਆ), ਇਸ ਲਈ ਇਹ ਨਾਂਵ ਨਹੀਂ ਹੈ।"
+      },
+      {
+        type: "fill-blank",
+        word: "_____ ਪੰਜਾਬ ਦਾ ਮਸ਼ਹੂਰ ਸ਼ਹਿਰ ਹੈ।",
+        question: "ਖਾਲੀ ਥਾਂ ਵਿੱਚ ਕਿਹੜਾ ਨਾਂਵ ਠੀਕ ਬੈਠਦਾ ਹੈ?",
+        options: ["ਚੰਗਾ", "ਅੰਮ੍ਰਿਤਸਰ", "ਦੌੜਦਾ"],
+        answer: "ਅੰਮ੍ਰਿਤਸਰ",
+        explanation: "‘ਅੰਮ੍ਰਿਤਸਰ’ ਸ਼ਹਿਰ ਦਾ ਨਾਮ ਹੈ, ਇਸ ਲਈ ਇਹ ਵਿਸ਼ੇਸ਼ ਨਾਂਵ (Proper Noun) ਹੈ।"
+      },
+      {
+        type: "identify",
+        word: "ਦਰਖ਼ਤ",
+        question: "‘ਦਰਖ਼ਤ’ ਕਿਸ ਕਿਸਮ ਦਾ ਸ਼ਬਦ ਹੈ?",
+        options: ["ਨਾਂਵ", "ਵਿਸ਼ੇਸ਼ਣ (ਗੁਣ)"],
+        answer: "ਨਾਂਵ",
+        explanation: "‘ਦਰਖ਼ਤ’ ਇੱਕ ਚੀਜ਼ (ਰੁੱਖ) ਦਾ ਨਾਮ ਹੈ, ਇਸ ਲਈ ਨਾਂਵ ਹੈ।"
+      },
+      {
+        type: "noun-or-not",
+        word: "ਖੇਡਣਾ",
+        question: "ਕੀ ‘ਖੇਡਣਾ’ ਨਾਂਵ ਹੈ?",
+        options: ["ਹਾਂ, ਨਾਂਵ ਹੈ", "ਨਹੀਂ, ਨਾਂਵ ਨਹੀਂ"],
+        answer: "ਨਹੀਂ, ਨਾਂਵ ਨਹੀਂ",
+        explanation: "‘ਖੇਡਣਾ’ ਕੰਮ ਹੈ, ਇਸ ਲਈ ਕ੍ਰਿਆ ਹੈ, ਨਾਂਵ ਨਹੀਂ।"
+      },
+      {
+        type: "fill-blank",
+        word: "ਕਲਾਸ ਵਿੱਚ ਨਵਾਂ _____ ਆਇਆ ਹੈ।",
+        question: "ਖਾਲੀ ਥਾਂ ਵਿੱਚ ਕਿਹੜਾ ਨਾਂਵ ਆਏਗਾ?",
+        options: ["ਵਿਦਿਆਰਥੀ", "ਪੜ੍ਹਨਾ", "ਤੇਜ਼"],
+        answer: "ਵਿਦਿਆਰਥੀ",
+        explanation: "‘ਵਿਦਿਆਰਥੀ’ ਇਨਸਾਨ ਦਾ ਨਾਮ ਹੈ (ਸ਼ਖ਼ਸ), ਇਸ ਲਈ ਇਹ ਨਾਂਵ ਹੈ ਅਤੇ ਵਾਕ ਠੀਕ ਬਣਦਾ ਹੈ।"
+      }
+    ];
+
+    // ==============
+    // Game Variables
+    // ==============
+    let currentIndex = -1;
+    let score = 0;
+    const totalQuestions = questions.length;
+    let questionOrder = [];
+
+    // ============
+    // DOM Elements
+    // ============
+    const questionNumberEl = document.getElementById("question-number");
+    const totalQuestionsEl = document.getElementById("total-questions");
+    const scoreEl = document.getElementById("score");
+    const questionTextEl = document.getElementById("question-text");
+    const questionTypeEl = document.getElementById("question-type");
+    const optionsContainer = document.getElementById("options-container");
+    const feedbackBox = document.getElementById("feedback-box");
+    const startBtn = document.getElementById("start-btn");
+    const nextBtn = document.getElementById("next-btn");
+    const modeBadge = document.getElementById("mode-badge");
+
+    totalQuestionsEl.textContent = totalQuestions.toString();
+
+    // Utility: shuffle array (Fisher–Yates)
+    function shuffleArray(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function resetGame() {
+      score = 0;
+      scoreEl.textContent = "0";
+      currentIndex = -1;
+      questionOrder = shuffleArray([...Array(totalQuestions).keys()]);
+      questionNumberEl.textContent = "0";
+      feedbackBox.textContent = "ਗੇਮ ਸ਼ੁਰੂ ਕਰਨ ਲਈ Start Game ਦਬਾਓ।";
+      feedbackBox.classList.remove("correct-text", "wrong-text");
+      nextBtn.classList.add("hidden");
+      startBtn.textContent = "Restart Game";
+      modeBadge.textContent = "Practice Mode";
+    }
+
+    function loadNextQuestion() {
+      currentIndex++;
+      if (currentIndex >= totalQuestions) {
+        endGame();
+        return;
+      }
+
+      const qIndex = questionOrder[currentIndex];
+      const q = questions[qIndex];
+
+      questionNumberEl.textContent = (currentIndex + 1).toString();
+
+      // Set question text
+      if (q.type === "fill-blank") {
+        questionTextEl.textContent = q.word;
+        questionTypeEl.textContent = "ਖਾਲੀ ਥਾਂ ਵਿੱਚ ਸਹੀ ਨਾਂਵ ਚੁਣੋ।";
+      } else if (q.type === "noun-or-not") {
+        questionTextEl.textContent = q.word;
+        questionTypeEl.textContent = "ਪਤਾ ਲਗਾਓ ਕਿ ਇਹ ਨਾਂਵ ਹੈ ਜਾਂ ਨਹੀਂ।";
+      } else {
+        questionTextEl.textContent = q.word;
+        questionTypeEl.textContent = q.question;
+      }
+
+      // Render options
+      optionsContainer.innerHTML = "";
+      q.options.forEach(optionText => {
+        const btn = document.createElement("button");
+        btn.className = "option-btn";
+        btn.textContent = optionText;
+        btn.addEventListener("click", () => handleAnswer(q, optionText, btn));
+        optionsContainer.appendChild(btn);
+      });
+
+      feedbackBox.textContent = "";
+      feedbackBox.classList.remove("correct-text", "wrong-text");
+      nextBtn.classList.add("hidden");
+    }
+
+    function handleAnswer(question, chosen, clickedBtn) {
+      // Disable all buttons
+      const allButtons = Array.from(document.querySelectorAll(".option-btn"));
+      allButtons.forEach(btn => btn.classList.add("disabled"));
+
+      const isCorrect = chosen === question.answer;
+      let msg;
+
+      if (isCorrect) {
+        score++;
+        scoreEl.textContent = score.toString();
+        clickedBtn.classList.add("correct");
+        feedbackBox.classList.add("correct-text");
+        feedbackBox.classList.remove("wrong-text");
+        msg = "ਸਹੀ ਜਵਾਬ ✅ – " + question.explanation;
+      } else {
+        clickedBtn.classList.add("wrong");
+        // highlight correct one
+        const correctBtn = allButtons.find(btn => btn.textContent === question.answer);
+        if (correctBtn) correctBtn.classList.add("correct");
+        feedbackBox.classList.add("wrong-text");
+        feedbackBox.classList.remove("correct-text");
+        msg = "ਗਲਤ ਜਵਾਬ ❌ – ਸਹੀ ਜਵਾਬ: “" + question.answer + "”. " + question.explanation;
+      }
+
+      feedbackBox.textContent = msg;
+      nextBtn.classList.remove("hidden");
+    }
+
+    function endGame() {
+      questionTextEl.textContent = "Game Finished!";
+      questionTypeEl.textContent = "";
+      optionsContainer.innerHTML = "";
+      nextBtn.classList.add("hidden");
+      modeBadge.textContent = "Result";
+
+      const percent = Math.round((score / totalQuestions) * 100);
+      let levelText = "";
+
+      if (percent === 100) {
+        levelText = "ਵਧਾਈਆਂ! ਨਾਂਵ ਸ਼ਬਦ ਬਿਲਕੁਲ ਸਾਫ਼ ਨੇ ਤੁਹਾਨੂੰ। 🎉";
+      } else if (percent >= 70) {
+        levelText = "ਚੰਗਾ ਕੰਮ! ਤੁਸੀਂ ਨਾਂਵ ਬਾਰੇ ਕਾਫ਼ੀ ਸਮਝ ਰਹੇ ਹੋ, ਕੁਝ ਹੋਰ ਅਭਿਆਸ ਕਰੋ। 💪";
+      } else {
+        levelText = "ਕੋਈ ਗੱਲ ਨਹੀਂ, ਇਹ ਸਿਰਫ਼ ਅਭਿਆਸ ਹੈ। ਫਿਰ ਤੋਂ ਖੇਡੋ ਅਤੇ ਨਾਂਵ ਪੱਕੇ ਕਰੋ। 😊";
+      }
+
+      feedbackBox.classList.remove("wrong-text");
+      feedbackBox.classList.add("correct-text");
+      feedbackBox.textContent =
+        `ਤੁਹਾਡੇ ਅੰਕ: ${score}/${totalQuestions} (${percent}%)। ` + levelText;
+    }
+
+    // =========
+    // Listeners
+    // =========
+    startBtn.addEventListener("click", () => {
+      resetGame();
+      loadNextQuestion();
+    });
+
+    nextBtn.addEventListener("click", () => {
+      loadNextQuestion();
+    });
+
+    // Initial text
+    feedbackBox.textContent = "ਇਹ ਗੇਮ ਤੁਹਾਨੂੰ ਨਾਂਵ ਸ਼ਬਦ ਪਛਾਣਣ ਦੀ ਪ੍ਰੈਕਟਿਸ ਕਰਵਾਏਗੀ। Start Game ਦਬਾਓ।";
+  </script>
+</body>
+</html>
