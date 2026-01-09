@@ -3,83 +3,157 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ਪੰਜਾਬੀ ਗੇਮਾਂ</title>
-
+  <title>ਪੰਜਾਬੀ ਗੇਮਾਂ (All-in-One)</title>
   <style>
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-      color:#fff;
-      text-align:center;
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);color:#fff;text-align:center}
+    h1{margin:16px 10px 6px;font-size:26px}
+    .sub{margin:0 12px 12px;opacity:.9;font-size:14px;line-height:1.35}
+    .wrap{max-width:1100px;margin:0 auto;padding:14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;margin-top:12px}
+    .btn{
+      border:0;border-radius:16px;padding:14px 12px;min-height:76px;
+      background:#fff;color:#111;font-weight:800;font-size:17px;
+      box-shadow:0 10px 22px rgba(0,0,0,.25);cursor:pointer;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      user-select:none; -webkit-tap-highlight-color:transparent; touch-action:manipulation;
     }
-    h1{
-      margin:16px 10px 8px;
-      font-size:26px;
-    }
-    .sub{
-      margin:0 12px 14px;
-      opacity:.9;
-      font-size:14px;
-      line-height:1.35;
-    }
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap:14px;
-      padding:16px;
-      max-width:1000px;
-      margin:0 auto;
-    }
-    a{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      min-height:72px;
-      padding:12px;
-      background:#ffffff;
-      color:#000;
-      text-decoration:none;
-      font-size:18px;
-      font-weight:700;
-      border-radius:16px;
-      box-shadow:0 6px 14px rgba(0,0,0,0.30);
-      transition: transform 0.15s ease;
-    }
-    a:active{ transform: scale(0.97); }
-    footer{
-      font-size:13px;
-      opacity:0.85;
-      padding:10px 0 22px;
-    }
+    .btn:active{transform:scale(.98)}
+    .toprow{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:10px 0}
+    .smallbtn{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.22);padding:10px 12px;border-radius:14px;font-weight:800;cursor:pointer}
+    .toast{margin:12px auto 0;max-width:900px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18);padding:12px;border-radius:14px;font-weight:700;font-size:14px;line-height:1.35;text-align:left}
+    .list{margin-top:10px;text-align:left;font-size:13px;opacity:.92}
+    .ok{color:#9effb0} .bad{color:#ffb0b0}
+    code{background:rgba(0,0,0,.25);padding:2px 6px;border-radius:8px}
   </style>
 </head>
-
 <body>
-  <h1>📚 ਪੰਜਾਬੀ ਸਿੱਖਣ ਵਾਲੀਆਂ ਗੇਮਾਂ</h1>
-  <div class="sub">
-    ਇੱਕ ਲਿੰਕ — ਸਾਰੀਆਂ ਗੇਮਾਂ। ਕਿਸੇ ਵੀ ਬਟਨ ਤੇ ਟੈਪ ਕਰੋ।<br/>
-    (Works on iPhone / Android / Computer / Projector)
+  <div class="wrap">
+    <h1>🧠 ਪੰਜਾਬੀ ਲਰਨਿੰਗ ਗੇਮਾਂ</h1>
+    <div class="sub">ਇੱਕ ਲਿੰਕ — ਸਾਰੀਆਂ ਗੇਮਾਂ। (Smart menu: renamed files bhi open ho jayengi)</div>
+
+    <div class="toprow">
+      <button class="smallbtn" id="scanBtn">🔍 Scan (Check which files exist)</button>
+      <button class="smallbtn" id="helpBtn">ℹ️ If a game still doesn’t open</button>
+    </div>
+
+    <div class="grid" id="grid">
+      <!-- Each button tries multiple filenames separated by | -->
+      <button class="btn" data-title="Bubble Game"
+        data-candidates="Bubble game.html|bubblegame.html|bubble_game.html|bubble.html">
+        🫧 Bubble Game
+      </button>
+
+      <button class="btn" data-title="Mix ਵਿਆਕਰਨ"
+        data-candidates="mixviakaran.html|Mix ਵਿਅਾਕਰਣ.html|Mix ਵਿਆਕਰਨ.html|mix-vyakaran.html|mix.html">
+        📘 Mix ਵਿਆਕਰਨ
+      </button>
+
+      <button class="btn" data-title="ਵਿਰੋਧੀ ਸ਼ਬਦ"
+        data-candidates="Virodhishabad.html|ਵਿਰੋਧੀ ਸ਼ਬਦ memory.html|virodhishabad.html|virodhi.html|antonyms.html">
+        🎴 ਵਿਰੋਧੀ ਸ਼ਬਦ
+      </button>
+
+      <button class="btn" data-title="Runner"
+        data-candidates="runner3.html|Runner3.html|runner.html|game-runner.html">
+        🏃 Runner
+      </button>
+
+      <button class="btn" data-title="Punjabi Puzzle"
+        data-candidates="ਪੰਜਾਬੀ ਸ਼ਬਦ puzzle2.html|punjabishabdpuzzle2.html|puzzle2.html|punjabi-puzzle2.html|puzzle.html">
+        🧩 ਪੰਜਾਬੀ ਸ਼ਬਦ Puzzle
+      </button>
+
+      <button class="btn" data-title="ਮੁਹਾਵਰੇ 1"
+        data-candidates="muhavare1.html|muhavre1.html|ਮੁਹਾਵਰੇ1.html|muhavre.html">
+        💬 ਮੁਹਾਵਰੇ 1
+      </button>
+
+      <button class="btn" data-title="200 ਮੁਹਾਵਰੇ Bubble"
+        data-candidates="Muhavre200bubbles.html|muhavre200bubbles.html|muhavare200bubbles.html|200muhavre.html">
+        💥 200 ਮੁਹਾਵਰੇ Bubble
+      </button>
+
+      <button class="btn" data-title="ਲਿੰਗ ਬਦਲੋ"
+        data-candidates="lingbadlo.html|ਲਿੰਗ ਬਦਲੇ.html|ling-badlo.html|gender.html">
+        👫 ਲਿੰਗ ਬਦਲੋ
+      </button>
+
+      <button class="btn" data-title="ਵਿਆਕਰਣ"
+        data-candidates="ਵਿਆਕਰਣ.html|vyakaran.html|grammar.html">
+        📖 ਵਿਆਕਰਣ
+      </button>
+
+      <button class="btn" data-title="ਵਿਸ਼ੇਸ਼ਣ Fill in the Blanks"
+        data-candidates="visheshanfillintheblanks.html|ਵਿਸ਼ੇਸ਼ਣ ਖਾਲੀ ਸਥਾਨ ਭਰੋ.html|visheshan.html|fillblanks.html">
+        📝 ਵਿਸ਼ੇਸ਼ਣ Fill in the Blanks
+      </button>
+    </div>
+
+    <div class="toast" id="toast">
+      ✅ Tip: Buttons open the first filename that exists. If you renamed a file to a totally new name, add it into that button’s <code>data-candidates</code>.
+      <div class="list" id="scanOut"></div>
+    </div>
   </div>
 
-  <div class="grid">
-    <!-- Your existing games (keep these if these files still exist) -->
-    <a href="Bubble game.html">🫧 Bubble Game</a>
-    <a href="runner3.html">🏃 Runner Game</a>
-    <a href="Virodhishabad.html">🎴 ਵਿਰੋਧੀ ਸ਼ਬਦ</a>
-    <a href="ਪੰਜਾਬੀ ਸ਼ਬਦ puzzle2.html">🧩 ਪੰਜਾਬੀ ਸ਼ਬਦ Puzzle</a>
-    <a href="Muhavre200bubbles.html">💬 200 ਮੁਹਾਵਰੇ Bubble Game</a>
+<script>
+  async function fileExists(path){
+    // GitHub Pages sometimes blocks HEAD; use GET with cache bypass
+    try{
+      const r = await fetch(path + (path.includes('?') ? '&' : '?') + 't=' + Date.now(), { cache: 'no-store' });
+      return r.ok;
+    }catch(e){ return false; }
+  }
 
-    <!-- ✅ Updated renamed files you told me -->
-    <a href="mixviakaran.html">📘 Mix ਵਿਆਕਰਨ</a>
-    <a href="muhavare1.html">💬 ਮੁਹਾਵਰੇ 1</a>
-    <a href="lingbadlo.html">👫 ਲਿੰਗ ਬਦਲੋ</a>
-    <a href="visheshanfillintheblanks.html">📝 ਵਿਸ਼ੇਸ਼ਣ Fill in the Blanks</a>
-  </div>
+  async function openFirstWorking(candidates, title){
+    const list = candidates.split('|').map(s=>s.trim()).filter(Boolean);
+    for(const f of list){
+      if(await fileExists(f)){
+        window.location.href = f;
+        return;
+      }
+    }
+    alert("Not found for: " + title + "\n\nTried:\n- " + list.join("\n- ") +
+          "\n\nFix: open your repo file list, copy exact filename, then add it into this button's data-candidates.");
+  }
 
-  <footer>
-    Share this one link on WhatsApp: <br/>
-    https://kkdeol1980.github.io/-memorygame/
-  </footer>
+  document.querySelectorAll('.btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const title = btn.dataset.title || btn.textContent.trim();
+      const cand = btn.dataset.candidates || "";
+      openFirstWorking(cand, title);
+    }, { passive:true });
+  });
+
+  document.getElementById('scanBtn').addEventListener('click', async ()=>{
+    const out = document.getElementById('scanOut');
+    out.innerHTML = "Scanning…";
+    let html = "";
+    const buttons = [...document.querySelectorAll('.btn')];
+    for(const b of buttons){
+      const title = b.dataset.title || b.textContent.trim();
+      const list = (b.dataset.candidates||"").split('|').map(s=>s.trim()).filter(Boolean);
+      let found = null;
+      for(const f of list){
+        if(await fileExists(f)){ found = f; break; }
+      }
+      html += `<div>${found ? '✅' : '❌'} <b>${title}</b> — ` +
+              `${found ? `<span class="ok">found: <code>${found}</code></span>` :
+                        `<span class="bad">missing (update candidates)</span>`}</div>`;
+    }
+    out.innerHTML = html;
+  });
+
+  document.getElementById('helpBtn').addEventListener('click', ()=>{
+    alert(
+`If a game doesn't open:
+1) Run "Scan" to see which file is missing.
+2) Go to your repo file list and copy the EXACT filename.
+3) Edit index.html → find that game's button → add your new filename into data-candidates.
+
+Example:
+data-candidates="old.html|NEWNAME.html"`
+    );
+  });
+</script>
 </body>
 </html>
