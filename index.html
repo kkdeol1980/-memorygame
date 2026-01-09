@@ -1,91 +1,85 @@
 <!DOCTYPE html>
 <html lang="pa">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ਪੰਜਾਬੀ ਗੇਮਾਂ</title>
 
   <style>
     body{
       margin:0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
       color:#fff;
       text-align:center;
     }
-
     h1{
-      margin:16px 10px;
+      margin:16px 10px 8px;
       font-size:26px;
     }
-
+    .sub{
+      margin:0 12px 14px;
+      opacity:.9;
+      font-size:14px;
+      line-height:1.35;
+    }
     .grid{
       display:grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap:14px;
       padding:16px;
       max-width:1000px;
-      margin:auto;
+      margin:0 auto;
     }
-
     a{
       display:flex;
       align-items:center;
       justify-content:center;
-      min-height:70px;
+      min-height:72px;
+      padding:12px;
       background:#ffffff;
       color:#000;
       text-decoration:none;
       font-size:18px;
-      font-weight:600;
+      font-weight:700;
       border-radius:16px;
-      box-shadow:0 6px 14px rgba(0,0,0,0.3);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      box-shadow:0 6px 14px rgba(0,0,0,0.30);
+      transition: transform 0.15s ease;
     }
-
-    a:active{
-      transform:scale(0.97);
-    }
-
+    a:active{ transform: scale(0.97); }
     footer{
-      font-size:14px;
-      opacity:0.8;
-      padding:10px 0 20px;
+      font-size:13px;
+      opacity:0.85;
+      padding:10px 0 22px;
     }
   </style>
 </head>
 
 <body>
-
   <h1>📚 ਪੰਜਾਬੀ ਸਿੱਖਣ ਵਾਲੀਆਂ ਗੇਮਾਂ</h1>
+  <div class="sub">
+    ਇੱਕ ਲਿੰਕ — ਸਾਰੀਆਂ ਗੇਮਾਂ। ਕਿਸੇ ਵੀ ਬਟਨ ਤੇ ਟੈਪ ਕਰੋ।<br/>
+    (Works on iPhone / Android / Computer / Projector)
+  </div>
 
   <div class="grid">
+    <!-- Your existing games (keep these if these files still exist) -->
+    <a href="Bubble game.html">🫧 Bubble Game</a>
+    <a href="runner3.html">🏃 Runner Game</a>
+    <a href="Virodhishabad.html">🎴 ਵਿਰੋਧੀ ਸ਼ਬਦ</a>
+    <a href="ਪੰਜਾਬੀ ਸ਼ਬਦ puzzle2.html">🧩 ਪੰਜਾਬੀ ਸ਼ਬਦ Puzzle</a>
+    <a href="Muhavre200bubbles.html">💬 200 ਮੁਹਾਵਰੇ Bubble Game</a>
 
-    <a href="Bubble game.html">Bubble Game</a>
-
-    <a href="Mix ਵਿਅਾਕਰਣ.html">Mix ਵਿਆਕਰਨ</a>
-
-    <a href="Virodhishabad.html">ਵਿਰੋਧੀ ਸ਼ਬਦ</a>
-
-    <a href="runner3.html">Runner Game</a>
-
-    <a href="ਪੰਜਾਬੀ ਸ਼ਬਦ puzzle2.html">ਪੰਜਾਬੀ ਸ਼ਬਦ Puzzle</a>
-
-    <a href="ਮੁਹਾਵਰੇ1.html">ਮੁਹਾਵਰੇ</a>
-
-    <a href="ਲਿੰਗ ਬਦਲੇ.html">ਲਿੰਗ ਬਦਲੋ</a>
-
-    <a href="ਵਿਆਕਰਨ.html">ਵਿਆਕਰਨ</a>
-
-    <a href="ਵਿਸ਼ੇਸ਼ਣ ਖਾਲੀ ਸਥਾਨ ਭਰੋ.html">ਵਿਸ਼ੇਸ਼ਣ ਖਾਲੀ ਸਥਾਨ ਭਰੋ</a>
-
-    <a href="Muhavre200bubbles.html">200 ਮੁਹਾਵਰੇ Bubble Game</a>
-
+    <!-- ✅ Updated renamed files you told me -->
+    <a href="mixviakaran.html">📘 Mix ਵਿਆਕਰਨ</a>
+    <a href="muhavare1.html">💬 ਮੁਹਾਵਰੇ 1</a>
+    <a href="lingbadlo.html">👫 ਲਿੰਗ ਬਦਲੋ</a>
+    <a href="visheshanfillintheblanks.html">📝 ਵਿਸ਼ੇਸ਼ਣ Fill in the Blanks</a>
   </div>
 
   <footer>
-    ਇੱਕ ਲਿੰਕ – ਸਾਰੀਆਂ ਗੇਮਾਂ 🎮
+    Share this one link on WhatsApp: <br/>
+    https://kkdeol1980.github.io/-memorygame/
   </footer>
-
 </body>
 </html>
