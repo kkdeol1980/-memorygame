@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="pa">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>ਮੁਹਾਵਰਾ ਮਾਹਿਰ — Full Game</title>
+  <style>
+    :root{
+      --bg1:#e3f2fd; --bg2:#fff;
+      --card:#ffffff; --ink:#0b1b2a;
+      --primary:#0d47a1; --primary2:#1565c0;
+      --good:#1b5e20; --bad:#b71c1c;
+      --soft:#eef6ff; --soft2:#f7fbff;
+      --shadow:0 10px 28px rgba(0,0,0,.16);
+      --r:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:"Noto Sans Gurmukhi", system-ui, Arial;
+      background:linear-gradient(135deg,var(--bg1),var(--bg2));
+      color:var(--ink); text-align:center;
+    }
+    header{padding:18px 12px 8px}
+    h1{margin:0; font-size:26px; color:var(--primary)}
+    .sub{margin:6px 0 0; opacity:.8}
+    .wrap{max-width:1100px; margin:0 auto; padding:12px}
+    .panel{
+      background:var(--card); border-radius:var(--r);
+      box-shadow:var(--shadow);
+      padding:14px; margin:12px 0;
+    }
+    .topbar{
+      display:flex; flex-wrap:wrap; gap:10px;
+      justify-content:space-between; align-items:center;
+      margin:8px 0 14px;
+    }
+    .chip{
+      background:var(--soft);
+      padding:10px 12px; border-radius:999px;
+      box-shadow:0 6px 16px rgba(0,0,0,.08);
+      font-size:14px; display:flex; gap:10px; align-items:center;
+      justify-content:center; flex-wrap:wrap;
+    }
+    .btnrow{display:flex; gap:10px; flex-wrap:wrap; justify-content:center}
+    button{
+      border:0; border-radius:14px; padding:10px 14px;
+      background:var(--primary); color:#fff; cursor:pointer;
+      font-size:15px; box-shadow:0 8px 18px rgba(13,71,161,.25);
+    }
+    button:hover{background:var(--primary2)}
+    button.secondary{background:#223; opacity:.92; box-shadow:0 8px 18px rgba(0,0,0,.18);}
+    button.ghost{background:#fff; color:var(--primary); border:2px solid var(--primary); box-shadow:none;}
+
+    /* Level 1 MCQ */
+    .qbox{padding:8px 10px}
+    .qtitle{font-size:22px; margin:10px 0 10px}
+    .hint{font-size:13px; opacity:.75; margin:-4px 0 10px}
+    .grid2{display:grid; grid-template-columns:1fr; gap:10px}
+    @media(min-width:720px){ .grid2{grid-template-columns:1fr 1fr;} }
+    .opt{
+      background:var(--soft2);
+      border:2px solid transparent;
+      border-radius:16px;
+      padding:14px 12px;
+      cursor:pointer; text-align:left;
+      font-size:17px;
+      transition:.12s transform ease,.12s border-color ease,.12s background ease;
+      box-shadow:0 6px 16px rgba(0,0,0,.07);
+    }
+    .opt:hover{transform:translateY(-1px); border-color:#cfe6ff}
+    .opt.good{border-color:rgba(27,94,32,.5); background:#e8f5e9}
+    .opt.bad{border-color:rgba(183,28,28,.5); background:#ffebee}
+
+    /* Level 2 Drag & Drop */
+    .dd-wrap{display:grid; grid-template-columns:1fr; gap:12px;}
+    @media(min-width:900px){ .dd-wrap{grid-template-columns:1fr 1fr;} }
+    .dd-col{
+      background:var(--soft2); border-radius:18px; padding:12px;
+      box-shadow:0 8px 20px rgba(0,0,0,.08); min-height:240px;
+    }
+    .dd-title{margin:4px 0 10px; color:var(--primary)}
+    .pill{
+      background:#fff; border:2px solid #d8ecff; border-radius:999px;
+      padding:12px 14px; margin:10px 0;
+      cursor:grab; user-select:none; text-align:left;
+      box-shadow:0 6px 16px rgba(0,0,0,.06); font-size:16px;
+    }
+    .pill:active{cursor:grabbing}
+    .drop{
+      background:#fff; border:2px dashed #b7d9ff; border-radius:16px;
+      padding:10px; margin:10px 0; text-align:left; min-height:62px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .drop strong{color:#223}
+    .drop.filled{border-style:solid}
+    .badge{
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      background:#eef; margin-left:auto;
+    }
+    .badge.ok{background:#e8f5e9; color:var(--good)}
+    .badge.no{background:#ffebee; color:var(--bad)}
+
+    /* Level 3 Bubble (FAST) */
+    .bubbleWrap{
+      background:linear-gradient(135deg,#ffffff,#f1f8ff);
+      border-radius:22px; padding:12px;
+      box-shadow:0 10px 26px rgba(0,0,0,.12);
+      position:relative; overflow:hidden;
+      height:580px;
+    }
+    .bubbleHeader{
+      display:flex; flex-wrap:wrap; gap:10px;
+      justify-content:space-between; align-items:center;
+      padding:6px 6px 10px;
+    }
+    .target{
+      background:#fff; border:2px solid #d8ecff;
+      border-radius:16px; padding:10px 12px;
+      text-align:left; box-shadow:0 6px 16px rgba(0,0,0,.06);
+      flex:1; min-width:260px;
+    }
+    .timerBox{
+      background:#fff; border:2px solid #d8ecff;
+      border-radius:16px; padding:10px 12px;
+      min-width:240px;
+      box-shadow:0 6px 16px rgba(0,0,0,.06);
+      text-align:left;
+    }
+    .playfield{
+      position:absolute;
+      left:10px; right:10px; top:128px; bottom:10px;
+      border-radius:18px;
+      background:radial-gradient(circle at 20% 20%, #e3f2fd, #ffffff);
+      border:2px solid #d8ecff;
+      overflow:hidden;
+      touch-action: manipulation;
+    }
+    .bubble{
+      position:absolute;
+      width:160px; height:160px;   /* smaller for clarity */
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      text-align:center;
+      padding:12px;
+      font-size:14px;
+      font-weight:900;
+      color:#0b1b2a;
+      cursor:pointer;
+      user-select:none;
+      box-shadow:0 14px 28px rgba(0,0,0,.16);
+      border:2px solid rgba(13,71,161,.15);
+      transition:transform .12s;
+      will-change:left, top, transform;
+      line-height:1.2;
+    }
+    .bubble:active{ transform:scale(0.98); }
+    .pop{ animation: pop .16s ease forwards; }
+    @keyframes pop{ to{ transform:scale(1.22); opacity:0; } }
+
+    .toast{
+      position:fixed; left:50%; bottom:16px; transform:translateX(-50%);
+      background:#111; color:#fff;
+      padding:10px 14px; border-radius:999px;
+      opacity:0; pointer-events:none;
+      transition:.18s opacity ease, .18s transform ease;
+      box-shadow:0 10px 24px rgba(0,0,0,.25);
+      font-size:14px;
+      z-index:999;
+    }
+    .toast.show{opacity:1; transform:translateX(-50%) translateY(-4px)}
+  </style>
+</head>
+<body>
+<header>
+  <h1>🎮 ਮੁਹਾਵਰਾ ਮਾਹਿਰ</h1>
+  <div class="sub">Level 1 (MCQ) • Level 2 (Drag & Drop) • Level 3 (FAST Bubble: 4 bubbles only) • Sound ✅</div>
+</header>
+
+<div class="wrap">
+  <div class="panel">
+    <div class="topbar">
+      <div class="chip">🏁 ਲੈਵਲ: <b id="lvlName">—</b></div>
+      <div class="chip">📌 ਪ੍ਰਸ਼ਨ: <b id="progress">0/0</b></div>
+      <div class="chip">⭐ ਸਕੋਰ: <b id="score">0</b></div>
+      <div class="chip">
+        🔊 Sound: <b id="soundState">ON</b>
+        <button class="ghost" style="padding:6px 10px;border-radius:12px" onclick="toggleSound()">ON/OFF</button>
+        <button class="ghost" style="padding:6px 10px;border-radius:12px" onclick="unlockAudio()">Start/Test</button>
+      </div>
+    </div>
+
+    <div class="btnrow">
+      <button onclick="startLevel(1)">Level 1 (MCQ)</button>
+      <button onclick="startLevel(2)">Level 2 (Drag & Drop)</button>
+      <button onclick="startLevel(3)">Level 3 (Bubble)</button>
+      <button class="ghost" onclick="resetAll()">Reset</button>
+    </div>
+
+    <div id="stage" class="qbox"></div>
+
+    <div class="btnrow" style="margin-top:14px">
+      <button class="secondary" onclick="goMenu()">🏠 Menu</button>
+      <button onclick="next()">ਅਗਲਾ ➡️</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+/* ===================== SOUND (WebAudio) ===================== */
+let SOUND_ON = true;
+let audioCtx = null;
+function ensureAudio(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === "suspended") audioCtx.resume();
+}
+function beep(freq=440, duration=0.10, type="sine", gain=0.10){
+  if(!SOUND_ON) return;
+  ensureAudio();
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = gain;
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(); o.stop(audioCtx.currentTime + duration);
+}
+function playClick(){ beep(520, 0.05, "square", 0.06); }
+function playPop(){ beep(760, 0.06, "triangle", 0.08); }
+function playCorrect(){ beep(660, 0.08, "sine", 0.12); setTimeout(()=>beep(880, 0.10, "sine", 0.12), 90); }
+function playWrong(){ beep(220, 0.14, "sawtooth", 0.10); }
+function playWin(){ [523,659,784,988].forEach((f,i)=>setTimeout(()=>beep(f, 0.10, "sine", 0.12), i*110)); }
+function toggleSound(){
+  playClick();
+  SOUND_ON = !SOUND_ON;
+  document.getElementById("soundState").textContent = SOUND_ON ? "ON" : "OFF";
+  toast(SOUND_ON ? "Sound ON 🔊" : "Sound OFF 🔇");
+}
+function unlockAudio(){
+  ensureAudio();
+  playClick();
+  setTimeout(()=>playCorrect(), 120);
+  toast("Sound Ready ✅");
+}
+
+/* ===================== Utilities ===================== */
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+function el(id){ return document.getElementById(id); }
+function toast(msg){
+  const t = el('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1100);
+}
+function escapeHtml(str){
+  return str.replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
+}
+function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+function rand(min,max){ return Math.random()*(max-min)+min; }
+
+/* ===================== DATA ===================== */
+/* Level 1: 10 MCQ */
+const L1 = [
+  { idiom:"ਅੱਖਾਂ ਵਿੱਚ ਧੂੜ ਪਾਉਣਾ", q:"'ਅੱਖਾਂ ਵਿੱਚ ਧੂੜ ਪਾਉਣਾ' ਦਾ ਅਰਥ ਕੀ ਹੈ?", opts:["ਧੋਖਾ ਦੇਣਾ","ਮਦਦ ਕਰਨਾ","ਸੱਚ ਬੋਲਣਾ","ਡਰ ਜਾਣਾ"], ans:0 },
+  { idiom:"ਨੱਕ ਕੱਟਣਾ", q:"'ਨੱਕ ਕੱਟਣਾ' ਦਾ ਕੀ ਅਰਥ ਹੈ?", opts:["ਇੱਜ਼ਤ ਘਟਾਉਣਾ","ਸਮਝਾਉਣਾ","ਹੱਸਣਾ","ਮਾਫ਼ ਕਰਨਾ"], ans:0 },
+  { idiom:"ਪਾਣੀ ਫਿਰ ਜਾਣਾ", q:"'ਪਾਣੀ ਫਿਰ ਜਾਣਾ' ਦਾ ਮਤਲਬ?", opts:["ਯੋਜਨਾ ਫੇਲ ਹੋ ਜਾਣਾ","ਨਹਾਉਣਾ","ਖਾਣਾ ਖਾਣਾ","ਖੁਸ਼ ਹੋਣਾ"], ans:0 },
+  { idiom:"ਕੰਨ ਖੜੇ ਹੋਣਾ", q:"'ਕੰਨ ਖੜੇ ਹੋਣਾ' ਦਾ ਅਰਥ?", opts:["ਸਾਵਧਾਨ ਹੋ ਜਾਣਾ","ਸੌਣਾ","ਰੋਣਾ","ਗੁੱਸਾ ਕਰਨਾ"], ans:0 },
+  { idiom:"ਮੂੰਹ ਦੀ ਖਾਣਾ", q:"'ਮੂੰਹ ਦੀ ਖਾਣਾ' ਦਾ ਅਰਥ?", opts:["ਹਾਰ ਜਾਣਾ","ਭੁੱਖ ਲੱਗਣਾ","ਬੋਲਣਾ","ਜਿੱਤ ਜਾਣਾ"], ans:0 },
+  { idiom:"ਦੰਦ ਖੱਟੇ ਕਰਨਾ", q:"'ਦੰਦ ਖੱਟੇ ਕਰਨਾ' ਦਾ ਕੀ ਮਤਲਬ?", opts:["ਹਰਾ ਦੇਣਾ","ਦੰਦ ਸਾਫ਼ ਕਰਨਾ","ਭੱਜ ਜਾਣਾ","ਸੋਚਣਾ"], ans:0 },
+  { idiom:"ਹੱਥ ਪੈਰ ਫੁੱਲ ਜਾਣਾ", q:"'ਹੱਥ ਪੈਰ ਫੁੱਲ ਜਾਣਾ' ਦਾ ਅਰਥ?", opts:["ਘਬਰਾ ਜਾਣਾ","ਦੌੜ ਲਗਾਣਾ","ਖੁਸ਼ ਹੋਣਾ","ਥੱਕ ਜਾਣਾ"], ans:0 },
+  { idiom:"ਰਾਈ ਦਾ ਪਹਾੜ ਬਣਾਉਣਾ", q:"'ਰਾਈ ਦਾ ਪਹਾੜ ਬਣਾਉਣਾ' ਦਾ ਅਰਥ?", opts:["ਛੋਟੀ ਗੱਲ ਨੂੰ ਵੱਡਾ ਕਰ ਦੇਣਾ","ਪਹਾੜ ਤੇ ਚੜ੍ਹਨਾ","ਰਾਈ ਖਾਣੀ","ਚੁੱਪ ਰਹਿਣਾ"], ans:0 },
+  { idiom:"ਚੁੱਪ ਦੀ ਚਾਦਰ ਤਾਣ ਲੈਣਾ", q:"'ਚੁੱਪ ਦੀ ਚਾਦਰ ਤਾਣ ਲੈਣਾ' ਦਾ ਅਰਥ?", opts:["ਬਿਲਕੁਲ ਚੁੱਪ ਹੋ ਜਾਣਾ","ਸੋ ਜਾਣਾ","ਗੱਲ ਕਰਨੀ","ਗੁੱਸਾ ਕਰਨਾ"], ans:0 },
+  { idiom:"ਆਕਾਸ਼ ਪਾਤਾਲ ਇੱਕ ਕਰਨਾ", q:"'ਆਕਾਸ਼ ਪਾਤਾਲ ਇੱਕ ਕਰਨਾ' ਦਾ ਅਰਥ?", opts:["ਬਹੁਤ ਕੋਸ਼ਿਸ਼ ਕਰਨੀ","ਅਸਮਾਨ ਵੇਖਣਾ","ਘਰ ਜਾਣਾ","ਚੁੱਪ ਰਹਿਣਾ"], ans:0 }
+];
+
+/* Level 2: 10 drag/drop pairs */
+const L2_PAIRS = [
+  { idiom:"ਦਿਲ ਤੇ ਲੈਣਾ", meaning:"ਗੱਲ ਨੂੰ ਬਹੁਤ ਗੰਭੀਰਤਾ ਨਾਲ ਲੈ ਲੈਣਾ" },
+  { idiom:"ਹੱਥ ਖੜੇ ਕਰ ਦੇਣਾ", meaning:"ਹਾਰ ਮੰਨ ਲੈਣਾ / ਅਸਮਰੱਥ ਹੋ ਜਾਣਾ" },
+  { idiom:"ਚਪੇੜਾਂ ਖਾਣੀਆਂ", meaning:"ਮੁਸੀਬਤਾਂ ਝੱਲਣੀਆਂ" },
+  { idiom:"ਚਿੱਟਾ ਝੂਠ ਬੋਲਣਾ", meaning:"ਸਾਫ਼-ਸਾਫ਼ ਝੂਠ ਬੋਲਣਾ" },
+  { idiom:"ਬਾਂਹ ਫੜਨਾ", meaning:"ਸਹਾਰਾ ਦੇਣਾ / ਮਦਦ ਕਰਨੀ" },
+  { idiom:"ਖੂਨ ਪਸੀਨਾ ਇੱਕ ਕਰਨਾ", meaning:"ਬਹੁਤ ਮਿਹਨਤ ਕਰਨੀ" },
+  { idiom:"ਅੱਗ ਬਗੂਲਾ ਹੋਣਾ", meaning:"ਬਹੁਤ ਗੁੱਸੇ ਵਿੱਚ ਆ ਜਾਣਾ" },
+  { idiom:"ਮੂੰਹ ਲੁਕਾਉਣਾ", meaning:"ਸ਼ਰਮਿੰਦਾ ਹੋ ਜਾਣਾ / ਸਾਹਮਣੇ ਨਾ ਆ ਸਕਣਾ" },
+  { idiom:"ਪੈਰ ਉਖੜ ਜਾਣਾ", meaning:"ਘਬਰਾ ਜਾਣਾ / ਹੌਸਲਾ ਟੁੱਟ ਜਾਣਾ" },
+  { idiom:"ਆਪਣੀ ਧੁਨ ਵਿੱਚ ਰਹਿਣਾ", meaning:"ਦੂਜਿਆਂ ਦੀ ਪਰਵਾਹ ਨਾ ਕਰਨੀ" }
+];
+
+/* Level 3: bubble questions (10) */
+const L3 = [
+  { idiom:"ਅੱਖਾਂ ਵਿੱਚ ਧੂੜ ਪਾਉਣਾ", meaning:"ਧੋਖਾ ਦੇਣਾ" },
+  { idiom:"ਨੱਕ ਕੱਟਣਾ", meaning:"ਇੱਜ਼ਤ ਘਟਾਉਣਾ" },
+  { idiom:"ਕੰਨ ਖੜੇ ਹੋਣਾ", meaning:"ਸਾਵਧਾਨ ਹੋ ਜਾਣਾ" },
+  { idiom:"ਦੰਦ ਖੱਟੇ ਕਰਨਾ", meaning:"ਹਰਾ ਦੇਣਾ" },
+  { idiom:"ਹੱਥ ਪੈਰ ਫੁੱਲ ਜਾਣਾ", meaning:"ਘਬਰਾ ਜਾਣਾ" },
+  { idiom:"ਰਾਈ ਦਾ ਪਹਾੜ ਬਣਾਉਣਾ", meaning:"ਛੋਟੀ ਗੱਲ ਵੱਡੀ ਕਰਨੀ" },
+  { idiom:"ਚੁੱਪ ਦੀ ਚਾਦਰ ਤਾਣ ਲੈਣਾ", meaning:"ਬਿਲਕੁਲ ਚੁੱਪ ਹੋ ਜਾਣਾ" },
+  { idiom:"ਆਕਾਸ਼ ਪਾਤਾਲ ਇੱਕ ਕਰਨਾ", meaning:"ਬਹੁਤ ਕੋਸ਼ਿਸ਼ ਕਰਨੀ" },
+  { idiom:"ਅੱਗ ਬਗੂਲਾ ਹੋਣਾ", meaning:"ਬਹੁਤ ਗੁੱਸੇ ਵਿੱਚ ਆ ਜਾਣਾ" },
+  { idiom:"ਖੂਨ ਪਸੀਨਾ ਇੱਕ ਕਰਨਾ", meaning:"ਬਹੁਤ ਮਿਹਨਤ ਕਰਨੀ" }
+];
+
+/* ===================== Game State ===================== */
+let currentLevel = 0;
+let idx = 0;
+let score = 0;
+let answered = false;
+
+/* For Level 1 shuffled correct index */
+let currentMCQCorrectIndex = -1;
+
+/* Level lists per run */
+let L1Q = shuffle(L1);
+let L2Q = shuffle(L2_PAIRS);
+let L3Q = shuffle(L3);
+
+function setTop(levelName, total){
+  el('lvlName').textContent = levelName;
+  el('progress').textContent = `${Math.min(idx+1,total)}/${total}`;
+  el('score').textContent = score;
+}
+
+function goMenu(){
+  currentLevel = 0; idx=0; answered=false;
+  el('lvlName').textContent="—";
+  el('progress').textContent="0/0";
+  el('stage').innerHTML = `
+    <div class="panel" style="background:#fff; box-shadow:none; padding:8px; margin:0">
+      <div style="font-size:18px; margin:4px 0 10px">ਕੋਈ ਇੱਕ ਲੈਵਲ ਚੁਣੋ 👇</div>
+      <div class="btnrow">
+        <button onclick="startLevel(1)">Level 1 (MCQ)</button>
+        <button onclick="startLevel(2)">Level 2 (Drag & Drop)</button>
+        <button onclick="startLevel(3)">Level 3 (Bubble)</button>
+      </div>
+      <div style="margin-top:10px; font-size:13px; opacity:.75">
+        ✅ Sound ਲਈ ਪਹਿਲਾਂ “Start/Test” ਦਬਾਓ।
+      </div>
+    </div>
+  `;
+}
+
+function resetAll(){
+  playClick();
+  score = 0;
+  idx = 0;
+  answered = false;
+  el('score').textContent = score;
+  toast("Reset ਹੋ ਗਿਆ ✅");
+  goMenu();
+}
+
+function startLevel(lvl){
+  playClick();
+  stopBubbleLoop(); // if switching from level 3
+  currentLevel = lvl;
+  idx = 0;
+  answered = false;
+
+  if(lvl===1){
+    L1Q = shuffle(L1);
+    toast("Level 1 ਸ਼ੁਰੂ ✅");
+    renderL1();
+  }else if(lvl===2){
+    L2Q = shuffle(L2_PAIRS);
+    toast("Level 2 ਸ਼ੁਰੂ ✅");
+    renderL2();
+  }else if(lvl===3){
+    L3Q = shuffle(L3);
+    toast("Level 3 Bubble ਸ਼ੁਰੂ ✅");
+    startBubbleLevel();
+  }
+}
+
+/* ===================== Level 1: MCQ (OPTIONS SHUFFLE) ===================== */
+function renderL1(){
+  const total = L1Q.length;
+  const q = L1Q[idx];
+  setTop("Level 1 (MCQ)", total);
+
+  const correctText = q.opts[q.ans];
+  const shuffledOpts = shuffle(q.opts);
+  currentMCQCorrectIndex = shuffledOpts.indexOf(correctText);
+
+  const optsHTML = shuffledOpts.map((o,i)=>(
+    `<div class="opt" data-i="${i}" onclick="pickMCQ(${i})">${o}</div>`
+  )).join("");
+
+  el('stage').innerHTML = `
+    <div class="qtitle">Q${idx+1}. ${q.q}</div>
+    <div class="hint">ਮੁਹਾਵਰਾ: <b>${q.idiom}</b></div>
+    <div class="grid2">${optsHTML}</div>
+  `;
+  answered=false;
+}
+
+function pickMCQ(i){
+  playClick();
+  if(answered) return;
+  answered = true;
+
+  const nodes = Array.from(document.querySelectorAll(".opt"));
+  nodes.forEach((n)=>{
+    const oi = Number(n.dataset.i);
+    if(oi===currentMCQCorrectIndex) n.classList.add("good");
+    if(oi===i && oi!==currentMCQCorrectIndex) n.classList.add("bad");
+  });
+
+  if(i===currentMCQCorrectIndex){
+    score += 10; playCorrect(); toast("ਸਹੀ ✅ +10");
+  }else{
+    playWrong(); toast("ਗਲਤ ❌");
+  }
+  el('score').textContent = score;
+  setTop("Level 1 (MCQ)", L1Q.length);
+}
+
+/* ===================== Level 2: Drag & Drop ===================== */
+let ddState = [];
+let dragIdiom = null;
+
+function renderL2(){
+  setTop("Level 2 (Drag & Drop)", L2Q.length);
+
+  const idioms = shuffle(L2Q.map(p=>p.idiom));
+  ddState = L2Q.map(p=>({ meaning:p.meaning, correct:p.idiom, dropped:null, checked:false }));
+
+  const left = idioms.map((id)=>`
+    <div class="pill" draggable="true" ondragstart="dragStart(event)" data-idiom="${escapeHtml(id)}">
+      🧩 ${id}
+    </div>
+  `).join("");
+
+  const right = ddState.map((s,slot)=>`
+    <div class="drop" ondragover="allowDrop(event)" ondrop="dropHere(event, ${slot})">
+      <div style="min-width:22px">🎯</div>
+      <div>
+        <div><strong>ਅਰਥ:</strong> ${s.meaning}</div>
+        <div style="font-size:13px;opacity:.75">ਇਥੇ ਮੁਹਾਵਰਾ ਡਰੌਪ ਕਰੋ</div>
+      </div>
+      <span class="badge" id="b${slot}">—</span>
+    </div>
+  `).join("");
+
+  el('stage').innerHTML = `
+    <div class="qtitle">Level 2 — ਮੁਹਾਵਰਾ → ਅਰਥ ਨਾਲ ਮਿਲਾਓ (10)</div>
+    <div class="hint">ਖੱਬੇ ਤੋਂ ਮੁਹਾਵਰਾ ਡਰੈਗ ਕਰੋ ਅਤੇ ਸਹੀ ਅਰਥ ਵਾਲੇ ਬਾਕਸ ‘ਚ ਡਰੌਪ ਕਰੋ।</div>
+
+    <div class="dd-wrap">
+      <div class="dd-col">
+        <div class="dd-title">🧩 ਮੁਹਾਵਰੇ (Drag)</div>
+        <div id="idiomPile">${left}</div>
+      </div>
+
+      <div class="dd-col">
+        <div class="dd-title">🎯 ਅਰਥ (Drop)</div>
+        <div id="dropZone">${right}</div>
+        <div class="btnrow" style="margin-top:10px">
+          <button onclick="checkDragAnswers()">Check ✅</button>
+          <button class="secondary" onclick="clearDrops()">Clear</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function dragStart(e){ playClick(); dragIdiom = e.target.getAttribute("data-idiom"); }
+function allowDrop(e){ e.preventDefault(); }
+
+function dropHere(e, slot){
+  e.preventDefault();
+  playPop();
+  if(!dragIdiom) return;
+
+  ddState[slot].dropped = dragIdiom;
+  ddState[slot].checked = false;
+
+  const drop = document.querySelectorAll(".drop")[slot];
+  drop.classList.add("filled");
+
+  const old = drop.querySelector(".chosen");
+  if(old) old.remove();
+
+  drop.insertAdjacentHTML("beforeend",
+    `<div class="chosen" style="margin-left:32px;margin-top:6px;width:100%"><b>ਮੁਹਾਵਰਾ:</b> ${dragIdiom}</div>`
+  );
+
+  const pile = el("idiomPile");
+  const pills = Array.from(pile.querySelectorAll(".pill"));
+  const found = pills.find(p => p.getAttribute("data-idiom")===dragIdiom);
+  if(found) found.remove();
+
+  const b = el("b"+slot);
+  b.textContent = "—"; b.className = "badge";
+  toast("Drop ✅");
+  dragIdiom = null;
+}
+
+function clearDrops(){ playClick(); toast("Clear ✅"); renderL2(); }
+
+function checkDragAnswers(){
+  playClick();
+  let gained = 0;
+  let allFilled = true;
+
+  ddState.forEach((s,slot)=>{
+    const b = el("b"+slot);
+    if(!s.dropped){ allFilled=false; return; }
+    if(s.checked) return;
+
+    if(s.dropped === s.correct){
+      b.textContent = "ਸਹੀ ✅"; b.classList.add("ok");
+      gained += 10;
+    }else{
+      b.textContent = "ਗਲਤ ❌"; b.classList.add("no");
+    }
+    s.checked = true;
+  });
+
+  if(!allFilled){ playWrong(); toast("ਪਹਿਲਾਂ ਸਾਰੇ ਭਰੋ 👆"); return; }
+
+  if(gained>0){
+    score += gained; playCorrect(); toast(`+${gained} ✅`);
+    el('score').textContent = score;
+  }else{
+    playWrong(); toast("ਕੁਝ ਗਲਤ ਹੈ ❌");
+  }
+}
+
+/* ===================== Level 3: FAST Bubble (4 bubbles only) ===================== */
+let bubbleIndex = 0;
+let bubbleRunning = false;
+let bubbleTimer = null;
+let timeLeft = 45;
+let bubbleObjs = []; // {el, x,y, vx,vy, text, size}
+let currentChoices = []; // meanings currently shown (length 4)
+let rafId = null;
+
+function startBubbleLevel(){
+  bubbleIndex = 0;
+  timeLeft = 45;
+  bubbleRunning = true;
+  bubbleObjs = [];
+  currentChoices = [];
+
+  setTop("Level 3 (Bubble)", L3Q.length);
+
+  el('stage').innerHTML = `
+    <div class="qtitle">Level 3 — FAST Bubble (4 ਬੁਬਲਾਂ ਹੀ)</div>
+    <div class="hint">ਹਮੇਸ਼ਾ 4 ਬੁਬਲਾਂ: <b>1 ਸਹੀ</b> + <b>3 ਗਲਤ</b> ✅ (ਤੇਜ਼ ਮੂਵਮੈਂਟ)</div>
+
+    <div class="bubbleWrap">
+      <div class="bubbleHeader">
+        <div class="target">
+          🎯 ਟਾਰਗੇਟ ਮੁਹਾਵਰਾ: <b id="targetIdiom">—</b><br/>
+          <span style="font-size:13px;opacity:.75">ਸਹੀ ਅਰਥ ਵਾਲੀ ਬੁਬਲ ਟੈਪ ਕਰੋ ✅</span>
+        </div>
+        <div class="timerBox">
+          ⏱️ Time: <b id="timeLeft">45</b>s<br/>
+          ✅ Done: <b id="doneCount">0</b>/10
+          <div style="font-size:12px;opacity:.75;margin-top:4px">Wrong ਤੇ ਬੁਬਲ replace ਹੋ ਜਾਏਗੀ (4 ਹੀ ਰਹਿਣਗੀਆਂ)</div>
+        </div>
+      </div>
+
+      <div class="playfield" id="playfield"></div>
+    </div>
+
+    <div class="btnrow" style="margin-top:12px">
+      <button onclick="restartBubble()">Restart Bubble</button>
+      <button class="secondary" onclick="endBubble(false,false)">End Level</button>
+    </div>
+  `;
+
+  setBubbleTarget();
+  startBubbleTimer();
+  render4FastBubbles();
+  rafId = requestAnimationFrame(moveLoop);
+}
+
+function setBubbleTarget(){
+  el("targetIdiom").textContent = L3Q[bubbleIndex].idiom;
+  el("doneCount").textContent = bubbleIndex;
+}
+
+function startBubbleTimer(){
+  clearInterval(bubbleTimer);
+  el("timeLeft").textContent = timeLeft;
+  bubbleTimer = setInterval(()=>{
+    if(!bubbleRunning) return;
+    timeLeft--;
+    el("timeLeft").textContent = timeLeft;
+    if(timeLeft<=0) endBubble(true,false);
+  }, 1000);
+}
+
+function pickChoices4(){
+  const correct = L3Q[bubbleIndex].meaning;
+  const allMeanings = L3.map(x=>x.meaning);
+  const wrongPool = shuffle(allMeanings.filter(m=>m!==correct));
+  currentChoices = shuffle([correct, wrongPool[0], wrongPool[1], wrongPool[2]]);
+}
+
+function colorFor(i){
+  const base = 190 + i*18;
+  return `radial-gradient(circle at 30% 30%, hsla(${base},85%,92%,1), hsla(${base+12},90%,66%,.96))`;
+}
+
+function nonOverlappingStartPositions(pf, size){
+  const W = pf.clientWidth, H = pf.clientHeight;
+  const margin = 10;
+  const spots = [];
+  let tries = 0;
+
+  while(spots.length < 4 && tries < 900){
+    tries++;
+    const x = rand(margin, Math.max(margin, W - size - margin));
+    const y = rand(margin, Math.max(margin, H - size - margin));
+
+    let ok = true;
+    for(const s of spots){
+      const dx = (x - s.x), dy = (y - s.y);
+      if(Math.hypot(dx,dy) < size*0.90) { ok = false; break; }
+    }
+    if(ok) spots.push({x,y});
+  }
+
+  while(spots.length < 4){
+    spots.push({x: margin + (spots.length%2)*(size+14), y: margin + Math.floor(spots.length/2)*(size+14)});
+  }
+  return spots;
+}
+
+function render4FastBubbles(){
+  if(!bubbleRunning) return;
+  const pf = el("playfield");
+  if(!pf) return;
+
+  pf.innerHTML = "";
+  bubbleObjs = [];
+
+  pickChoices4();
+
+  const size = 160;
+  const starts = nonOverlappingStartPositions(pf, size);
+
+  currentChoices.forEach((text,i)=>{
+    const b = document.createElement("div");
+    b.className = "bubble";
+    b.textContent = text;
+    b.style.background = colorFor(i);
+
+    const x = starts[i].x, y = starts[i].y;
+    b.style.left = x + "px";
+    b.style.top  = y + "px";
+
+    // FAST SPEED (you asked)
+    const vx = rand(-1.7, 1.7);
+    const vy = rand(-1.7, 1.7);
+
+    b.onclick = ()=>bubblePick(b, text);
+
+    pf.appendChild(b);
+    bubbleObjs.push({ el:b, x, y, vx, vy, text, size });
+  });
+}
+
+function replaceWrongBubble(node){
+  const correct = L3Q[bubbleIndex].meaning;
+
+  // pick a new wrong meaning NOT currently shown
+  const pool = shuffle(L3.map(x=>x.meaning).filter(m => m!==correct && !currentChoices.includes(m)));
+  const newWrong = pool[0] || shuffle(L3.map(x=>x.meaning).filter(m=>m!==correct))[0];
+
+  const oldText = node.textContent;
+  const idxChoice = currentChoices.indexOf(oldText);
+  if(idxChoice >= 0) currentChoices[idxChoice] = newWrong;
+
+  node.textContent = newWrong;
+
+  // also update object text
+  const obj = bubbleObjs.find(o=>o.el===node);
+  if(obj) obj.text = newWrong;
+}
+
+function bubblePick(node, text){
+  if(!bubbleRunning) return;
+
+  playPop();
+  node.classList.add("pop");
+
+  const correct = L3Q[bubbleIndex].meaning;
+
+  if(text === correct){
+    score += 10;
+    playCorrect();
+    toast("ਸਹੀ ✅ +10");
+    el('score').textContent = score;
+
+    setTimeout(()=>{
+      bubbleIndex++;
+      if(bubbleIndex >= L3Q.length){
+        endBubble(false,true);
+        return;
+      }
+      setBubbleTarget();
+      render4FastBubbles(); // next question => new 4 bubbles
+      setTop("Level 3 (Bubble)", L3Q.length);
+    }, 220);
+
+  }else{
+    playWrong();
+    toast("ਗਲਤ ❌");
+    setTimeout(()=>{
+      node.classList.remove("pop");
+      node.style.opacity = "1";
+      node.style.transform = "scale(1)";
+      replaceWrongBubble(node); // still 4 bubbles
+    }, 220);
+  }
+}
+
+function moveLoop(){
+  if(!bubbleRunning) return;
+  const pf = el("playfield");
+  if(!pf) return;
+
+  const W = pf.clientWidth;
+  const H = pf.clientHeight;
+
+  for(const o of bubbleObjs){
+    o.x += o.vx;
+    o.y += o.vy;
+
+    // bounce
+    if(o.x <= 0 || o.x >= W - o.size){
+      o.vx *= -1;
+      o.x = clamp(o.x, 0, W - o.size);
+    }
+    if(o.y <= 0 || o.y >= H - o.size){
+      o.vy *= -1;
+      o.y = clamp(o.y, 0, H - o.size);
+    }
+
+    o.el.style.left = o.x + "px";
+    o.el.style.top  = o.y + "px";
+  }
+
+  rafId = requestAnimationFrame(moveLoop);
+}
+
+function stopBubbleLoop(){
+  bubbleRunning = false;
+  clearInterval(bubbleTimer);
+  if(rafId) cancelAnimationFrame(rafId);
+  rafId = null;
+}
+
+function restartBubble(){
+  playClick();
+  stopBubbleLoop();
+  startLevel(3);
+}
+
+function endBubble(timeout=false, completed=false){
+  stopBubbleLoop();
+
+  if(completed){ playWin(); toast("Completed 🏆"); }
+  else if(timeout){ playWrong(); toast("Time Up ⏱️"); }
+  else { playClick(); toast("Level End"); }
+
+  const done = bubbleIndex;
+  el('stage').innerHTML = `
+    <div class="qtitle">${completed ? "🏆 Level 3 Completed!" : (timeout ? "⏱️ Time Up!" : "✅ Level 3 Ended")}</div>
+    <div style="font-size:18px;margin:10px 0">
+      Done: <b>${done}</b> / 10 &nbsp; | &nbsp; Score: <b>${score}</b>
+    </div>
+    <div class="btnrow">
+      <button onclick="startLevel(3)">Play Level 3 Again</button>
+      <button class="secondary" onclick="goMenu()">Menu</button>
+    </div>
+  `;
+}
+
+/* ===================== Next button ===================== */
+function next(){
+  playClick();
+
+  if(currentLevel===0){ toast("Menu ਤੋਂ ਲੈਵਲ ਚੁਣੋ 👇"); return; }
+
+  if(currentLevel===1){
+    idx++;
+    if(idx>=L1Q.length){
+      playWin();
+      el('stage').innerHTML = `
+        <div class="qtitle">🎉 Level 1 Completed!</div>
+        <div style="font-size:18px;margin:10px 0">ਸਕੋਰ: <b>${score}</b></div>
+        <div class="btnrow">
+          <button onclick="startLevel(2)">ਹੁਣ Level 2 ➡️</button>
+          <button class="secondary" onclick="goMenu()">Menu</button>
+        </div>`;
+      return;
+    }
+    renderL1();
+  }
+
+  if(currentLevel===2){
+    // Require all filled + checked
+    const anyEmpty = ddState.some(s=>!s.dropped);
+    const anyUnchecked = ddState.some(s=>s.dropped && !s.checked);
+
+    if(anyEmpty){ playWrong(); toast("ਹਰ ਬਾਕਸ ਭਰੋ 👆"); return; }
+    if(anyUnchecked){ playWrong(); toast("ਪਹਿਲਾਂ Check ✅ ਦਬਾਓ"); return; }
+
+    playWin();
+    el('stage').innerHTML = `
+      <div class="qtitle">🎉 Level 2 Completed!</div>
+      <div style="font-size:18px;margin:10px 0">ਸਕੋਰ: <b>${score}</b></div>
+      <div class="btnrow">
+        <button onclick="startLevel(3)">ਹੁਣ Level 3 (Bubble) ➡️</button>
+        <button class="secondary" onclick="goMenu()">Menu</button>
+      </div>`;
+    return;
+  }
+
+  if(currentLevel===3){
+    toast("Level 3 ਵਿੱਚ Next ਨਹੀਂ — ਬੁਬਲ ਟੈਪ ਕਰੋ ✅");
+  }
+}
+
+/* ===================== Start on Menu ===================== */
+goMenu();
+</script>
+</body>
+</html>

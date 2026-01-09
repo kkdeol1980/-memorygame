@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ਵਿਸ਼ੇਸ਼ਣ</title>
+
+<style>
+body{
+  font-family:"Noto Sans Gurmukhi", Arial;
+  background:linear-gradient(135deg,#e8f5e9,#ffffff);
+  margin:0;
+  padding:15px;
+  text-align:center;
+}
+h1{color:#1b5e20;margin:5px 0 10px;}
+.top{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+.box{
+  background:#ffffff;
+  padding:8px 14px;
+  border-radius:20px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+  font-size:16px;
+}
+#sentence{
+  margin:15px 0;
+  padding:15px;
+  background:#f1f8e9;
+  border-radius:15px;
+  font-size:26px;
+}
+#options{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;}
+.btn{
+  padding:10px 15px;
+  font-size:20px;
+  border:none;
+  border-radius:14px;
+  background:#4caf50;
+  color:white;
+  cursor:pointer;
+}
+.btn:active{transform:scale(0.96);}
+#result{font-size:22px;margin:10px;min-height:28px;}
+.good{color:#1b5e20;font-weight:bold;}
+.bad{color:#b71c1c;font-weight:bold;}
+</style>
+</head>
+
+<body>
+
+<h1>🎯 ਵਿਸ਼ੇਸ਼ਣ</h1>
+
+<div class="top">
+  <div class="box" id="levelBox">Level 1</div>
+  <div class="box" id="scoreBox">Score: 0</div>
+  <div class="box" id="qBox">Q: 1</div>
+</div>
+
+<div id="sentence"></div>
+<div id="options"></div>
+<div id="result"></div>
+
+<audio id="correctSound">
+  <source src="sounds/correct.mp3" type="audio/mpeg">
+</audio>
+<audio id="wrongSound">
+  <source src="sounds/wrong.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+let score=0, level=0, q=0;
+
+/* ✅ 36 Questions (12 per level) - grammar correct */
+const levels=[
+{
+ name:"Level 1 (ਸੌਖਾ)",
+ questions:[
+  {s:"ਸੇਬ _____ ਹੁੰਦਾ ਹੈ।",a:"ਮਿੱਠਾ"},
+  {s:"ਨਿੰਬੂ _____ ਹੁੰਦਾ ਹੈ।",a:"ਖੱਟਾ"},
+  {s:"ਅੱਗ _____ ਹੁੰਦੀ ਹੈ।",a:"ਗਰਮ"},
+  {s:"ਬਰਫ਼ _____ ਹੁੰਦੀ ਹੈ।",a:"ਠੰਡੀ"},
+  {s:"ਇਹ ਕੰਮ _____ ਹੈ।",a:"ਚੰਗਾ"},
+  {s:"ਉਹ ਬੱਚਾ _____ ਹੈ।",a:"ਨੇਕ"},
+  {s:"ਉਹ ਗੱਲ _____ ਹੈ।",a:"ਸੱਚੀ"},
+  {s:"ਇਹ ਕਹਾਣੀ _____ ਹੈ।",a:"ਝੂਠੀ"},
+  {s:"ਇਹ ਫਲ _____ ਹੈ।",a:"ਮਿੱਠਾ"},
+  {s:"ਇਹ ਦਹੀਂ _____ ਹੈ।",a:"ਖੱਟਾ"},
+  {s:"ਚਾਹ _____ ਹੈ।",a:"ਗਰਮ"},
+  {s:"ਪਾਣੀ _____ ਹੈ।",a:"ਠੰਡਾ"}
+ ]
+},
+{
+ name:"Level 2 (ਦਰਮਿਆਨਾ)",
+ questions:[
+  {s:"ਸੂਈ ਬਹੁਤ _____ ਹੁੰਦੀ ਹੈ।",a:"ਪਤਲੀ"},
+  {s:"ਪਹਾੜ ਬਹੁਤ _____ ਹੁੰਦਾ ਹੈ।",a:"ਉੱਚਾ"},
+  {s:"ਪੱਤੀ _____ ਹੁੰਦੀ ਹੈ।",a:"ਹਲਕੀ"},
+  {s:"ਹਾਥੀ _____ ਹੁੰਦਾ ਹੈ।",a:"ਭਾਰਾ"},
+  {s:"ਇਹ ਰੱਸੀ ਬਹੁਤ _____ ਹੈ।",a:"ਲੰਮੀ"},
+  {s:"ਇਹ ਗਲੀ ਬਹੁਤ _____ ਹੈ।",a:"ਛੋਟੀ"},
+  {s:"ਇਹ ਡੱਬਾ _____ ਹੈ।",a:"ਭਾਰੀ"},
+  {s:"ਇਹ ਕਾਗਜ਼ _____ ਹੈ।",a:"ਹਲਕਾ"},
+  {s:"ਉਹ ਲੜਕਾ _____ ਹੈ।",a:"ਮੋਟਾ"},
+  {s:"ਉਹ ਲੜਕੀ _____ ਹੈ।",a:"ਪਤਲੀ"},
+  {s:"ਇਹ ਮਕਾਨ _____ ਹੈ।",a:"ਉੱਚਾ"},
+  {s:"ਇਹ ਖੱਡ _____ ਹੈ।",a:"ਨੀਵੀਂ"}
+ ]
+},
+{
+ name:"Level 3 (ਔਖਾ)",
+ questions:[
+  {s:"ਇਹ ਕਮੀਜ਼ ਬਹੁਤ _____ ਹੈ।",a:"ਢਿੱਲੀ"},
+  {s:"ਇਹ ਪੈਂਟ ਬਹੁਤ _____ ਹੈ।",a:"ਤੰਗ"},
+  {s:"ਇਹ ਰਸਤਾ ਬਹੁਤ _____ ਹੁੰਦਾ ਹੈ।",a:"ਲੰਮਾ"},
+  {s:"ਇਹ ਕੰਮ ਬਹੁਤ _____ ਹੈ।",a:"ਔਖਾ"},
+  {s:"ਉਹ ਬੱਚਾ _____ ਹੈ।",a:"ਚੰਗਾ"},
+  {s:"ਉਹ ਗੱਲ _____ ਹੈ।",a:"ਝੂਠੀ"},
+  {s:"ਇਹ ਜਵਾਬ _____ ਹੈ।",a:"ਸੱਚਾ"},
+  {s:"ਇਹ ਚੀਜ਼ _____ ਹੈ।",a:"ਬੁਰੀ"},
+  {s:"ਸਿਆਣਾ ਬੰਦਾ _____ ਫੈਸਲਾ ਕਰਦਾ ਹੈ।",a:"ਚੰਗਾ"},
+  {s:"ਉਹ ਵਿਦਿਆਰਥੀ _____ ਕੰਮ ਕਰਦਾ ਹੈ।",a:"ਨੇਕ"},
+  {s:"ਇਹ ਬੋਤਲ _____ ਹੈ।",a:"ਭਾਰੀ"},
+  {s:"ਇਹ ਪੰਖ _____ ਹੈ।",a:"ਹਲਕਾ"}
+ ]
+}
+];
+
+/* ✅ Options word bank (masc + fem forms included) */
+const words=[
+"ਮਿੱਠਾ","ਖੱਟਾ","ਗਰਮ","ਠੰਡਾ","ਠੰਡੀ",
+"ਚੰਗਾ","ਨੇਕ","ਸੱਚਾ","ਸੱਚੀ","ਝੂਠਾ","ਝੂਠੀ",
+"ਪਤਲਾ","ਪਤਲੀ","ਮੋਟਾ","ਉੱਚਾ","ਨੀਵਾਂ","ਨੀਵੀਂ",
+"ਲੰਮਾ","ਲੰਮੀ","ਛੋਟਾ","ਛੋਟੀ",
+"ਭਾਰਾ","ਭਾਰੀ","ਹਲਕਾ","ਹਲਕੀ",
+"ਢਿੱਲਾ","ਢਿੱਲੀ","ਤੰਗ",
+"ਬੁਰਾ","ਬੁਰੀ","ਔਖਾ"
+];
+
+function load(){
+ document.getElementById("levelBox").innerText = levels[level].name;
+ document.getElementById("scoreBox").innerText = "Score: " + score;
+ document.getElementById("qBox").innerText = "Q: " + (q+1) + "/" + levels[level].questions.length;
+
+ let ques = levels[level].questions[q];
+ document.getElementById("sentence").innerText = ques.s.replace("_____","______");
+ document.getElementById("result").innerText="";
+
+ let opts=[ques.a];
+ while(opts.length<4){
+  let w = words[Math.floor(Math.random()*words.length)];
+  if(!opts.includes(w)) opts.push(w);
+ }
+ opts.sort(()=>0.5-Math.random());
+
+ let opDiv=document.getElementById("options");
+ opDiv.innerHTML="";
+ opts.forEach(w=>{
+  let b=document.createElement("button");
+  b.className="btn";
+  b.innerText=w;
+  b.onclick=()=>check(w,ques.a);
+  opDiv.appendChild(b);
+ });
+}
+
+function check(sel,ans){
+ if(sel===ans){
+  document.getElementById("correctSound").play();
+  document.getElementById("result").innerHTML="<span class='good'>✅ ਸਹੀ!</span>";
+  score++;
+
+  q++;
+  if(q>=levels[level].questions.length){
+    level++; q=0;
+    if(level>=levels.length){
+      document.getElementById("sentence").innerText="🎉 ਸਭ Levels ਪੂਰੇ! Final Score: " + score;
+      document.getElementById("options").innerHTML="";
+      document.getElementById("qBox").innerText="Done ✅";
+      return;
+    }
+  }
+  setTimeout(load,700);
+ }else{
+  document.getElementById("wrongSound").play();
+  document.getElementById("result").innerHTML="<span class='bad'>❌ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ</span>";
+ }
+}
+
+load();
+</script>
+
+</body>
+</html>

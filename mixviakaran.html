@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ਪੰਜਾਬੀ ਵਿਆਕਰਨ ਗੇਮ (PSEB 6ਵੀਂ–8ਵੀਂ)</title>
+<style>
+  body{font-family:"Noto Sans Gurmukhi", Arial;background:linear-gradient(135deg,#e8f5e9,#fff);margin:0;padding:14px;text-align:center;}
+  h1{margin:8px 0 10px;color:#1b5e20;font-size:24px;}
+  .wrap{max-width:980px;margin:0 auto;}
+  .top{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;margin:10px 0;}
+  .chip{background:#fff;border-radius:999px;padding:10px 14px;box-shadow:0 6px 18px rgba(0,0,0,.08);font-size:14px;}
+  .btn{border:none;border-radius:14px;padding:10px 14px;cursor:pointer;box-shadow:0 6px 18px rgba(0,0,0,.08);font-size:14px;}
+  .btn.primary{background:#2e7d32;color:#fff;}
+  .btn.secondary{background:#fff;color:#1b5e20;}
+  .card{background:#fff;border-radius:18px;box-shadow:0 10px 30px rgba(0,0,0,.10);padding:14px;margin-top:10px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px;}
+  .tile{background:linear-gradient(135deg,#f1f8e9,#fff);border:1px solid #e7f2e7;border-radius:16px;padding:14px;cursor:pointer;transition:.15s;}
+  .tile:hover{filter:brightness(.99);}
+  .tile:active{transform:scale(.98);}
+  .title{font-size:18px;color:#1b5e20;font-weight:700;margin-bottom:6px;}
+  .sub{font-size:13px;color:#2e7d32;opacity:.9;}
+  #question{font-size:20px;margin:8px 0 10px;}
+  #options{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:10px 0;}
+  .opt{background:#4caf50;color:#fff;border:none;border-radius:14px;padding:10px 14px;font-size:16px;cursor:pointer;min-width:120px;}
+  .opt:active{transform:scale(.97);}
+  #result{min-height:26px;font-size:18px;margin-top:6px;}
+  .good{color:#1b5e20;font-weight:700;}
+  .bad{color:#b71c1c;font-weight:700;}
+  .bar{height:12px;background:#e9f5e9;border-radius:999px;overflow:hidden;border:1px solid #d7ead7;}
+  .fill{height:100%;width:0%;background:#2e7d32;transition:width .25s;}
+  .small{font-size:12px;color:#1b5e20;opacity:.85;margin-top:8px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📚 ਪੰਜਾਬੀ ਵਿਆਕਰਨ ਗੇਮ (PSEB 6ਵੀਂ–8ਵੀਂ)</h1>
+
+  <div class="top">
+    <div class="chip" id="modeChip">Mode: Topics</div>
+    <div class="chip" id="topicChip">ਵਿਸ਼ਾ: —</div>
+    <div class="chip" id="levelChip">ਪੱਧਰ: —</div>
+    <div class="chip" id="scoreChip">ਅੰਕ: 0</div>
+    <button class="btn secondary" id="soundBtn">🔊 ਧੁਨੀ: ਚਾਲੂ</button>
+    <button class="btn secondary" id="homeBtn">🏠 ਵਿਸ਼ੇ</button>
+    <button class="btn primary" id="restartBtn">↻ ਪੱਧਰ ਮੁੜ</button>
+  </div>
+
+  <div class="card">
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <div id="screen"></div>
+    <div class="small">✅ Tip: ਪਹਿਲਾਂ ਵਿਸ਼ਾ → ਫਿਰ ਪੱਧਰ → ਫਿਰ ਪ੍ਰਸ਼ਨ</div>
+  </div>
+</div>
+
+<script>
+/* =======================
+   Sound (No mp3 needed)
+   WebAudio Beeps
+======================= */
+let soundOn = true;
+let audioCtx = null;
+
+function beep(type){
+  if(!soundOn) return;
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+
+    const now = audioCtx.currentTime;
+    const freq = (type==="ok") ? 880 : 220;
+    const dur  = (type==="ok") ? 0.10 : 0.18;
+
+    o.frequency.setValueAtTime(freq, now);
+    o.type = "sine";
+
+    g.gain.setValueAtTime(0.001, now);
+    g.gain.exponentialRampToValueAtTime(0.35, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+    o.start(now);
+    o.stop(now + dur);
+  }catch(e){}
+}
+
+function shuffle(a){
+  a=a.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+/* ✅ Auto normalize (। vs ۔) */
+function normalizeText(t){
+  return (t || "").trim().replaceAll("۔","।");
+}
+
+/* ==============================
+   Question Bank (ਸ਼ੁੱਧ ਪੰਜਾਬੀ terms)
+   type: "mcq" | "tf"
+================================= */
+const BANK = [
+  {
+    topicId:"bhasha-vyakaran",
+    topicName:"ਭਾਸ਼ਾ ਅਤੇ ਵਿਆਕਰਨ",
+    levels:[
+      { levelName:"ਪੱਧਰ 1",
+        questions:[
+          {type:"mcq", q:"ਵਿਆਕਰਨ ਕੀ ਹੈ?", options:["ਭਾਸ਼ਾ ਦੇ ਨਿਯਮਾਂ ਦਾ ਸਮੂਹ","ਕਵਿਤਾ ਦਾ ਰਸ","ਕਹਾਣੀ ਦੀ ਘਟਨਾ","ਅੱਖਰਾਂ ਦੀ ਲੜੀ"], a:"ਭਾਸ਼ਾ ਦੇ ਨਿਯਮਾਂ ਦਾ ਸਮੂਹ"},
+          {type:"mcq", q:"ਵਿਆਕਰਨ ਪੜ੍ਹਨਾ ਕਿਉਂ ਜ਼ਰੂਰੀ ਹੈ?", options:["ਸ਼ੁੱਧ ਬੋਲਣ ਅਤੇ ਲਿਖਣ ਲਈ","ਕੇਵਲ ਗਾਉਣ ਲਈ","ਕੇਵਲ ਖੇਡਣ ਲਈ","ਕੇਵਲ ਗਿਣਤੀ ਲਈ"], a:"ਸ਼ੁੱਧ ਬੋਲਣ ਅਤੇ ਲਿਖਣ ਲਈ"},
+          {type:"tf",  q:"ਭਾਸ਼ਾ ਸੰਚਾਰ ਦਾ ਸਾਧਨ ਹੈ।", a:"ਸਹੀ"},
+          {type:"mcq", q:"ਭਾਸ਼ਾ ਦੇ ਦੋ ਮੁੱਖ ਰੂਪ ਕਿਹੜੇ ਹਨ?", options:["ਮੌਖਿਕ ਤੇ ਲਿਖਤੀ","ਗਰਮ ਤੇ ਠੰਡੀ","ਛੋਟੀ ਤੇ ਵੱਡੀ","ਸਹੀ ਤੇ ਗਲਤ"], a:"ਮੌਖਿਕ ਤੇ ਲਿਖਤੀ"},
+          {type:"tf",  q:"ਲਿਖਤੀ ਭਾਸ਼ਾ ਕਿਤਾਬਾਂ ਵਿੱਚ ਮਿਲਦੀ ਹੈ।", a:"ਸਹੀ"}
+        ]
+      },
+      { levelName:"ਪੱਧਰ 2",
+        questions:[
+          {type:"tf",  q:"ਵਿਆਕਰਨ ਤੋਂ ਬਿਨਾਂ ਭਾਸ਼ਾ ਸਦਾ ਸ਼ੁੱਧ ਰਹਿੰਦੀ ਹੈ।", a:"ਗਲਤ"},
+          {type:"mcq", q:"ਸ਼ੁੱਧ ਲਿਖਣ ਲਈ ਕੀ ਮਦਦ ਕਰਦਾ ਹੈ?", options:["ਵਿਆਕਰਨ ਅਤੇ ਅਭਿਆਸ","ਕੇਵਲ ਚਿੱਤਰ","ਕੇਵਲ ਗੀਤ","ਕੇਵਲ ਨਾਟਕ"], a:"ਵਿਆਕਰਨ ਅਤੇ ਅਭਿਆਸ"},
+          {type:"tf",  q:"ਭਾਸ਼ਾ ਨਾਲ ਵਿਚਾਰ ਪ੍ਰਗਟ ਹੁੰਦੇ ਹਨ।", a:"ਸਹੀ"},
+          {type:"mcq", q:"ਮੌਖਿਕ ਭਾਸ਼ਾ ਦਾ ਅਰਥ ਕੀ ਹੈ?", options:["ਬੋਲ ਕੇ ਵਰਤੀ ਜਾਣ ਵਾਲੀ","ਕੇਵਲ ਲਿਖੀ ਹੋਈ","ਕੇਵਲ ਇਸ਼ਾਰਿਆਂ ਵਾਲੀ","ਕੇਵਲ ਕੰਪਿਊਟਰ ਵਾਲੀ"], a:"ਬੋਲ ਕੇ ਵਰਤੀ ਜਾਣ ਵਾਲੀ"}
+        ]
+      }
+    ]
+  },
+
+  {
+    topicId:"naav",
+    topicName:"ਨਾਂਵ",
+    levels:[
+      { levelName:"ਪੱਧਰ 1",
+        questions:[
+          {type:"mcq", q:"ਨਾਂਵ ਕੀ ਹੁੰਦਾ ਹੈ?", options:["ਵਿਅਕਤੀ/ਵਸਤੂ/ਥਾਂ ਦੇ ਨਾਮ ਵਾਲਾ ਸ਼ਬਦ","ਕੰਮ ਕਰਨ ਵਾਲਾ ਸ਼ਬਦ","ਗੁਣ ਦੱਸਣ ਵਾਲਾ ਸ਼ਬਦ","ਜੋੜਨ ਵਾਲਾ ਸ਼ਬਦ"], a:"ਵਿਅਕਤੀ/ਵਸਤੂ/ਥਾਂ ਦੇ ਨਾਮ ਵਾਲਾ ਸ਼ਬਦ"},
+          {type:"mcq", q:"‘ਕਿਤਾਬ’ ਕਿਹੜਾ ਸ਼ਬਦ-ਭਾਗ ਹੈ?", options:["ਨਾਂਵ","ਕਿਰਿਆ","ਵਿਸ਼ੇਸ਼ਣ","ਪੜਨਾਂਵ"], a:"ਨਾਂਵ"},
+          {type:"mcq", q:"‘ਅੰਮ੍ਰਿਤਸਰ’ ਕੀ ਹੈ?", options:["ਥਾਂ ਦਾ ਨਾਂਵ","ਕਿਰਿਆ","ਵਿਸ਼ੇਸ਼ਣ","ਪੜਨਾਂਵ"], a:"ਥਾਂ ਦਾ ਨਾਂਵ"},
+          {type:"tf",  q:"‘ਘਰ, ਸਕੂਲ, ਬੱਚਾ’ ਨਾਂਵ ਹਨ।", a:"ਸਹੀ"}
+        ]
+      },
+      { levelName:"ਪੱਧਰ 2",
+        questions:[
+          {type:"mcq", q:"‘ਗਾਂ’ ਕਿਹੜੇ ਲਿੰਗ ਦਾ ਨਾਂਵ ਹੈ?", options:["ਇਸਤਰੀ ਲਿੰਗ","ਪੁਲਿੰਗ"], a:"ਇਸਤਰੀ ਲਿੰਗ"},
+          {type:"mcq", q:"‘ਲੜਕਾ’ ਕਿਹੜੇ ਲਿੰਗ ਦਾ ਨਾਂਵ ਹੈ?", options:["ਪੁਲਿੰਗ","ਇਸਤਰੀ ਲਿੰਗ"], a:"ਪੁਲਿੰਗ"},
+          {type:"tf",  q:"ਨਾਂਵ ਇਕਵਚਨ ਅਤੇ ਬਹੁਵਚਨ ਵਿੱਚ ਵੀ ਹੁੰਦੇ ਹਨ।", a:"ਸਹੀ"},
+          {type:"mcq", q:"‘ਬੱਚੇ’ ਕਿਸ ਦੀ ਉਦਾਹਰਨ ਹੈ?", options:["ਬਹੁਵਚਨ ਨਾਂਵ","ਇਕਵਚਨ ਨਾਂਵ"], a:"ਬਹੁਵਚਨ ਨਾਂਵ"}
+        ]
+      }
+    ]
+  },
+
+  {
+    topicId:"pardnaav",
+    topicName:"ਪੜਨਾਂਵ",
+    levels:[
+      { levelName:"ਪੱਧਰ 1",
+        questions:[
+          {type:"mcq", q:"ਪੜਨਾਂਵ ਕੀ ਹੁੰਦਾ ਹੈ?", options:["ਨਾਂਵ ਦੀ ਥਾਂ ਵਰਤਿਆ ਜਾਣ ਵਾਲਾ ਸ਼ਬਦ","ਕੰਮ ਕਰਨ ਵਾਲਾ ਸ਼ਬਦ","ਗੁਣ ਦੱਸਣ ਵਾਲਾ ਸ਼ਬਦ","ਜੋੜਨ ਵਾਲਾ ਸ਼ਬਦ"], a:"ਨਾਂਵ ਦੀ ਥਾਂ ਵਰਤਿਆ ਜਾਣ ਵਾਲਾ ਸ਼ਬਦ"},
+          {type:"mcq", q:"‘ਮੈਂ’ ਕਿਹੜਾ ਸ਼ਬਦ-ਭਾਗ ਹੈ?", options:["ਪੜਨਾਂਵ","ਨਾਂਵ","ਕਿਰਿਆ","ਵਿਸ਼ੇਸ਼ਣ"], a:"ਪੜਨਾਂਵ"},
+          {type:"mcq", q:"‘ਉਹ’ ਕਿਹੜਾ ਸ਼ਬਦ-ਭਾਗ ਹੈ?", options:["ਪੜਨਾਂਵ","ਨਾਂਵ","ਕਿਰਿਆ","ਯੋਜਕ"], a:"ਪੜਨਾਂਵ"},
+          {type:"tf",  q:"‘ਮੈਂ, ਤੂੰ, ਉਹ’ ਪੜਨਾਂਵ ਹਨ।", a:"ਸਹੀ"}
+        ]
+      }
+    ]
+  },
+
+  {
+    topicId:"visheshan",
+    topicName:"ਵਿਸ਼ੇਸ਼ਣ",
+    levels:[
+      { levelName:"ਪੱਧਰ 1",
+        questions:[
+          {type:"mcq", q:"ਵਿਸ਼ੇਸ਼ਣ ਕੀ ਹੁੰਦਾ ਹੈ?", options:["ਨਾਂਵ/ਪੜਨਾਂਵ ਦਾ ਗੁਣ ਦੱਸਣ ਵਾਲਾ ਸ਼ਬਦ","ਕੰਮ ਕਰਨ ਵਾਲਾ ਸ਼ਬਦ","ਨਾਂਵ ਦੀ ਥਾਂ ਵਰਤਿਆ ਸ਼ਬਦ","ਜੋੜਨ ਵਾਲਾ ਸ਼ਬਦ"], a:"ਨਾਂਵ/ਪੜਨਾਂਵ ਦਾ ਗੁਣ ਦੱਸਣ ਵਾਲਾ ਸ਼ਬਦ"},
+          {type:"mcq", q:"‘ਚੰਗਾ ਬੱਚਾ’ ਵਿੱਚ ਵਿਸ਼ੇਸ਼ਣ ਕਿਹੜਾ ਹੈ?", options:["ਚੰਗਾ","ਬੱਚਾ","ਦੋਵੇਂ","ਕੋਈ ਨਹੀਂ"], a:"ਚੰਗਾ"},
+          {type:"mcq", q:"‘ਛੋਟੀ ਗਲੀ’ ਵਿੱਚ ਵਿਸ਼ੇਸ਼ਣ ਕਿਹੜਾ ਹੈ?", options:["ਛੋਟੀ","ਗਲੀ","ਦੋਵੇਂ","ਕੋਈ ਨਹੀਂ"], a:"ਛੋਟੀ"},
+          {type:"tf",  q:"‘ਉੱਚਾ, ਨੀਵਾਂ, ਮਿੱਠਾ’ ਵਿਸ਼ੇਸ਼ਣ ਹਨ।", a:"ਸਹੀ"}
+        ]
+      },
+      { levelName:"ਪੱਧਰ 2",
+        questions:[
+          {type:"mcq", q:"ਸਹੀ ਵਾਕ ਚੁਣੋ:", options:["ਸੂਈ ਪਤਲੀ ਹੁੰਦੀ ਹੈ।","ਸੂਈ ਪਤਲਾ ਹੁੰਦਾ ਹੈ।"], a:"ਸੂਈ ਪਤਲੀ ਹੁੰਦੀ ਹੈ।"},
+          {type:"mcq", q:"ਸਹੀ ਵਾਕ ਚੁਣੋ:", options:["ਰਸਤਾ ਲੰਮਾ ਹੁੰਦਾ ਹੈ।","ਰਸਤਾ ਲੰਮੀ ਹੁੰਦੀ ਹੈ।"], a:"ਰਸਤਾ ਲੰਮਾ ਹੁੰਦਾ ਹੈ।"},
+          {type:"mcq", q:"ਸਹੀ ਵਾਕ ਚੁਣੋ:", options:["ਗਲੀ ਛੋਟੀ ਹੈ।","ਗਲੀ ਛੋਟਾ ਹੈ।"], a:"ਗਲੀ ਛੋਟੀ ਹੈ।"},
+          /* ✅ fixed answer + normalize handles future too */
+          {type:"mcq", q:"ਸਹੀ ਵਾਕ ਚੁਣੋ:", options:["ਕਮੀਜ਼ ਢਿੱਲੀ ਹੈ।","ਕਮੀਜ਼ ਢਿੱਲਾ ਹੈ।"], a:"ਕਮੀਜ਼ ਢਿੱਲੀ ਹੈ।"}
+        ]
+      }
+    ]
+  },
+
+  {
+    topicId:"ling",
+    topicName:"ਲਿੰਗ",
+    levels:[
+      { levelName:"ਪੱਧਰ 1",
+        questions:[
+          {type:"mcq", q:"‘ਲੜਕਾ’ ਕਿਹੜੇ ਲਿੰਗ ਦਾ ਸ਼ਬਦ ਹੈ?", options:["ਪੁਲਿੰਗ","ਇਸਤਰੀ ਲਿੰਗ"], a:"ਪੁਲਿੰਗ"},
+          {type:"mcq", q:"‘ਲੜਕੀ’ ਕਿਹੜੇ ਲਿੰਗ ਦਾ ਸ਼ਬਦ ਹੈ?", options:["ਇਸਤਰੀ ਲਿੰਗ","ਪੁਲਿੰਗ"], a:"ਇਸਤਰੀ ਲਿੰਗ"},
+          {type:"mcq", q:"‘ਗਾਂ’ ਕਿਹੜੇ ਲਿੰਗ ਦਾ ਸ਼ਬਦ ਹੈ?", options:["ਇਸਤਰੀ ਲਿੰਗ","ਪੁਲਿੰਗ"], a:"ਇਸਤਰੀ ਲਿੰਗ"},
+          {type:"mcq", q:"‘ਕੁੱਤਾ’ ਕਿਹੜੇ ਲਿੰਗ ਦਾ ਸ਼ਬਦ ਹੈ?", options:["ਪੁਲਿੰਗ","ਇਸਤਰੀ ਲਿੰਗ"], a:"ਪੁਲਿੰਗ"},
+          {type:"tf",  q:"ਲਿੰਗ ਦੇ ਦੋ ਪ੍ਰਕਾਰ ਹਨ: ਪੁਲਿੰਗ ਅਤੇ ਇਸਤਰੀ ਲਿੰਗ।", a:"ਸਹੀ"}
+        ]
+      }
+    ]
+  },
+
+  {
+    topicId:"vachan",
+    topicName:"ਵਚਨ",
+    levels:[
+      { levelName:"ਪੱਧਰ 1",
+        questions:[
+          {type:"mcq", q:"‘ਲੜਕਾ’ ਦਾ ਬਹੁਵਚਨ ਕੀ ਹੈ?", options:["ਲੜਕੇ","ਲੜਕੀਆਂ","ਲੜਕੀ","ਲੜਕਾ"], a:"ਲੜਕੇ"},
+          {type:"mcq", q:"‘ਕਿਤਾਬ’ ਦਾ ਬਹੁਵਚਨ ਕੀ ਹੈ?", options:["ਕਿਤਾਬਾਂ","ਕਿਤਾਬੇ","ਕਿਤਾਬੀ","ਕਿਤਾਬ"], a:"ਕਿਤਾਬਾਂ"},
+          {type:"mcq", q:"‘ਬੱਚਾ’ ਦਾ ਬਹੁਵਚਨ ਕੀ ਹੈ?", options:["ਬੱਚੇ","ਬੱਚੀਆਂ","ਬੱਚੀ","ਬੱਚਾ"], a:"ਬੱਚੇ"},
+          {type:"tf",  q:"ਵਚਨ ਦੇ ਦੋ ਪ੍ਰਕਾਰ ਹਨ: ਇਕਵਚਨ ਅਤੇ ਬਹੁਵਚਨ।", a:"ਸਹੀ"}
+        ]
+      },
+      { levelName:"ਪੱਧਰ 2",
+        questions:[
+          {type:"mcq", q:"ਸਹੀ ਵਾਕ ਚੁਣੋ:", options:["ਬੱਚੇ ਸਕੂਲ ਜਾਂਦੇ ਹਨ।","ਬੱਚੇ ਸਕੂਲ ਜਾਂਦਾ ਹੈ।"], a:"ਬੱਚੇ ਸਕੂਲ ਜਾਂਦੇ ਹਨ।"},
+          {type:"mcq", q:"ਸਹੀ ਵਾਕ ਚੁਣੋ:", options:["ਲੜਕੀ ਘਰ ਜਾਂਦੀ ਹੈ।","ਲੜਕੀ ਘਰ ਜਾਂਦੇ ਹਨ।"], a:"ਲੜਕੀ ਘਰ ਜਾਂਦੀ ਹੈ।"},
+          {type:"mcq", q:"ਸਹੀ ਵਾਕ ਚੁਣੋ:", options:["ਕਿਤਾਬਾਂ ਮੇਜ਼ ਤੇ ਪਈਆਂ ਹਨ।","ਕਿਤਾਬਾਂ ਮੇਜ਼ ਤੇ ਪਈ ਹੈ।"], a:"ਕਿਤਾਬਾਂ ਮੇਜ਼ ਤੇ ਪਈਆਂ ਹਨ।"},
+          {type:"mcq", q:"ਸਹੀ ਵਾਕ ਚੁਣੋ:", options:["ਲੜਕੇ ਖੇਡਦੇ ਹਨ।","ਲੜਕੇ ਖੇਡਦਾ ਹੈ।"], a:"ਲੜਕੇ ਖੇਡਦੇ ਹਨ।"}
+        ]
+      }
+    ]
+  }
+];
+
+/* ==============================
+   App Logic
+================================= */
+let currentTopic = null;
+let currentLevel = null;
+let qIndex = 0;
+let score = 0;
+
+const screen = document.getElementById("screen");
+const modeChip = document.getElementById("modeChip");
+const topicChip = document.getElementById("topicChip");
+const levelChip = document.getElementById("levelChip");
+const scoreChip = document.getElementById("scoreChip");
+const fill = document.getElementById("fill");
+
+function setChips(){
+  modeChip.textContent = "Mode: " + (currentTopic ? (currentLevel ? "Quiz" : "Levels") : "Topics");
+  topicChip.textContent = "ਵਿਸ਼ਾ: " + (currentTopic ? currentTopic.topicName : "—");
+  levelChip.textContent = "ਪੱਧਰ: " + (currentLevel ? currentLevel.levelName : "—");
+  scoreChip.textContent = "ਅੰਕ: " + score;
+}
+
+function showTopics(){
+  currentTopic=null; currentLevel=null; qIndex=0; score=0;
+  setChips(); fill.style.width="0%";
+
+  const tiles = BANK.map(t => `
+    <div class="tile" onclick="openTopic('${t.topicId}')">
+      <div class="title">${t.topicName}</div>
+      <div class="sub">ਪੱਧਰ: ${t.levels.length} • PSEB 6–8</div>
+    </div>
+  `).join("");
+
+  screen.innerHTML = `
+    <div class="title" style="margin-top:6px;">✅ ਵਿਸ਼ਾ ਚੁਣੋ</div>
+    <div class="grid">${tiles}</div>
+  `;
+}
+
+function openTopic(topicId){
+  currentTopic = BANK.find(t=>t.topicId===topicId);
+  currentLevel=null; qIndex=0; score=0;
+  setChips(); fill.style.width="0%";
+
+  const tiles = currentTopic.levels.map((lv, idx) => `
+    <div class="tile" onclick="startLevel(${idx})">
+      <div class="title">${lv.levelName}</div>
+      <div class="sub">ਪ੍ਰਸ਼ਨ: ${lv.questions.length}</div>
+    </div>
+  `).join("");
+
+  screen.innerHTML = `
+    <div class="title">📌 ${currentTopic.topicName}</div>
+    <div class="sub">ਇਥੋਂ ਪੱਧਰ ਚੁਣੋ</div>
+    <div class="grid">${tiles}</div>
+  `;
+}
+
+function startLevel(levelIdx){
+  currentLevel = currentTopic.levels[levelIdx];
+  qIndex=0; score=0;
+  setChips();
+  showQuestion();
+}
+
+function showQuestion(){
+  const qs = currentLevel.questions;
+  const total = qs.length;
+  const qObj = qs[qIndex];
+  fill.style.width = Math.round((qIndex/total)*100) + "%";
+
+  let optionsHTML = "";
+  if(qObj.type==="tf"){
+    const opts = shuffle(["ਸਹੀ","ਗਲਤ"]);
+    optionsHTML = opts.map(o=>`<button class="opt" onclick="answer('${o}')">${o}</button>`).join("");
+  }else{
+    const opts = shuffle(qObj.options);
+    optionsHTML = opts.map(o=>`<button class="opt" onclick="answer('${o.replace(/'/g,"\\'")}')">${o}</button>`).join("");
+  }
+
+  screen.innerHTML = `
+    <div id="question"><b>ਪ੍ਰਸ਼ਨ ${qIndex+1}.</b> ${qObj.q}</div>
+    <div id="options">${optionsHTML}</div>
+    <div id="result"></div>
+    <div class="small">ਕਿਸਮ: ${qObj.type.toUpperCase()} • ${qIndex+1}/${total}</div>
+  `;
+  setChips();
+}
+
+function answer(selected){
+  const qObj = currentLevel.questions[qIndex];
+  const result = document.getElementById("result");
+
+  const sel = normalizeText(selected);
+  const ans = normalizeText(qObj.a);
+
+  if(sel === ans){
+    beep("ok");
+    score++;
+    result.innerHTML = `<span class="good">✅ ਸਹੀ!</span>`;
+    setChips();
+
+    setTimeout(()=>{
+      qIndex++;
+      if(qIndex >= currentLevel.questions.length){
+        fill.style.width="100%";
+        screen.innerHTML = `
+          <div class="title">🎉 ਪੱਧਰ ਪੂਰਾ!</div>
+          <div class="sub">ਅੰਤਿਮ ਅੰਕ: <b>${score}</b> / ${currentLevel.questions.length}</div>
+          <div style="margin-top:12px;">
+            <button class="btn primary" onclick="openTopic('${currentTopic.topicId}')">⬅ ਪੱਧਰ</button>
+            <button class="btn secondary" onclick="showTopics()">🏠 ਵਿਸ਼ੇ</button>
+          </div>
+        `;
+        setChips();
+      }else{
+        showQuestion();
+      }
+    }, 650);
+
+  }else{
+    beep("bad");
+    result.innerHTML = `<span class="bad">❌ ਗਲਤ — ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ</span>`;
+  }
+}
+
+/* Buttons */
+document.getElementById("soundBtn").onclick = ()=>{
+  soundOn = !soundOn;
+  document.getElementById("soundBtn").textContent = soundOn ? "🔊 ਧੁਨੀ: ਚਾਲੂ" : "🔇 ਧੁਨੀ: ਬੰਦ";
+};
+document.getElementById("homeBtn").onclick = ()=>showTopics();
+document.getElementById("restartBtn").onclick = ()=>{
+  if(currentTopic && currentLevel){ qIndex=0; score=0; showQuestion(); }
+  else if(currentTopic && !currentLevel){ openTopic(currentTopic.topicId); }
+  else showTopics();
+};
+
+window.openTopic = openTopic;
+window.startLevel = startLevel;
+window.answer = answer;
+
+showTopics();
+</script>
+</body>
+</html>
