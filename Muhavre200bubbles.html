@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>ਮੁਹਾਵਰੇ • 200 • 4 Levels</title>
+<style>
+  :root{
+    --bg1:#06102a; --bg2:#0b2a52;
+    --card:#0f1733cc; --text:#f3f6ff; --muted:#c7d2ff;
+    --line:#ffffff26; --good:#1b8a5b55; --bad:#a51b3c55;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; color:var(--text);
+    font-family: system-ui, -apple-system, "Noto Sans Gurmukhi", "Segoe UI", Roboto, Arial;
+    background:
+      radial-gradient(1200px 800px at 20% 10%, #2a5a8a 0%, transparent 55%),
+      radial-gradient(1000px 700px at 90% 35%, #2b8a6a 0%, transparent 55%),
+      linear-gradient(135deg,var(--bg1),var(--bg2));
+    overflow:hidden;
+  }
+  .wrap{
+    height:100dvh; height:100vh;
+    display:flex; flex-direction:column;
+    padding:max(8px, env(safe-area-inset-top)) 8px max(8px, env(safe-area-inset-bottom)) 8px;
+    gap:8px;
+  }
+  .topbar{
+    display:flex; gap:8px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+  }
+  .badge{
+    background:#ffffff12; border:1px solid var(--line);
+    border-radius:999px; padding:6px 10px; font-weight:1000;
+    backdrop-filter: blur(10px); font-size:13px;
+  }
+  .btn{
+    appearance:none; border:none; border-radius:12px; padding:8px 10px;
+    font-weight:1000; background:#ffffff14; color:var(--text);
+    border:1px solid var(--line); cursor:pointer; backdrop-filter: blur(10px);
+    touch-action: manipulation; font-size:12px;
+  }
+  .btn:active{transform:scale(.98)}
+  .btn.primary{ background:#2d7cff44; border-color:#77a8ff55 }
+  .btn.good{ background:var(--good); border-color:#4dff9d66 }
+  .btn.bad{ background:var(--bad); border-color:#ff5a7a66 }
+
+  .stats{display:flex; gap:6px; flex-wrap:wrap; align-items:center; justify-content:flex-end;}
+  .chip{
+    background:#ffffff10; border:1px solid var(--line);
+    border-radius:999px; padding:6px 10px; font-weight:1000;
+    backdrop-filter: blur(10px);
+    display:flex; gap:6px; align-items:center; font-size:12px;
+  }
+  .chip small{color:var(--muted); font-weight:1000}
+
+  .controls{
+    background: var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:10px;
+    backdrop-filter: blur(12px);
+    display:flex;
+    gap:10px;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+  }
+  .slider{
+    display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+    background:#ffffff10; border:1px solid var(--line);
+    border-radius:12px; padding:6px 8px;
+    backdrop-filter: blur(10px);
+    font-weight:1000; font-size:12px;
+  }
+  input[type="range"]{ width:140px }
+
+  .play{
+    position:relative;
+    flex:1;
+    border-radius:20px;
+    border:1px solid var(--line);
+    background:
+      radial-gradient(900px 500px at 30% 20%, #ffffff12 0%, transparent 60%),
+      radial-gradient(700px 450px at 80% 70%, #ffffff10 0%, transparent 60%),
+      linear-gradient(180deg, #081335aa, #061027aa);
+    overflow:hidden;
+    touch-action:none;
+    min-height:70vh;
+  }
+
+  .questionBar{
+    position:absolute;
+    left:10px; right:10px; top:10px;
+    background:#0f1733ea;
+    border:1px solid #ffffff2a;
+    border-radius:18px;
+    padding:10px 12px;
+    backdrop-filter: blur(12px);
+    z-index:55;
+  }
+  .qTitle{font-size:12px; color:#cfe0ffb8; font-weight:1000;}
+  .qText{font-size:16px; font-weight:1100; line-height:1.25; margin-top:4px; word-break:break-word;}
+  .qHint{font-size:12px; color:#cfe0ffb8; font-weight:900; margin-top:4px;}
+
+  .bubble{
+    position:absolute;
+    width:92px; height:92px;
+    border-radius:50%;
+    padding:10px;
+    border:1px solid #ffffff3a;
+    box-shadow: 0 14px 30px rgba(0,0,0,.30);
+    user-select:none; -webkit-user-select:none;
+    text-align:center;
+    font-weight:1000;
+    font-size:12px; line-height:1.1;
+    display:flex; align-items:center; justify-content:center;
+    transform: translate3d(0,0,0);
+    overflow:hidden;
+  }
+  .bubble::before{
+    content:"";
+    position:absolute; inset:-20%;
+    background: radial-gradient(circle at 30% 30%, #ffffff70 0%, #ffffff12 35%, #ffffff06 70%);
+  }
+  .bubble .txt{
+    position:relative;
+    display:-webkit-box;
+    -webkit-line-clamp:4;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    padding:0 2px;
+    text-shadow: 0 2px 10px rgba(0,0,0,.25);
+  }
+  .bubble.pop{ animation: pop .18s ease-out forwards; }
+  @keyframes pop{ to{ transform: scale(1.25); opacity:0; } }
+
+  .toast{
+    position:absolute; left:50%; top:76px; transform:translateX(-50%);
+    background:#00000055; border:1px solid #ffffff2a;
+    border-radius:999px; padding:7px 10px; font-weight:1000;
+    backdrop-filter: blur(10px);
+    opacity:0; transition:opacity .18s ease; pointer-events:none; font-size:13px;
+    z-index:60;
+  }
+  .toast.show{opacity:1}
+
+  .overlay{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:#00000066; backdrop-filter: blur(10px);
+    padding:14px;
+    z-index:80;
+  }
+  .card{
+    width:min(620px, 100%);
+    background:#0f1733ee;
+    border:1px solid #ffffff26;
+    border-radius:22px;
+    padding:16px;
+    box-shadow: 0 18px 50px rgba(0,0,0,.35);
+  }
+  .card h1{ margin:0 0 8px 0; font-size:20px; }
+  .card p{ margin:6px 0; color:#dbe3ff; font-weight:900; line-height:1.35; font-size:13px; }
+  .row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px }
+  .row .btn{ flex:1 }
+  .lvlgrid{ display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:10px; margin-top:10px; }
+  .tinyNote{font-size:12px; color:#cfe0ffb8; font-weight:900; margin-top:10px}
+
+  .mcqFull{
+    position:absolute; inset:10px;
+    background:#0f1733f2;
+    border:1px solid #ffffff30;
+    border-radius:22px;
+    padding:14px;
+    backdrop-filter: blur(12px);
+    z-index:70;
+    display:none;
+    overflow:auto;
+  }
+  .mcqHeader{
+    display:flex; gap:10px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;
+  }
+  .mcqTitle{font-weight:1000; font-size:12px; color:#cfe0ffb8;}
+  .mcqQ{
+    margin-top:8px;
+    font-weight:1100; font-size:18px; line-height:1.3;
+    color:#f3f6ff; word-break:break-word;
+  }
+  .mcqGrid{
+    margin-top:14px;
+    display:grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap:12px;
+  }
+  .mcqOpt{
+    text-align:left;
+    padding:14px 12px;
+    border-radius:16px;
+    border:1px solid #ffffff2e;
+    background:#ffffff12;
+    color:var(--text);
+    font-weight:1000;
+    cursor:pointer;
+    touch-action: manipulation;
+    min-height:64px;
+    font-size:15px; line-height:1.25;
+  }
+  .mcqOpt:active{transform:scale(.99)}
+  .mcqOpt.good{ background:#0b3a24aa; border-color:#4dff9d88 }
+  .mcqOpt.bad{  background:#3a0b1aaa; border-color:#ff5a7a88 }
+  @media (max-width:420px){ .mcqGrid{ grid-template-columns: 1fr; } }
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <div class="badge">ਮੁਹਾਵਰੇ • 200 • 4 Levels</div>
+      <button id="soundBtn" class="btn primary">🔊 Sound ON</button>
+      <button id="levelsBtn" class="btn">🎚 Levels</button>
+    </div>
+
+    <div class="stats">
+      <button id="startTopBtn" class="btn good">▶️ Start</button>
+      <div class="chip"><small>Level</small> <span id="levelTxt">1/4</span></div>
+      <div class="chip"><small>Q</small> <span id="qTxt">0/50</span></div>
+      <div class="chip"><small>Score</small> <span id="scoreTxt">0</span></div>
+      <div class="chip"><small>Lives</small> <span id="livesTxt">3</span></div>
+      <div class="chip"><small>Time</small> <span id="timeTxt">—</span></div>
+      <button id="pauseBtn" class="btn">⏸️ Pause</button>
+      <button id="restartBtn" class="btn bad">↻ Restart</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="slider">
+      Speed (Bubbles)
+      <input id="speedRange" type="range" min="0.35" max="1.10" step="0.05" value="0.70" />
+      <span id="speedVal">0.70×</span>
+    </div>
+    <div class="slider">
+      Bubble Size
+      <input id="sizeRange" type="range" min="0.72" max="1.05" step="0.01" value="0.85" />
+      <span id="sizeVal">0.85×</span>
+    </div>
+    <div class="slider">
+      MCQ Levels
+      <span style="opacity:.9">Level 3 + Level 4 ✅</span>
+    </div>
+  </div>
+
+  <div id="play" class="play">
+
+    <div class="questionBar">
+      <div class="qTitle" id="modeTitle">—</div>
+      <div class="qText" id="promptTxt">—</div>
+      <div class="qHint" id="hintTxt">—</div>
+    </div>
+
+    <div id="toast" class="toast">—</div>
+
+    <!-- MCQ for Level 3 + Level 4 -->
+    <div id="mcqFull" class="mcqFull">
+      <div class="mcqHeader">
+        <div>
+          <div class="mcqTitle" id="mcqHint">MCQ</div>
+          <div class="mcqQ" id="mcqQ">—</div>
+        </div>
+        <button id="mcqClose" class="btn">✖</button>
+      </div>
+      <div class="mcqGrid">
+        <button class="mcqOpt" id="opt0"></button>
+        <button class="mcqOpt" id="opt1"></button>
+        <button class="mcqOpt" id="opt2"></button>
+        <button class="mcqOpt" id="opt3"></button>
+      </div>
+    </div>
+
+    <div id="overlay" class="overlay">
+      <div class="card">
+        <h1>Start Game</h1>
+        <p>✅ 200 ਮੁਹਾਵਰੇ (Level 1–4, ਹਰ Level 50)</p>
+        <p>🎮 Level 1: Bubble (ਅਰਥ → ਮੁਹਾਵਰਾ)</p>
+        <p>🎮 Level 2: Bubble (ਮੁਹਾਵਰਾ → ਅਰਥ)</p>
+        <p>🎮 Level 3: MCQ (Full Screen)</p>
+        <p>🎮 Level 4: MCQ (Full Screen) + 20s Timer</p>
+
+        <div class="row">
+          <button id="startBtn" class="btn good">▶️ Start (Level 1)</button>
+          <button id="muteStartBtn" class="btn">🔇 Start (No Sound)</button>
+        </div>
+
+        <div class="lvlgrid">
+          <button class="btn primary" data-lvl="0">Go Level 1</button>
+          <button class="btn primary" data-lvl="1">Go Level 2</button>
+          <button class="btn primary" data-lvl="2">Go Level 3 (MCQ)</button>
+          <button class="btn primary" data-lvl="3">Go Level 4 (MCQ+Timer)</button>
+        </div>
+
+        <div class="tinyNote">📌 WhatsApp preview ਨਹੀਂ— “Open in Browser” ਕਰੋ।</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================
+   ✅ YOUR 200 MUHAVRE (NO EDITING)
+   ========================= */
+const MUHAVRE = [
+  {m:"ਕੱਖ ਨਾ ਰਹਿਣਾ", a:"(ਖੁਰਾ-ਖੋਜ ਮਿਟ ਜਾਣਾ)"},
+  {m:"ਕਈ ਪੱਤਣਾਂ ਦਾ ਪਾਣੀ ਪੀਤਾ ਹੋਣਾ", a:"(ਚਲਾਕ ਹੋਣਾ)"},
+  {m:"ਕੱਖ ਭੰਨ ਕੇ ਦੂਹਰਾ ਨਾ ਕਰਨਾ", a:"(ਬਿਲਕੁਲ ਕੰਮ ਨਾ ਕਰਨਾ)"},
+  {m:"ਕੱਖਾਂ ਤੋਂ ਹੌਲਾ ਹੋਣਾ", a:"(ਬੇਇੱਜ਼ਤ ਹੋਣਾ)"},
+  {m:"ਕੱਚਾ ਕਰਨਾ", a:"(ਸ਼ਰਮਸਾਰ ਕਰਨਾ)"},
+  {m:"ਕੱਚੀਆਂ ਗੋਲੀਆਂ ਖੇਡੇ ਹੋਣਾ", a:"(ਅੱਲ੍ਹੜ ਹੋਣਾ)"},
+  {m:"ਕੱਛਾਂ ਮਾਰਨਾ", a:"(ਕਿਸੇ ਜਿੱਤ ਜਾਂ ਪ੍ਰਾਪਤੀ 'ਤੇ ਖ਼ੁਸ਼ੀ ਪ੍ਰਗਟ ਕਰਨਾ)"},
+  {m:"ਕਦਮਾਂ ਹੇਠ ਅੱਖਾਂ ਵਿਛਾਉਣਾ", a:"(ਬਹੁਤ ਆਦਰ ਪ੍ਰਗਟ ਕਰਨਾ)"},
+  {m:"ਕੱਪੜਿਆਂ ਤੋਂ ਬਾਹਰ ਹੋਣਾ", a:"(ਗ਼ੁੱਸੇ ਵਿੱਚ ਭੜਕ ਜਾਣਾ)"},
+  {m:"ਕਬਰ ਕਿਨਾਰੇ ਹੋਣਾ", a:"(ਮੌਤ ਦੇ ਨੇੜੇ ਹੋਣਾ)"},
+  {m:"ਕਬਰਾਂ ਦੇ ਮੁਰਦੇ ਪੁੱਟਣਾ", a:"(ਪੁਰਾਣੀਆਂ ਅਣਸੁਖਾਵੀਆਂ ਗੱਲਾਂ ਨੂੰ ਛੇੜਨਾ)"},
+  {m:"ਕਮਰਕੱਸੇ ਕਰਨਾ", a:"(ਤਿਆਰ-ਬਰ-ਤਿਆਰ ਹੋਣਾ)"},
+  {m:"ਕਰਮਾਂ ਨੂੰ ਰੋਣਾ", a:"(ਆਪਣੀ ਮਾੜੀ ਹਾਲਤ 'ਤੇ ਦੁਖੀ ਹੋਣਾ)"},
+  {m:"ਕੱਲਰ ਦਾ ਕੰਵਲ ਹੋਣਾ", a:"(ਭੈੜੀਆਂ ਤੋਂ ਭੈੜੀਆਂ ਪਰਿਸਥਿਤੀਆਂ ਵਿੱਚ ਚੰਗਾ ਮਨੁੱਖ ਬਣ ਸਕਣਾ)"},
+  {m:"ਕਲੇਜਾ ਕੰਬ ਜਾਣਾ", a:"(ਘਬਰਾ ਜਾਣਾ ਜਾਂ ਡਰ ਜਾਣਾ)"},
+  {m:"ਕਲੇਜਾ ਫੜ ਕੇ ਬਹਿ ਜਾਣਾ", a:"(ਦੁੱਖ ਵਿੱਚ ਗ੍ਰਸੇ ਜਾਣਾ)"},
+  {m:"ਕਲੇਜਾ ਵਿੰਨ੍ਹਿਆ ਜਾਣਾ", a:"(ਬਹੁਤ ਦੁੱਖ ਹੋਣਾ)"},
+  {m:"ਕਲੇਜੇ ਭਾਂਬੜ ਬਲਨਾ", a:"(ਕ੍ਰੋਧ ਆਉਣਾ)"},
+  {m:"ਕਾਇਆਂ ਪਲਟ ਦੇਣਾ", a:"(ਨਵਾਂ-ਨਿਰੋਆ ਕਰ ਦੇਣਾ, ਬਿਲਕੁਲ ਬਦਲ ਦੇਣਾ)"},
+  {m:"ਕਾਂਜੀ ਘੋਲਣਾ", a:"(ਬੇਸੁਆਦੀ ਕਰਨਾ)"},
+  {m:"ਕਾਰਾ ਹੋ ਜਾਣਾ", a:"(ਬਹੁਤ ਬੁਰੀ ਗੱਲ ਵਾਪਰ ਜਾਣੀ)"},
+  {m:"ਕਾਲਜੇ ਛੁਰੀਆਂ ਮਾਰਨਾ", a:"(ਚੁਭਵੀਂਆਂ ਗੱਲਾਂ ਕਹਿਣਾ)"},
+  {m:"ਕਾਂਵਾਂ ਰੌਲੀ ਪਾਉਣਾ", a:"(ਇੱਕ-ਦੂਜੇ ਦੀ ਨਾ ਸੁਣ ਕੇ ਆਪੋ-ਆਪਣੀ ਕਹੀ ਜਾਣੀ)"},
+  {m:"ਪਲ ਵਿੱਚ ਤੋਲਾ ਪਲ ਵਿੱਚ ਮਾਸਾ", a:"(ਜਲਦੀ ਮਨ ਬਦਲਦੇ ਰਹਿਣਾ)"},
+  {m:"ਕੀਤੀ ਕਰਾਈ ਖੂਹ 'ਚ ਪੈਣਾ", a:"(ਕੀਤੀ ਮਿਹਨਤ ਵਿਅਰਥ ਜਾਣਾ)"},
+  {m:"ਕੁੱਜੇ ਵਿੱਚ ਸਮੁੰਦਰ ਬੰਦ ਕਰਨਾ", a:"(ਵੱਡੀ ਗੱਲ ਨੂੰ ਬਹੁਤ ਸੰਖੇਪ ਵਿੱਚ ਕਹਿਣਾ)"},
+  {m:"ਕੁੱਤੇ ਦੀ ਮੌਤ ਮਰਨਾ", a:"(ਬਹੁਤ ਮੰਦੇ ਹਾਲੀਂ ਮਰਨਾ)"},
+  {m:"ਕੁੱਬੇ ਨੂੰ ਲੱਤ ਰਾਸ ਆਉਣਾ", a:"(ਭੈੜੇ ਵਰਤਾਅ ਵਿੱਚੋਂ ਵੀ ਲਾਭ ਹੋ ਜਾਣਾ)"},
+  {m:"ਕੋਠੇ ਜਿੱਡੀ ਹੋ ਜਾਣਾ", a:"(ਮੁਟਿਆਰ ਹੋ ਜਾਣਾ)"},
+  {m:"ਕੌੜਾ ਘੁੱਟ ਭਰਨਾ", a:"(ਅਣਚਾਹੀ ਗੱਲ ਨੂੰ ਬੇਵੱਸੀ ਵਿੱਚ ਪ੍ਰਵਾਨ ਕਰਨਾ)"},
+  {m:"ਕੰਘਾ ਹੋ ਜਾਣਾ", a:"(ਬਰਬਾਦ ਹੋ ਜਾਣਾ)"},
+  {m:"ਕੰਡ ਲਾਉਣਾ", a:"(ਹਰਾ ਦੇਣਾ)"},
+  {m:"ਕੰਡੇ ਬੀਜਣਾ", a:"(ਕਿਸੇ ਅੱਗੇ ਰੁਕਾਵਟਾਂ ਖੜ੍ਹੀਆਂ ਕਰਨਾ)"},
+  {m:"ਕੰਧਾਂ ਨਾਲ ਗੱਲਾਂ ਕਰਨੀਆਂ", a:"(ਇਕੱਲਿਆਂ ਹੀ ਬੋਲੀ ਜਾਣਾ)"},
+  {m:"ਕੰਨ ਖੜ੍ਹੇ ਹੋਣੇ", a:"(ਚੌਕਸ ਹੋਣਾ)"},
+  {m:"ਕੰਨ 'ਤੇ ਜੂੰ ਨਾ ਸਰਕਣੀ", a:"(ਕੋਈ ਅਸਰ ਨਾ ਹੋਣਾ)"},
+  {m:"ਕੰਨ ਧਰਨਾ", a:"(ਧਿਆਨ ਦੇਣਾ)"},
+  {m:"ਕੰਨ ਪਈ ਅਵਾਜ਼ ਸੁਣਾਈ ਨਾ ਦੇਣੀ", a:"(ਬਹੁਤੇ ਸ਼ੋਰ ਕਾਰਨ ਕੁਝ ਵੀ ਸੁਣਾਈ ਨਾ ਦੇਣਾ)"},
+  {m:"ਕੰਨ ਭਰਨਾ", a:"(ਚੁਗ਼ਲੀ ਕਰਨੀ)"},
+  {m:"ਕੰਨ ਵਲ੍ਹੇਟ ਕੇ ਤੁਰਨਾ", a:"(ਕਿਸੇ ਦੀ ਨਾ ਸੁਣਨਾ)"},
+  {m:"ਕੰਨਾਂ ਤੀਕ ਮੂੰਹ ਪਾਟਣਾ", a:"(ਮੂੰਹ-ਫੱਟ ਹੋਣਾ)"},
+  {m:"ਕੰਨਾਂ ਦੇ ਕੱਚੇ ਹੋਣਾ", a:"(ਬਿਨਾਂ ਸੋਚੇ ਸਮਝੇ ਸੁਣੀ-ਸੁਣਾਈ ਗੱਲ 'ਤੇ ਇਤਬਾਰ ਕਰਨਾ)"},
+  {m:"ਕੰਨਾਂ ਨੂੰ ਹੱਥ ਲਵਾਉਣੇ", a:"(ਬੱਸ ਕਰਾ ਦੇਣੀ)"},
+  {m:"ਕੰਨਾਂ ਵਿੱਚ ਉਂਗਲੀਆਂ ਦੇਣਾ", a:"(ਭੈੜੀਆਂ ਗੱਲਾਂ ਸੁਣਨ ਤੋਂ ਔਖ ਪ੍ਰਗਟ ਕਰਨਾ)"},
+  {m:"ਖੱਟੇ ਪਿਆ ਹੋਣਾ", a:"(ਕਿਸੇ ਵਿਘਨ ਕਾਰਨ ਕੰਮ ਸਿਰੇ ਨਾ ਚੜ੍ਹਨਾ)"},
+  {m:"ਖ਼ਾਕ ਛਾਣਨਾ", a:"(ਵਿਅਰਥ ਜਤਨ ਕਰਨਾ)"},
+  {m:"ਖ਼ਾਨਿਓਂ ਜਾਣਾ", a:"(ਘਬਰਾ ਜਾਣਾ)"},
+  {m:"ਖ਼ਿਆਲੀ ਪਲਾਅ ਪਕਾਉਣਾ", a:"(ਕੇਵਲ ਸੁਪਨੇ ਦੇਖਣਾ)"},
+  {m:"ਖਿੱਲੀ ਉਡਾਉਣਾ", a:"(ਮਜ਼ਾਕ ਕਰਨਾ, ਹਾਸਾ ਉਡਾਉਣਾ)"},
+  {m:"ਖੁੰਬ ਠੱਪਣਾ", a:"(ਝਾੜ ਕੇ ਨਿਰੁੱਤਰ ਕਰਨਾ)"},
+  {m:"ਖੂਹ ਦੀ ਮਿੱਟੀ ਖੂਹ ਨੂੰ ਲਾਉਣਾ", a:"(ਜਿੰਨੀ ਖੱਟੀ, ਓਨਾ ਖ਼ਰਚ ਹੋਣਾ)"},
+  {m:"ਖੂਨ ਸਫ਼ੈਦ ਹੋਣਾ", a:"(ਅਪਣੱਤ ਖ਼ਤਮ ਹੋ ਜਾਣਾ)"},
+  {m:"ਖੇਰੂੰ ਖੇਰੂੰ ਹੋ ਜਾਣਾ", a:"(ਆਪਸੀ ਫੁੱਟ ਕਾਰਨ ਖਿੰਡ-ਪੁੰਡ ਜਾਣਾ)"},
+  {m:"ਖੰਡ ਖੀਰ ਹੋਣਾ", a:"(ਘੁਲ-ਮਿਲ ਜਾਣਾ)"},
+  {m:"ਗਰਮ ਹੋਣਾ", a:"(ਗੁੱਸੇ ਹੋਣਾ)"},
+  {m:"ਗਲ ਪਿਆ ਢੋਲ ਵਜਾਉਣਾ", a:"(ਮਜਬੂਰੀਵੱਸ ਕੰਮ ਕਰਨਾ)"},
+  {m:"ਗਲ ਪੈ ਜਾਣਾ", a:"(ਝਗੜਨਾ)"},
+  {m:"ਗੱਲ ਪੱਲੇ ਬੰਨ੍ਹਣਾ", a:"(ਕਿਸੇ ਉਪਦੇਸ਼ ਨੂੰ ਮੰਨ ਲੈਣਾ)"},
+  {m:"ਗਲ਼ਾ ਭਰ ਆਉਣਾ", a:"(ਭਾਵਕ ਹੋ ਜਾਣਾ)"},
+  {m:"ਗਾਹ ਪਾਉਣਾ", a:"(ਖਿਲਾਰਾ ਪਾਉਣਾ)"},
+  {m:"ਗਿੱਲਾ ਪੀਹਣ ਪਾਉਣਾ", a:"(ਕੰਮ ਲਮਕਾਉਣਾ)"},
+  {m:"ਗਿੱਲੇ ਗੋਹੇ ਵਾਂਗ ਧੁਖਣਾ", a:"(ਅੰਦਰੋ-ਅੰਦਰੀ ਦੁਖੀ ਰਹਿਣਾ)"},
+  {m:"ਗੁੱਡੀ ਚੜ੍ਹਨੀ", a:"(ਸਫ਼ਲਤਾ ਅਤੇ ਮਸ਼ਹੂਰੀ ਹੋਣੀ)"},
+  {m:"ਗੁਲਛਰੇ ਉਡਾਉਣਾ", a:"(ਫ਼ਜ਼ੂਲ ਖ਼ਰਚ ਕਰਨਾ)"},
+  {m:"ਗੋਂਗਲੂਆਂ ਤੋਂ ਮਿੱਟੀ ਝਾੜਨਾ", a:"(ਕੇਵਲ ਦਿਖਾਵੇ ਲਈ ਕੰਮ ਕਰਨਾ)"},
+  {m:"ਗੋਦੜੀ ਵਿੱਚ ਲਾਲ ਹੋਣਾ", a:"(ਮੰਦੇ ਹਾਲਤਾਂ ਵਿੱਚ ਉੱਚੇ ਹੁਨਰ ਦਾ ਮਾਲਕ ਹੋਣਾ)"},
+  {m:"ਗੰਢ ਭੇਜਣਾ", a:"(ਸੱਦਾ ਭੇਜਣਾ)"},
+  {m:"ਗੰਢ ਲੈਣਾ", a:"(ਆਪਣੇ ਹੱਕ ਦਾ ਕਰ ਲੈਣਾ)"},
+  {m:"ਘਰੋਂ-ਘਾਟੋਂ ਜਾਣਾ", a:"(ਕਿਸੇ ਥਾਂ ਦਾ ਵੀ ਨਾ ਰਹਿਣਾ)"},
+  {m:"ਘੋਗਲ ਕੰਨਾ ਬਣਨਾ", a:"(ਮਚਲਾ ਹੋਣਾ)"},
+  {m:"ਘੋਗਾ ਚਿੱਤ ਕਰਨਾ", a:"(ਮਾਰ ਦੇਣਾ)"},
+  {m:"ਚੱਪਣੀ ਵਿੱਚ ਨੱਕ ਡੋਬ ਕੇ ਮਰਨਾ", a:"(ਬਹੁਤ ਸ਼ਰਮਿੰਦਾ ਹੋਣਾ)"},
+  {m:"ਚੜ੍ਹ ਮੱਚਣੀ", a:"(ਹਰ ਜਾਇਜ਼-ਨਾਜਾਇਜ਼ ਪੁੱਗੀ ਜਾਣੀ)"},
+  {m:"ਚੜ੍ਹਦੀ ਕਲਾ ਵਿੱਚ ਹੋਣਾ", a:"(ਉਤਸ਼ਾਹ ਵਿੱਚ ਰਹਿਣਾ)"},
+  {m:"ਚੜ੍ਹੀ ਲੱਥੀ ਦੀ ਨਾ ਹੋਣਾ", a:"(ਬੇਪਰਵਾਹ ਹੋਣਾ, ਬੇਸ਼ਰਮ ਹੋਣਾ)"},
+  {m:"ਚਾਂਦੀ ਦੀ ਜੁੱਤੀ ਮਾਰਨਾ", a:"(ਵੱਢੀ ਦੇਣਾ)"},
+  {m:"ਚਾਰ ਚੰਨ ਲੱਗ ਜਾਣਾ", a:"(ਸੋਭਾ ਦੇਣਾ)"},
+  {m:"ਚਾਰੇ ਕੰਨੀਆਂ ਚੂਪਣਾ", a:"(ਖ਼ਾਲੀ ਹੋਣਾ)"},
+  {m:"ਚਿੱਕੜ ਸੁੱਟਣਾ", a:"(ਦੋਸ਼ ਲਾਉਣਾ)"},
+  {m:"ਚਿਹਰਾ ਉੱਤਰਿਆ ਹੋਣਾ", a:"(ਉਦਾਸ ਹੋਣਾ, ਲਿੱਸਾ ਹੋਣਾ)"},
+  {m:"ਚਿਹਰੇ ਉੱਤੇ ਹਵਾਈਆਂ ਉੱਡਣਾ", a:"(ਘਬਰਾਉਣਾ)"},
+  {m:"ਚੰਨ ਚਾੜ੍ਹਨਾ", a:"(ਬਦਨਾਮੀ ਵਾਲਾ ਕੰਮ ਕਰਨਾ)"},
+  {m:"ਛੱਕੇ ਛੁਡਾਉਣਾ", a:"(ਕਰਾਰੀ ਹਾਰ ਦੇਣਾ)"},
+  {m:"ਛੱਜ ਵਿੱਚ ਪਾ ਕੇ ਛੱਟਣਾ", a:"(ਭੰਡਣਾ)"},
+  {m:"ਛਾਂਈਂ ਮਾਂਈਂ ਹੋਣਾ", a:"(ਲੋਪ ਹੋਣਾ)"},
+  {m:"ਛਿੰਝ ਪਾਉਣੀ", a:"(ਝਗੜਾ ਪਾਉਣਾ)"},
+  {m:"ਛਿੱਲ ਲਾਹੁਣਾ", a:"(ਲੁੱਟਣਾ)"},
+  {m:"ਜ਼ਹਿਰ ਫੈਲਾਉਣਾ", a:"(ਨਫ਼ਰਤ ਫੈਲਾਉਣੀ)"},
+  {m:"ਜ਼ਖਮ ਉੱਤੇ ਫਹਿਆ ਧਰਨਾ", a:"(ਹਮਦਰਦੀ ਪ੍ਰਗਟ ਕਰਨੀ)"},
+  {m:"ਜ਼ਖ਼ਮਾਂ ਉੱਤੇ ਲੂਣ ਛਿੜਕਣਾ", a:"(ਦੁਖੀ ਨੂੰ ਹੋਰ ਦੁਖੀ ਕਰਨਾ)"},
+  {m:"ਜਫ਼ਰ ਜਾਲਣੇ", a:"(ਘਾਲਣਾ ਘਾਲਣੀ)"},
+  {m:"ਜ਼ਬਾਨ ਨੂੰ ਲਗਾਮ ਦੇਣਾ", a:"(ਚੁੱਪ ਰਹਿਣਾ)"},
+  {m:"ਜ਼ਬਾਨੀ ਜਮ੍ਹਾ ਖ਼ਰਚ ਕਰਨਾ", a:"(ਵਿਅਰਥ ਗੱਲਾਂ ਕਰਨੀਆਂ)"},
+  {m:"ਜੜ੍ਹੀ ਤੇਲ ਦੇਣਾ", a:"(ਨਾਸ ਕਰਨ ਦਾ ਯਤਨ ਕਰਨਾ)"},
+  {m:"ਜਾਗ ਲੱਗਣਾ", a:"(ਅਸਰ ਹੋਣਾ)"},
+  {m:"ਜਾਨ ਸੁੱਕਣਾ", a:"(ਸਹਿਮ ਜਾਣਾ)"},
+  {m:"ਜਾਨ ਮਾਰਨਾ", a:"(ਸਖ਼ਤ ਮਿਹਨਤ ਕਰਨੀ)"},
+  {m:"ਜਿੰਦ ਨੱਕ ਵਿੱਚ ਆਉਣਾ", a:"(ਬਹੁਤ ਦੁਖੀ ਹੋਣਾ)"},
+  {m:"ਜਿਊਂਦੇ ਮਰ ਜਾਣਾ", a:"(ਬਹੁਤ ਜ਼ਿਆਦਾ ਸ਼ਰਮਿੰਦਾ ਹੋਣਾ)"},
+  {m:"ਜੀਅ ਭਰ ਜਾਣਾ", a:"(ਇੱਛਾ ਨਾ ਰਹਿਣੀ)"},
+  {m:"ਜਿਊਂਣਾ ਦੁੱਭਰ ਕਰਨਾ", a:"(ਜਿਊਂਣਾ ਮੁਸ਼ਕਲ ਕਰ ਦੇਣਾ)"},
+  {m:"ਜੀਭ ਗੰਦੀ ਕਰਨਾ", a:"(ਮੰਦਾ ਬੋਲਣਾ)"},
+  {m:"ਜੀਭ ਦੰਦਾਂ ਹੇਠ ਦੇਣਾ", a:"(ਸਹਿ ਜਾਣਾ)"},
+  {m:"ਝੱਗ ਛੱਡਣਾ", a:"(ਬੇਲੋੜਾ ਬੋਲਣਾ)"},
+  {m:"ਝੁੱਗਾ ਚੌੜ ਹੋਣਾ", a:"(ਤਬਾਹ ਹੋ ਜਾਣਾ)"},
+  {m:"ਝੋਲੀ ਚੁੱਕਣਾ", a:"(ਖ਼ੁਸ਼ਾਮਦ ਕਰਨੀ)"},
+  {m:"ਟੱਕਰਾਂ ਮਾਰਨਾ", a:"(ਭਟਕਦੇ ਫਿਰਨਾ)"},
+  {m:"ਟਕੇ ਵਰਗਾ ਜਵਾਬ ਦੇਣਾ", a:"(ਸਾਫ਼ ਨਾਂਹ ਕਰਨਾ)"},
+  {m:"ਟੰਗ ਅੜਾਉਣਾ", a:"(ਬੇਲੋੜਾ ਦਖ਼ਲ ਦੇਣਾ)"},
+  {m:"ਠੁੱਠ ਵਿਖਾਉਣਾ", a:"(ਨਾਂਹ ਕਰਨੀ)"},
+  {m:"ਠੋਕ ਵਜਾ ਕੇ ਵੇਖਣਾ", a:"(ਚੰਗੀ ਤਰ੍ਹਾਂ ਪਰਖਣਾ)"},
+  {m:"ਠੰਢੀਆਂ ਛਾਂਵਾਂ ਮਾਣਨਾ", a:"(ਸੁੱਖ ਮਾਣਨਾ)"},
+  {m:"ਡੰਡੇ ਵਜਾਉਣਾ", a:"(ਵਿਹਲੇ ਫਿਰਨਾ)"},
+  {m:"ਢਹੇ ਚੜ੍ਹਨਾ", a:"(ਚਲਾਕੀ ਵਿੱਚ ਫਸ ਜਾਣਾ)"},
+  {m:"ਢੱਕੀ ਰਿੱਝਣਾ", a:"(ਬੁਰੀ ਗੱਲ ਦਾ ਭੇਤ ਪ੍ਰਗਟ ਨਾ ਹੋਣਾ)"},
+  {m:"ਢੱਠੇ ਖੂਹ ਵਿੱਚ ਪੈਣਾ", a:"(ਜਾਣ-ਬੁੱਝ ਕੇ ਬਰਬਾਦ ਹੋਣਾ)"},
+  {m:"ਢਿੱਡ ਵਿੱਚ ਚੂਹੇ ਨੱਚਣਾ", a:"(ਬਹੁਤ ਭੁੱਖ ਲੱਗਣਾ)"},
+  {m:"ਢੇਰੀ ਢਾਹੁਣਾ", a:"(ਨਿਰਾਸ ਹੋ ਕੇ ਕੰਮ ਛੱਡ ਦੇਣਾ)"},
+  {m:"ਤੱਤੀ 'ਵਾ ਨਾ ਲੱਗਣਾ", a:"(ਸੁਰੱਖਿਅਤ ਰਹਿਣਾ)"},
+  {m:"ਤਰਲੋ ਮੱਛੀ ਹੋਣਾ", a:"(ਉਤਾਵਲਾ ਹੋਣਾ)"},
+  {m:"ਤ੍ਰਾਹ ਨਿਕਲ ਜਾਣਾ", a:"(ਅਚਾਨਕ ਡਰ ਜਾਣਾ)"},
+  {m:"ਤਿੱਤਰ ਹੋਣਾ", a:"(ਨੱਸ ਜਾਣਾ)"},
+  {m:"ਤਿਲ ਸੁੱਟਿਆਂ ਭੌਂ 'ਤੇ ਨਾ ਪੈਣਾ", a:"(ਬਹੁਤ ਭੀੜ ਹੋਣੀ)"},
+  {m:"ਤੀਰ ਕਮਾਨੋਂ ਨਿਕਲ਼ਨਾ", a:"(ਗੱਲ ਮੂੰਹੋਂ ਨਿਕਲ ਜਾਣੀ)"},
+  {m:"ਤੇਲ ਚੋਣਾ", a:"(ਸੁਆਗਤ ਕਰਨਾ)"},
+  {m:"ਤੋੜ ਤੋੜ ਖਾਣਾ", a:"(ਦੁਖੀ ਕਰਨਾ)"},
+  {m:"ਥਈਆ-ਥਈਆ ਕਰਨਾ", a:"(ਖ਼ੁਸ਼ੀ ਵਿੱਚ ਝੂਮਣਾ)"},
+  {m:"ਥਰ-ਥਰ ਕੰਬਣਾ", a:"(ਬਹੁਤ ਡਰ ਜਾਣਾ)"},
+  {m:"ਥੁੱਕ ਕੇ ਚੱਟਣਾ", a:"(ਕੀਤੇ ਇਕਰਾਰ ਤੋਂ ਮੁੱਕਰ ਜਾਣਾ)"},
+  {m:"ਥੁੱਕੀਂ ਵੜੇ ਪਕਾਉਣਾ", a:"(ਕੇਵਲ ਗੱਲਾਂ-ਬਾਤਾਂ ਨਾਲ ਕੰਮ ਸਾਰਨਾ)"},
+  {m:"ਦਸਾਂ ਨਹੁੰਆਂ ਦੀ ਕਿਰਤ ਕਰਨਾ", a:"(ਹੱਕ ਦੀ ਕਮਾਈ ਕਰਨੀ)"},
+  {m:"ਦਮਗਜੇ ਮਾਰਨਾ", a:"(ਫੜ੍ਹਾਂ ਮਾਰਨਾ)"},
+  {m:"ਦੜ ਵੱਟਣਾ", a:"( ਘੇਸ ਮਾਰਨਾ)"},
+  {m:"ਦਾੜ੍ਹੀ ਨਾਲੋਂ ਮੁੱਛਾਂ ਵੱਡੀਆਂ ਹੋਣਾ", a:"(ਮੂਲ ਨਾਲੋਂ ਵਿਆਜ ਵੱਧ ਹੋਣਾ)"},
+  {m:"ਦਾਲ ਵਿੱਚ ਕਾਲ਼ਾ ਹੋਣਾ", a:"(ਸ਼ੱਕ ਹੋਣਾ)"},
+  {m:"ਦਿਨ ਰਾਤ ਇੱਕ ਕਰਨਾ", a:"(ਬਹੁਤ ਮਿਹਨਤ ਕਰਨਾ)"},
+  {m:"ਦਿਨਾਂ ਦਾ ਪਰਾਹੁਣਾ ਹੋਣਾ", a:"(ਮਰਨ ਕਿਨਾਰੇ ਹੋਣਾ)"},
+  {m:"ਦਿਲ ਖੱਟਾ ਹੋਣਾ", a:"(ਕਿਸੇ ਗੱਲ ਤੋਂ ਘਿਰਨਾ ਹੋਣਾ)"},
+  {m:"ਦੁੱਧ ਦਾ ਉਬਾਲ ਹੋਣਾ", a:"(ਥੋੜ੍ਹੇ ਚਿਰ ਦਾ ਜੋਸ਼ ਹੋਣਾ)"},
+  {m:"ਦੁੱਧ ਵਿੱਚ ਮੇਂਗਣਾ ਪਾਉਣਾ", a:"(ਬੇਸੁਆਦੀ ਨਾਲ ਕੰਮ ਕਰਨਾ)"},
+  {m:"ਦੋਹੀਂ ਹੱਥੀਂ ਤਾੜੀ ਵੱਜਣਾ", a:"(ਦੋਹਾਂ ਧਿਰਾਂ ਦਾ ਕਸੂਰ ਹੋਣਾ)"},
+  {m:"ਦੋ ਬੇੜੀਆਂ ਵਿੱਚ ਲੱਤਾਂ ਹੋਣੀਆਂ", a:"(ਦੁਚਿੱਤੀ ਵਿੱਚ ਹੋਣਾ)"},
+  {m:"ਦੋਜ਼ਖ ਦੀ ਅੱਗ ਵਿੱਚ ਸੜਨਾ", a:"(ਅੰਤਾਂ ਦਾ ਮਾਨਸਿਕ ਕਸ਼ਟ ਭੋਗਣਾ)"},
+  {m:"ਦੰਦ ਖੱਟੇ ਕਰਨਾ", a:"(ਹਰਾ ਦੇਣਾ)"},
+  {m:"ਦੰਦ ਪੀਹਣਾ", a:"(ਕਚੀਚੀਆਂ ਵੱਟਣਾ)"},
+  {m:"ਦੰਦ ਵੱਜਣਾ", a:"(ਠੰਢ ਨਾਲ ਕੰਬਣਾ)"},
+  {m:"ਧੱਜੀਆਂ ਉਡਾਉਣਾ", a:"(ਬੁਰਾ ਹਾਲ ਕਰ ਦੇਣਾ, ਡਾਢੀ ਜਿੱਤ ਪ੍ਰਾਪਤ ਕਰਨੀ)"},
+  {m:"ਧੁੜਕੂ ਲੱਗਣਾ", a:"(ਚਿੰਤਾ ਰਹਿਣੀ)"},
+  {m:"ਧੂੰ ਕੱਢਣਾ", a:"(ਭੇਤ ਦੇਣਾ)"},
+  {m:"ਧੌਲਿਆਂ ਦੀ ਲਾਜ ਰੱਖਣਾ", a:"(ਵੱਡੀ ਉਮਰ ਦਾ ਲਿਹਾਜ਼ ਕਰਨਾ)"},
+  {m:"ਧੌਲਿਆਂ ਵਿੱਚ ਘੱਟਾ ਪਾਉਣਾ", a:"(ਬੁੱਢੇ ਵਾਰੇ ਬਦਨਾਮੀ ਦਾ ਕੰਮ ਕਰਨਾ)"},
+  {m:"ਨੱਸ ਭੱਜ ਕਰਨਾ", a:"(ਯਤਨ ਕਰਨਾ)"},
+  {m:"ਨਹਿਲੇ ਉੱਤੇ ਦਹਿਲਾ ਮਾਰਨਾ", a:"(ਤੁਰੰਤ ਵਧ-ਚੜ੍ਹ ਕੇ ਜਵਾਬ ਦੇਣਾ)"},
+  {m:"ਨਹੁੰ ਅੜ ਜਾਣਾ", a:"(ਕੁਝ ਸਹਾਰਾ ਮਿਲ ਜਾਣਾ)"},
+  {m:"ਨਹੁੰ ਮਾਸ ਦਾ ਰਿਸ਼ਤਾ ਹੋਣਾ", a:"(ਨੇੜਲੇ ਸੰਬੰਧ ਹੋਣਾ)"},
+  {m:"ਨੱਕ ਉੱਤੇ ਮੱਖੀ ਨਾ ਬਹਿਣ ਦੇਣਾ", a:"(ਅਭਿਮਾਨ ਵਿੱਚ ਕਿਸੇ ਦੀ ਪਰਵਾਹ ਨਾ ਕਰਨਾ)"},
+  {m:"ਨੱਕ ਹੇਠ ਨਾ ਲਿਆਉਣਾ", a:"(ਜ਼ਰਾ ਵੀ ਪਸੰਦ ਨਾ ਕਰਨਾ)"},
+  {m:"ਨੱਕ ਚਾੜ੍ਹਨਾ", a:"(ਘਿਰਣਾ ਕਰਨੀ)"},
+  {m:"ਨੱਕ 'ਚ ਦਮ ਕਰਨਾ", a:"(ਬਹੁਤ ਤੰਗ ਕਰਨਾ)"},
+  {m:"ਨੱਕ ਨਕੇਲ ਪਾਉਣਾ", a:"(ਕਾਬੂ ਕਰਨਾ)"},
+  {m:"ਨੱਕ ਨਾਲ ਲਕੀਰਾਂ ਕੱਢਣਾ", a:"(ਤੋਬਾ ਕਰਨੀ)"},
+  {m:"ਨੱਕ ਬੁੱਲ੍ਹ ਮਾਰਨਾ", a:"(ਨੁਕਸ ਕੱਢਣਾ)"},
+  {m:"ਨੱਕ ਰੱਖਣਾ", a:"(ਇੱਜ਼ਤ ਰੱਖਣਾ)"},
+  {m:"ਨੱਕ ਰਗੜਨਾ", a:"(ਤਰਲੇ ਕਰਨੇ)"},
+  {m:"ਨਗਾਰੇ ਦੀ ਚੋਟ ਨਾਲ ਆਖਣਾ", a:"(ਸ਼ਰ੍ਹੇਆਮ ਕਹਿਣਾ)"},
+  {m:"ਨਜ਼ਰ ਚੁਰਾਉਣਾ", a:"(ਬਚ ਕੇ ਲੰਘਣਾ)"},
+  {m:"ਨਬਜ਼ ਪਛਾਣਨਾ", a:"(ਸਥਿਤੀ ਨੂੰ ਤਾੜ ਲੈਣਾ)"},
+  {m:"ਨਹੁੰਆਂ 'ਤੇ ਲਿਖਿਆ ਹੋਣਾ", a:"(ਚੰਗੀ ਤਰ੍ਹਾਂ ਪਤਾ ਹੋਣਾ)"},
+  {m:"ਨਾਨੀ ਚੇਤੇ ਆਉਣੀ", a:"(ਦੁੱਖ ਵਿੱਚ ਘਿਰੇ ਹੋਣ ਦਾ ਅਨੁਭਵ ਹੋਣਾ)"},
+  {m:"ਨਾਂ ਨੂੰ ਵੱਟਾ ਲਾਉਣਾ", a:"(ਬਦਨਾਮੀ ਖੱਟਣੀ)"},
+  {m:"ਨਾਂ ਪੈਦਾ ਕਰਨਾ", a:"(ਇੱਜ਼ਤ ਬਣਾਉਣੀ)"},
+  {m:"ਨੀਂਦ ਹਰਾਮ ਹੋਣਾ", a:"(ਪਰੇਸ਼ਾਨੀ ਹੋਣਾ)"},
+  {m:"ਨੰਗੇ ਧੜ ਲੜਨਾ", a:"(ਇਕੱਲਿਆਂ ਸਿਰੜ ਪਾਲਣਾ)"},
+  {m:"ਪਹਾੜ ਨਾਲ ਟੱਕਰ ਲਾਉਣਾ", a:"(ਤਕੜੇ ਨਾਲ ਵੈਰ ਪਾਉਣਾ)"},
+  {m:"ਪੱਕੇ ਪੈਰਾਂ 'ਤੇ ਖਲੋਣਾ", a:"(ਸੁਰੱਖਿਅਤ ਹੋ ਜਾਣਾ)"},
+  {m:"ਪੱਗ ਨੂੰ ਹੱਥ ਪਾਉਣਾ", a:"(ਬੇਇੱਜ਼ਤੀ ਕਰਨਾ)"},
+  {m:"ਪੱਗ ਵਟਾਉਣਾ", a:"(ਧਰਮ ਦਾ ਭਰਾ ਬਣਨਾ)"},
+  {m:"ਪੱਟ ਦੇ ਪੰਘੂੜੇ ਝੂਟਣਾ", a:"(ਐਸ਼ਾਂ ਕਰਨੀਆਂ)"},
+  {m:"ਪੱਤ ਪੱਤ ਢੂੰਡਣਾ", a:"(ਬਹੁਤ ਢੂੰਡਣਾ)"},
+  {m:"ਪੱਤਰਾ ਵਾਚ ਜਾਣਾ", a:"(ਖਿਸਕ ਜਾਣਾ)"},
+  {m:"ਪੱਥਰ ਚੱਟ ਕੇ ਮੁੜਨਾ", a:"(ਕਿਸੇ ਗੱਲ ਦੀ ਅੱਤ ਵੇਖ ਕੇ ਜਾਂ ਸੱਟ ਖਾ ਕੇ ਮੁੜਨਾ)"},
+  {m:"ਪੱਥਰਾਂ ਨੂੰ ਰੁਆ ਦੇਣਾ", a:"(ਕਠੋਰ ਮਨਾਂ ਨੂੰ ਵੀ ਪੱਘਰਾ ਦੇਣਾ)"},
+  {m:"ਪਰ ਲੱਗਣਾ", a:"(ਚਾਮ੍ਹਲ ਜਾਣਾ)"},
+  {m:"ਪਰਛਾਂਵੇਂ ਤੋਂ ਡਰਨਾ", a:"(ਦੂਰ ਰਹਿਣਾ)"},
+  {m:"ਪਰਨਾਲਾ ਉੱਥੇ ਹੀ ਰਹਿਣਾ", a:"(ਹਠ 'ਤੇ ਕਾਇਮ ਰਹਿਣਾ)"},
+  {m:"ਪੱਲਾ ਗਲ਼ ਵਿੱਚ ਪਾਉਣਾ", a:"(ਨਿਮਰਤਾਪੂਰਬਕ ਬੇਨਤੀ ਕਰਨਾ)"},
+  {m:"ਪੱਲਾ ਛੁਡਾਉਣਾ", a:"(ਖਹਿੜਾ ਛੁਡਾਉਣਾ)"},
+  {m:"ਪੱਲਾ ਝਾੜਨਾ", a:"(ਸਭ ਕੁਝ ਛੱਡ ਦੇਣਾ)"},
+  {m:"ਪੱਲਾ ਫੜਨਾ ਜਾਂ ਪਕੜਨਾ", a:"(ਆਸਰਾ ਲੈਣਾ)"},
+  {m:"ਪੱਲੇ ਬੰਨ੍ਹ ਲੈਣਾ", a:"(ਮਨ ਵਿੱਚ ਵਸਾਉਣਾ)"},
+  {m:"ਪਰਦਾ ਫ਼ਾਸ਼ ਕਰਨਾ", a:"(ਭੇਦ ਖੋਲ੍ਹਣਾ)"},
+  {m:"ਪਾਜ ਖੁੱਲ੍ਹ ਜਾਣਾ", a:"(ਭੇਦ ਖੁੱਲ੍ਹ ਜਾਣਾ)"},
+  {m:"ਪਾਣੀ ਪਾਣੀ ਹੋਣਾ", a:"(ਬਹੁਤ ਸ਼ਰਮਸਾਰ ਹੋਣਾ)"},
+  {m:"ਪਾਣੀ ਪੀ ਪੀ ਕੇ ਕੋਸਣਾ", a:"(ਬਹੁਤ ਲਾਹਨਤਾਂ ਪਾਉਣੀਆਂ)"},
+  {m:"ਪਾਣੀ ਭਰਨਾ", a:"(ਗ਼ੁਲਾਮੀ ਕਰਨੀ)"},
+  {m:"ਪਾਣੀ ਵਾਰ ਕੇ ਪੀਣਾ", a:"(ਬਲਿਹਾਰ ਜਾਣਾ)"},
+  {m:"ਪਾਣੀਓਂ ਪਤਲੇ ਕਰਨਾ", a:"(ਬੇਪਤੀ ਕਰਨੀ)"},
+  {m:"ਪਾਂਧਾ ਨਾ ਪੁੱਛਣਾ", a:"(ਕੰਮ ਲਈ ਝੱਟ ਤਿਆਰ ਹੋ ਜਾਣਾ)"},
+  {m:"ਪਾਪੜ ਵੇਲਣਾ", a:"(ਕਈ ਭਾਂਤ ਦੇ ਜਤਨ ਕਰਨੇ)"},
+  {m:"ਪਾਰਾ ਚੜ੍ਹ ਜਾਣਾ", a:"(ਗੁੱਸਾ ਚੜ੍ਹ ਜਾਣਾ)"}
+];
+
+const LEVELS = [
+  {start:0, count:50},
+  {start:50, count:50},
+  {start:100, count:50},
+  {start:150, count:50}
+];
+const START_LIVES = 3;
+
+let state = {
+  running:false, paused:false,
+  soundOn:true,
+  levelIndex:0,
+  order:[], qIndex:0,
+  score:0, lives:START_LIVES,
+  speedMul:0.70, sizeMul:0.85,
+  bubbles:[], raf:0, lastT:0,
+  timeLeft:0, timerInt:null
+};
+
+const play = document.getElementById("play");
+const overlay = document.getElementById("overlay");
+
+const mcqFull = document.getElementById("mcqFull");
+const mcqQ = document.getElementById("mcqQ");
+const mcqHint = document.getElementById("mcqHint");
+const mcqClose = document.getElementById("mcqClose");
+
+const optEls = [
+  document.getElementById("opt0"),
+  document.getElementById("opt1"),
+  document.getElementById("opt2"),
+  document.getElementById("opt3")
+];
+
+const startBtn = document.getElementById("startBtn");
+const muteStartBtn = document.getElementById("muteStartBtn");
+const startTopBtn = document.getElementById("startTopBtn");
+
+const soundBtn = document.getElementById("soundBtn");
+const pauseBtn = document.getElementById("pauseBtn");
+const restartBtn = document.getElementById("restartBtn");
+const levelsBtn = document.getElementById("levelsBtn");
+
+const promptTxt = document.getElementById("promptTxt");
+const modeTitle = document.getElementById("modeTitle");
+const hintTxt = document.getElementById("hintTxt");
+const toast = document.getElementById("toast");
+
+const levelTxt = document.getElementById("levelTxt");
+const qTxt = document.getElementById("qTxt");
+const scoreTxt = document.getElementById("scoreTxt");
+const livesTxt = document.getElementById("livesTxt");
+const timeTxt = document.getElementById("timeTxt");
+
+const speedRange = document.getElementById("speedRange");
+const speedVal = document.getElementById("speedVal");
+const sizeRange = document.getElementById("sizeRange");
+const sizeVal = document.getElementById("sizeVal");
+
+/* Colors */
+const GRADS = [
+  ["#ff5f6d","#ffc371"], ["#36d1dc","#5b86e5"], ["#a8ff78","#78ffd6"],
+  ["#f7971e","#ffd200"], ["#f953c6","#b91d73"], ["#00c6ff","#0072ff"],
+  ["#f12711","#f5af19"], ["#7f00ff","#e100ff"], ["#11998e","#38ef7d"],
+  ["#ff512f","#dd2476"], ["#fc4a1a","#f7b733"], ["#00b09b","#96c93d"]
+];
+function bubbleBackground(i){
+  const g = GRADS[i % GRADS.length];
+  return `linear-gradient(135deg, ${g[0]}, ${g[1]})`;
+}
+
+/* Sound */
+let audioCtx=null;
+function ensureAudio(){
+  if(!audioCtx) audioCtx=new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==="suspended") audioCtx.resume();
+}
+function beep(freq=440, dur=0.08, type="sine", gain=0.06){
+  if(!state.soundOn) return;
+  try{
+    ensureAudio();
+    const t0=audioCtx.currentTime;
+    const o=audioCtx.createOscillator();
+    const g=audioCtx.createGain();
+    o.type=type; o.frequency.setValueAtTime(freq,t0);
+    g.gain.setValueAtTime(0.0001,t0);
+    g.gain.exponentialRampToValueAtTime(gain,t0+0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0); o.stop(t0+dur+0.02);
+  }catch(e){}
+}
+const sfxCorrect=()=>{beep(660,.06,"triangle",.08);setTimeout(()=>beep(880,.07,"triangle",.08),70);};
+const sfxWrong  =()=>{beep(220,.12,"sawtooth",.07);};
+const sfxLevelUp=()=>{beep(523.25,.07,"triangle",.08);setTimeout(()=>beep(659.25,.07,"triangle",.08),80);setTimeout(()=>beep(783.99,.09,"triangle",.09),160);};
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=(Math.random()*(i+1))|0;
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+function showToast(msg, good=true){
+  toast.textContent=msg;
+  toast.style.borderColor=good?"#4dff9d66":"#ff5a7a66";
+  toast.style.background=good?"#0b3a2488":"#3a0b1a88";
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"),850);
+}
+function updateHUD(){
+  levelTxt.textContent=`${state.levelIndex+1}/4`;
+  qTxt.textContent=`${Math.min(state.qIndex,50)}/50`;
+  scoreTxt.textContent=state.score;
+  livesTxt.textContent=state.lives;
+  timeTxt.textContent=(state.levelIndex===3)?`${state.timeLeft}s`:"—";
+  startTopBtn.style.display = state.running ? "none" : "inline-block";
+}
+function clearTimer(){
+  if(state.timerInt){clearInterval(state.timerInt);state.timerInt=null;}
+}
+function startMCQTimerForLevel4(){
+  clearTimer();
+  state.timeLeft=20;
+  updateHUD();
+  state.timerInt=setInterval(()=>{
+    if(!state.running||state.paused) return;
+    state.timeLeft--;
+    updateHUD();
+    if(state.timeLeft<=0){
+      sfxWrong();
+      state.lives--;
+      showToast("⏰ Time Up!",false);
+      updateHUD();
+      if(state.lives<=0) setTimeout(gameOver,150);
+      else setTimeout(()=>{ hideMCQ(); nextQuestion(); },220);
+    }
+  },1000);
+}
+
+function clearBubbles(){
+  state.bubbles.forEach(b=>b.el.remove());
+  state.bubbles=[];
+}
+
+/* MCQ */
+function hideMCQ(){ mcqFull.style.display="none"; }
+function showMCQ(){ mcqFull.style.display="block"; }
+mcqClose.onclick=()=>{ hideMCQ(); };
+
+function pickWrongIndexes(excludeIndex, poolStart, poolCount, k){
+  const idxs=[];
+  while(idxs.length<k){
+    const r=poolStart+((Math.random()*poolCount)|0);
+    if(r===excludeIndex) continue;
+    if(idxs.includes(r)) continue;
+    idxs.push(r);
+  }
+  return idxs;
+}
+
+function buildOrder(){
+  const lvl=LEVELS[state.levelIndex];
+  const idxs=[];
+  for(let i=0;i<lvl.count;i++) idxs.push(lvl.start+i);
+  shuffle(idxs);
+  state.order=idxs;
+}
+
+function setModeUI(){
+  if(state.levelIndex===0){
+    modeTitle.textContent="Level 1 • Bubble • ਅਰਥ → ਸਹੀ ਮੁਹਾਵਰਾ";
+    hintTxt.textContent="4 bubbles: 1 ਸਹੀ + 3 ਗਲਤ";
+  }else if(state.levelIndex===1){
+    modeTitle.textContent="Level 2 • Bubble • ਮੁਹਾਵਰਾ → ਸਹੀ ਅਰਥ";
+    hintTxt.textContent="Prompt = ਮੁਹਾਵਰਾ • Bubbles = ਅਰਥ";
+  }else if(state.levelIndex===2){
+    modeTitle.textContent="Level 3 • MCQ (Full Screen)";
+    hintTxt.textContent="4 options • Tap one";
+  }else{
+    modeTitle.textContent="Level 4 • MCQ + 20s Timer";
+    hintTxt.textContent="20 seconds • late = life -1";
+  }
+}
+
+function spawnBubbleLevel(correctIndex, mode){
+  // mode 1: prompt=meaning, bubbles=muhavra
+  // mode 2: prompt=muhavra, bubbles=meaning
+  hideMCQ();
+  clearTimer();
+
+  const lvl=LEVELS[state.levelIndex];
+  const wrongs=pickWrongIndexes(correctIndex,lvl.start,lvl.count,3);
+  const options=shuffle([correctIndex,...wrongs]);
+
+  promptTxt.textContent = (mode===1) ? MUHAVRE[correctIndex].a : MUHAVRE[correctIndex].m;
+
+  clearBubbles();
+  options.forEach((idx,i)=>{
+    const txt = (mode===1) ? MUHAVRE[idx].m : MUHAVRE[idx].a;
+    const el=document.createElement("div");
+    el.className="bubble";
+    el.style.transform=`scale(${state.sizeMul})`;
+    el.style.backgroundImage=`
+      radial-gradient(circle at 30% 30%, #ffffff7a 0%, #ffffff12 38%, #ffffff08 70%),
+      ${bubbleBackground(idx+i)}
+    `;
+    const t=document.createElement("div");
+    t.className="txt"; t.textContent=txt;
+    el.appendChild(t);
+    play.appendChild(el);
+
+    const rect=play.getBoundingClientRect();
+    const W=rect.width, H=rect.height;
+    const s=92*state.sizeMul;
+    const topSafe=96;
+
+    let x=6+Math.random()*(W-s-12);
+    let y=topSafe + Math.random()*(H-topSafe-s-12);
+
+    const base=70*state.speedMul;
+    let vx=(Math.random()<0.5?-1:1)*(base+Math.random()*40);
+    let vy=(Math.random()<0.5?-1:1)*(base+Math.random()*40);
+
+    const bubble={el,x,y,vx,vy,s};
+
+    el.addEventListener("pointerdown",(e)=>{
+      e.preventDefault();
+      if(!state.running||state.paused) return;
+      if(state.soundOn) ensureAudio();
+      el.classList.add("pop");
+
+      if(idx===correctIndex){
+        sfxCorrect();
+        state.score += 10;
+        showToast("✅ ਸਹੀ!",true);
+        updateHUD();
+        setTimeout(nextQuestion,180);
+      }else{
+        sfxWrong();
+        state.lives--;
+        showToast("❌ ਗਲਤ",false);
+        updateHUD();
+        if(state.lives<=0) setTimeout(gameOver,180);
+      }
+    },{passive:false});
+
+    state.bubbles.push(bubble);
+  });
+
+  if(!state.raf){
+    state.lastT=performance.now();
+    state.raf=requestAnimationFrame(tick);
+  }
+}
+
+function tick(t){
+  if(!state.running) return;
+  state.raf=requestAnimationFrame(tick);
+  if(state.paused){ state.lastT=t; return; }
+
+  const dt=Math.min(0.028,(t-state.lastT)/1000||0.016);
+  state.lastT=t;
+
+  const rect=play.getBoundingClientRect();
+  const W=rect.width, H=rect.height;
+  const topSafe=96;
+
+  state.bubbles.forEach(b=>{
+    b.x+=b.vx*dt; b.y+=b.vy*dt;
+    const s=b.s;
+
+    if(b.x<=0){ b.x=0; b.vx=Math.abs(b.vx); }
+    if(b.x+s>=W){ b.x=W-s; b.vx=-Math.abs(b.vx); }
+    if(b.y<=topSafe){ b.y=topSafe; b.vy=Math.abs(b.vy); }
+    if(b.y+s>=H){ b.y=H-s; b.vy=-Math.abs(b.vy); }
+
+    b.el.style.left=b.x+"px";
+    b.el.style.top=b.y+"px";
+  });
+}
+
+/* Level 3 + 4 MCQ */
+function spawnMCQ(correctIndex, timed=false){
+  clearBubbles();
+  showMCQ();
+
+  const askMeaning=Math.random()<0.5;
+  const lvl=LEVELS[state.levelIndex];
+  const wrongs=pickWrongIndexes(correctIndex,lvl.start,lvl.count,3);
+  const options=shuffle([correctIndex,...wrongs]);
+
+  optEls.forEach(b=>{ b.classList.remove("good","bad"); b.disabled=false; });
+
+  if(askMeaning){
+    promptTxt.textContent= timed ? "MCQ Timer: ਅਰਥ → ਮੁਹਾਵਰਾ" : "MCQ: ਅਰਥ → ਮੁਹਾਵਰਾ";
+    mcqHint.textContent="ਅਰਥ → ਮੁਹਾਵਰਾ";
+    mcqQ.textContent=MUHAVRE[correctIndex].a;
+    optEls.forEach((btn,i)=>{
+      const idx=options[i];
+      btn.textContent=MUHAVRE[idx].m;
+      btn.onclick=()=>mcqAnswer(btn, idx===correctIndex, timed);
+    });
+  }else{
+    promptTxt.textContent= timed ? "MCQ Timer: ਮੁਹਾਵਰਾ → ਅਰਥ" : "MCQ: ਮੁਹਾਵਰਾ → ਅਰਥ";
+    mcqHint.textContent="ਮੁਹਾਵਰਾ → ਅਰਥ";
+    mcqQ.textContent=MUHAVRE[correctIndex].m;
+    optEls.forEach((btn,i)=>{
+      const idx=options[i];
+      btn.textContent=MUHAVRE[idx].a;
+      btn.onclick=()=>mcqAnswer(btn, idx===correctIndex, timed);
+    });
+  }
+
+  if(timed){
+    startMCQTimerForLevel4();
+  }else{
+    clearTimer();
+    timeTxt.textContent="—";
+  }
+}
+
+function mcqAnswer(clickedBtn, isCorrect, timed){
+  if(!state.running||state.paused) return;
+  optEls.forEach(b=>b.disabled=true);
+  clearTimer();
+
+  if(isCorrect){
+    clickedBtn.classList.add("good");
+    sfxCorrect();
+    state.score += timed ? (15 + Math.max(0,state.timeLeft)) : 15;
+    showToast("✅ ਸਹੀ!",true);
+    updateHUD();
+    setTimeout(()=>{ hideMCQ(); nextQuestion(); },320);
+  }else{
+    clickedBtn.classList.add("bad");
+    sfxWrong();
+    state.lives--;
+    showToast("❌ ਗਲਤ",false);
+    updateHUD();
+    if(state.lives<=0) setTimeout(gameOver,320);
+    else setTimeout(()=>{ hideMCQ(); nextQuestion(); },420);
+  }
+}
+
+function nextQuestion(){
+  const lvl=LEVELS[state.levelIndex];
+
+  if(state.qIndex >= lvl.count){
+    clearTimer(); clearBubbles(); hideMCQ();
+    sfxLevelUp();
+    const done=state.levelIndex+1;
+    if(done>=4){ winGame(); return; }
+    showStartOverlay(`🎉 Level ${done} Complete!`);
+    return;
+  }
+
+  const correctIndex=state.order[state.qIndex];
+  setModeUI();
+
+  if(state.levelIndex===0) spawnBubbleLevel(correctIndex, 1);
+  else if(state.levelIndex===1) spawnBubbleLevel(correctIndex, 2);
+  else if(state.levelIndex===2) spawnMCQ(correctIndex, false);
+  else spawnMCQ(correctIndex, true); // ✅ Level 4 MCQ + Timer
+
+  state.qIndex++;
+  updateHUD();
+}
+
+function showStartOverlay(title="Start Game"){
+  overlay.style.display="flex";
+  overlay.querySelector(".card h1").textContent = title;
+}
+
+function gameOver(){
+  state.running=false;
+  cancelAnimationFrame(state.raf);
+  state.raf=0;
+  clearTimer(); clearBubbles(); hideMCQ();
+  showStartOverlay("😵 Game Over (Press Start)");
+}
+
+function winGame(){
+  state.running=false;
+  cancelAnimationFrame(state.raf);
+  state.raf=0;
+  clearTimer(); clearBubbles(); hideMCQ();
+  showStartOverlay("🏆 Finished! (Press Start)");
+}
+
+function goToLevel(li){
+  clearTimer(); clearBubbles(); hideMCQ();
+  state.levelIndex=Math.max(0,Math.min(3,li));
+  state.qIndex=0;
+  state.lives=START_LIVES;
+  buildOrder();
+  setModeUI();
+  updateHUD();
+  overlay.style.display="none";
+  state.running=true;
+  if(!state.raf){
+    state.lastT=performance.now();
+    state.raf=requestAnimationFrame(tick);
+  }
+  nextQuestion();
+}
+
+function restartAll(){
+  clearTimer();
+  cancelAnimationFrame(state.raf);
+  state.raf=0;
+  clearBubbles(); hideMCQ();
+  state.score=0;
+  state.lives=START_LIVES;
+  state.levelIndex=0;
+  state.qIndex=0;
+  state.paused=false;
+  buildOrder();
+  setModeUI();
+  updateHUD();
+  overlay.style.display="none";
+  state.running=true;
+  state.lastT=performance.now();
+  state.raf=requestAnimationFrame(tick);
+  nextQuestion();
+}
+
+/* UI */
+function setSoundUI(){
+  soundBtn.textContent=state.soundOn?"🔊 Sound ON":"🔇 Sound OFF";
+  soundBtn.classList.toggle("primary",state.soundOn);
+}
+soundBtn.onclick=()=>{
+  state.soundOn=!state.soundOn;
+  setSoundUI();
+  if(state.soundOn) ensureAudio();
+};
+
+pauseBtn.onclick=()=>{
+  if(!state.running) return;
+  state.paused=!state.paused;
+  pauseBtn.textContent=state.paused?"▶️ Resume":"⏸️ Pause";
+  if(!state.paused && state.soundOn) ensureAudio();
+};
+
+restartBtn.onclick=restartAll;
+startTopBtn.onclick=()=> showStartOverlay("Start Game");
+levelsBtn.onclick=()=> showStartOverlay("🎚 Choose Level");
+
+function startFromOverlay(withSound){
+  state.soundOn=withSound;
+  setSoundUI();
+  if(withSound) ensureAudio(); // iPhone unlock
+  overlay.style.display="none";
+  state.running=true;
+  if(!state.order.length) buildOrder();
+  setModeUI(); updateHUD();
+  if(!state.raf){
+    state.lastT=performance.now();
+    state.raf=requestAnimationFrame(tick);
+  }
+  nextQuestion();
+}
+
+startBtn.onclick=()=>startFromOverlay(true);
+muteStartBtn.onclick=()=>startFromOverlay(false);
+
+overlay.addEventListener("click",(e)=>{
+  const b=e.target.closest("[data-lvl]");
+  if(!b) return;
+  goToLevel(parseInt(b.getAttribute("data-lvl"),10));
+});
+
+speedRange.oninput=()=>{
+  state.speedMul=parseFloat(speedRange.value);
+  speedVal.textContent=`${state.speedMul.toFixed(2)}×`;
+};
+sizeRange.oninput=()=>{
+  state.sizeMul=parseFloat(sizeRange.value);
+  sizeVal.textContent=`${state.sizeMul.toFixed(2)}×`;
+};
+
+play.addEventListener("touchmove",(e)=>e.preventDefault(),{passive:false});
+
+/* init */
+(function init(){
+  setSoundUI();
+  speedVal.textContent=`${state.speedMul.toFixed(2)}×`;
+  sizeVal.textContent=`${state.sizeMul.toFixed(2)}×`;
+  setModeUI();
+  promptTxt.textContent="▶️ Start ਦਬਾਓ";
+  hintTxt.textContent="Level 4 now MCQ + Timer ✅";
+  updateHUD();
+})();
+</script>
+</body>
+</html>
