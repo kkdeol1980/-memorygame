@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ਨਾਂਵ - ਗੇਮ</title>
+  <style>
+    :root{
+      --bg:#f6f2e8; --card:#fff; --accent:#f7941d; --accentDark:#d97910;
+      --green:#2e7d32; --red:#c62828; --ink:#1f1f1f; --muted:#6b6b6b;
+    }
+    body{margin:0;font-family:"Noto Sans Gurmukhi", Arial, sans-serif;background:var(--bg);color:var(--ink);text-align:center;}
+    .wrap{max-width:980px;margin:0 auto;padding:10px 14px 24px;}
+    .topbar{display:flex;gap:10px;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:8px 2px;}
+    .brand{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .titlePill{background:var(--card);padding:10px 14px;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.08);font-weight:900;font-size:18px;}
+    .meta{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;}
+    .pill{background:var(--card);padding:10px 14px;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.08);font-weight:800;font-size:16px;}
+    .lives{color:var(--red)} .score{color:#333} .level{color:#1565c0} .timer{color:#5d4037}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center;}
+    .btnSmall{border:none;cursor:pointer;background:var(--card);padding:10px 12px;border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.08);font-weight:800;}
+    .btnSmall:active{transform:translateY(1px)}
+    .panel{margin:10px auto 0;background:linear-gradient(180deg, rgba(255,255,255,.75), rgba(255,255,255,.35));
+      border-radius:18px;padding:14px;box-shadow:0 10px 24px rgba(0,0,0,.08);}
+    .questionBox{margin:14px auto 10px;border:3px dashed var(--accent);border-radius:16px;padding:28px 12px;background:var(--card);
+      font-size:44px;color:var(--green);font-weight:900;min-height:84px;display:flex;align-items:center;justify-content:center;letter-spacing:.5px;}
+    .subline{margin:-2px 0 12px;font-size:14px;color:var(--muted);font-weight:700;}
+    .options{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:6px 4px 4px;}
+    .opt{border:none;cursor:pointer;background:var(--accent);color:white;border-radius:16px;padding:14px 10px;font-size:18px;font-weight:900;
+      box-shadow:0 7px var(--accentDark);user-select:none;}
+    .opt:active{box-shadow:0 2px var(--accentDark);transform:translateY(4px)}
+    .opt.full{grid-column:1 / -1}
+    .toast{margin:10px auto 0;max-width:720px;background:var(--card);border-radius:14px;padding:10px 12px;box-shadow:0 6px 18px rgba(0,0,0,.08);
+      font-weight:900;display:none;}
+    .toast.ok{color:var(--green)} .toast.no{color:var(--red)}
+    .footerHint{margin-top:10px;font-size:12px;color:var(--muted);font-weight:700;}
+    @media (max-width:430px){.questionBox{font-size:38px}.opt{font-size:16px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="titlePill">ਨਾਂਵ</div>
+        <div class="pill level">ਲੈਵਲ: <strong id="level">1</strong> (<span id="qInLevel">1</span>/<span id="qPerLevel">10</span>)</div>
+      </div>
+
+      <div class="meta">
+        <div class="pill score">ਸਕੋਰ: <strong id="score">0</strong></div>
+        <div class="pill lives">ਜਾਨਾਂ: <strong id="lives">3</strong></div>
+        <div class="pill timer">ਟਾਈਮ: <strong id="time">20</strong>s</div>
+      </div>
+
+      <div class="controls">
+        <button class="btnSmall" id="muteBtn">🔊 Sound: ON</button>
+        <button class="btnSmall" id="resetBtn">🔁 Restart</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="questionBox" id="word">ਪਾਣੀ</div>
+      <div class="subline">ਸਹੀ ਕਿਸਮ ਚੁਣੋ ✅ (ਆਮ/ਖਾਸ/ਇਕੱਠਵਾਚਕ/ਵਸਤੂਵਾਚਕ/ਭਾਵਵਾਚਕ)</div>
+
+      <div class="options">
+        <button class="opt" data-ans="aam">ਆਮ ਨਾਂਵ</button>
+        <button class="opt" data-ans="khaas">ਖਾਸ ਨਾਂਵ</button>
+        <button class="opt" data-ans="ikath">ਇਕੱਠਵਾਚਕ ਨਾਂਵ</button>
+        <button class="opt" data-ans="vastu">ਵਸਤੂਵਾਚਕ ਨਾਂਵ</button>
+        <button class="opt full" data-ans="bhaav">ਭਾਵਵਾਚਕ ਨਾਂਵ</button>
+      </div>
+
+      <div class="toast" id="toast"></div>
+      <div class="footerHint">Note: Sound ਪਹਿਲੀ ਵਾਰ ਚਲਾਉਣ ਲਈ ਕੋਈ ਵੀ ਬਟਨ ਟੈਪ ਕਰੋ (mobile rule).</div>
+    </div>
+  </div>
+
+<script>
+/* ✅ Exam-safe, NO ambiguity list */
+const QUESTIONS = [
+  // ਆਮ ਨਾਂਵ (clear)
+  {w:"ਲੜਕਾ", t:"aam"}, {w:"ਲੜਕੀ", t:"aam"}, {w:"ਅਧਿਆਪਕ", t:"aam"}, {w:"ਕਿਸਾਨ", t:"aam"},
+  {w:"ਡਾਕਟਰ", t:"aam"}, {w:"ਵਿਦਿਆਰਥੀ", t:"aam"}, {w:"ਕੁੱਤਾ", t:"aam"}, {w:"ਬਿੱਲੀ", t:"aam"},
+  {w:"ਕਿਤਾਬ", t:"aam"}, {w:"ਕਲਮ", t:"aam"}, {w:"ਮੇਜ਼", t:"aam"}, {w:"ਕੁਰਸੀ", t:"aam"},
+  {w:"ਘਰ", t:"aam"}, {w:"ਸਕੂਲ", t:"aam"}, {w:"ਦਰਖ਼ਤ", t:"aam"}, {w:"ਫੁੱਲ", t:"aam"},
+  {w:"ਪੰਛੀ", t:"aam"}, {w:"ਸੜਕ", t:"aam"}, {w:"ਦਰਵਾਜ਼ਾ", t:"aam"}, {w:"ਖਿੜਕੀ", t:"aam"},
+
+  // ਖਾਸ ਨਾਂਵ (only proper places/names, very clear)
+  {w:"ਭਾਰਤ", t:"khaas"}, {w:"ਪੰਜਾਬ", t:"khaas"}, {w:"ਹਰਿਆਣਾ", t:"khaas"}, {w:"ਦਿੱਲੀ", t:"khaas"},
+  {w:"ਚੰਡੀਗੜ੍ਹ", t:"khaas"}, {w:"ਅੰਮ੍ਰਿਤਸਰ", t:"khaas"}, {w:"ਲੁਧਿਆਣਾ", t:"khaas"}, {w:"ਜਲੰਧਰ", t:"khaas"},
+  {w:"ਸਤਲੁਜ", t:"khaas"}, {w:"ਗੰਗਾ", t:"khaas"}, {w:"ਹਿਮਾਲਿਆ", t:"khaas"}, {w:"ਏਸ਼ੀਆ", t:"khaas"},
+  {w:"ਅਫਰੀਕਾ", t:"khaas"}, {w:"ਅਸਟਰੇਲੀਆ", t:"khaas"}, {w:"ਸਿਡਨੀ", t:"khaas"}, {w:"ਕੈਨਬਰਾ", t:"khaas"},
+
+  // ਇਕੱਠਵਾਚਕ ਨਾਂਵ (clear group words)
+  {w:"ਭੀੜ", t:"ikath"}, {w:"ਝੁੰਡ", t:"ikath"}, {w:"ਟੋਲੀ", t:"ikath"}, {w:"ਜਥਾ", t:"ikath"},
+  {w:"ਸੰਗਤ", t:"ikath"}, {w:"ਪਰਿਵਾਰ", t:"ikath"}, {w:"ਕਮੇਟੀ", t:"ikath"}, {w:"ਜਮਾਤ", t:"ikath"},
+  {w:"ਮੰਡਲੀ", t:"ikath"}, {w:"ਦਲ", t:"ikath"}, {w:"ਸਮੂਹ", t:"ikath"}, {w:"ਫੌਜ", t:"ikath"},
+
+  // ਵਸਤੂਵਾਚਕ ਨਾਂਵ (clear materials)
+  {w:"ਪਾਣੀ", t:"vastu"}, {w:"ਦੁੱਧ", t:"vastu"}, {w:"ਘੀ", t:"vastu"}, {w:"ਤੇਲ", t:"vastu"},
+  {w:"ਸ਼ਹਿਦ", t:"vastu"}, {w:"ਲੋਹਾ", t:"vastu"}, {w:"ਸੋਨਾ", t:"vastu"}, {w:"ਚਾਂਦੀ", t:"vastu"},
+  {w:"ਨਮਕ", t:"vastu"}, {w:"ਚੀਨੀ", t:"vastu"}, {w:"ਮਿੱਟੀ", t:"vastu"}, {w:"ਹਵਾ", t:"vastu"},
+  {w:"ਰੇਤ", t:"vastu"}, {w:"ਕੱਚ", t:"vastu"}, {w:"ਕੋਲਾ", t:"vastu"}, {w:"ਰੂਈ", t:"vastu"},
+
+  // ਭਾਵਵਾਚਕ ਨਾਂਵ (clear feelings/qualities)
+  {w:"ਖੁਸ਼ੀ", t:"bhaav"}, {w:"ਦੁੱਖ", t:"bhaav"}, {w:"ਡਰ", t:"bhaav"}, {w:"ਪਿਆਰ", t:"bhaav"},
+  {w:"ਗੁੱਸਾ", t:"bhaav"}, {w:"ਸ਼ਰਮ", t:"bhaav"}, {w:"ਇੱਜ਼ਤ", t:"bhaav"}, {w:"ਆਸ", t:"bhaav"},
+  {w:"ਉਮੀਦ", t:"bhaav"}, {w:"ਸਬਰ", t:"bhaav"}, {w:"ਹਿੰਮਤ", t:"bhaav"}, {w:"ਨੇਕੀ", t:"bhaav"},
+  {w:"ਸੱਚਾਈ", t:"bhaav"}, {w:"ਦੋਸਤੀ", t:"bhaav"}, {w:"ਮਿਹਨਤ", t:"bhaav"}, {w:"ਸਿਆਣਪ", t:"bhaav"},
+];
+
+const Q_PER_LEVEL = 10;
+const BASE_TIME = 20;
+const MIN_TIME = 8;
+const TIME_DECREASE_PER_LEVEL = 1;
+
+let pool = [];
+let idx = 0;
+let score = 0;
+let lives = 3;
+let level = 1;
+let inLevel = 1;
+let timeLeft = BASE_TIME;
+let timerId = null;
+
+let soundOn = true;
+let audioUnlocked = false;
+let audioCtx = null;
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
+  return arr;
+}
+function $(id){ return document.getElementById(id); }
+
+function showToast(msg, ok=true){
+  const t = $("toast");
+  t.textContent = msg;
+  t.className = "toast " + (ok ? "ok":"no");
+  t.style.display = "block";
+  clearTimeout(showToast._tid);
+  showToast._tid = setTimeout(()=>{ t.style.display="none"; }, 900);
+}
+
+function ensureAudio(){
+  if(!audioCtx){
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if(audioCtx.state === "suspended") audioCtx.resume();
+  audioUnlocked = true;
+}
+function beep({freq=440, dur=0.09, type="sine", vol=0.15}={}){
+  if(!soundOn) return;
+  ensureAudio();
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = vol;
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start();
+  o.stop(audioCtx.currentTime + dur);
+}
+function sfxCorrect(){
+  beep({freq:523, dur:0.08, type:"triangle", vol:0.14});
+  setTimeout(()=>beep({freq:659, dur:0.08, type:"triangle", vol:0.14}), 90);
+  setTimeout(()=>beep({freq:784, dur:0.10, type:"triangle", vol:0.14}), 180);
+}
+function sfxWrong(){
+  beep({freq:220, dur:0.12, type:"sawtooth", vol:0.10});
+  setTimeout(()=>beep({freq:180, dur:0.14, type:"sawtooth", vol:0.10}), 120);
+}
+function sfxLevelUp(){
+  beep({freq:523, dur:0.10, type:"square", vol:0.10});
+  setTimeout(()=>beep({freq:659, dur:0.10, type:"square", vol:0.10}), 120);
+  setTimeout(()=>beep({freq:784, dur:0.12, type:"square", vol:0.10}), 240);
+  setTimeout(()=>beep({freq:988, dur:0.14, type:"square", vol:0.10}), 380);
+}
+
+function currentLimitTime(){
+  const t = BASE_TIME - (level-1)*TIME_DECREASE_PER_LEVEL;
+  return Math.max(MIN_TIME, t);
+}
+function resetPool(){
+  pool = shuffle([...QUESTIONS]);
+  idx = 0;
+}
+function updateHUD(){
+  $("score").textContent = score;
+  $("lives").textContent = lives;
+  $("level").textContent = level;
+  $("qPerLevel").textContent = Q_PER_LEVEL;
+  $("qInLevel").textContent = inLevel;
+  $("time").textContent = timeLeft;
+}
+function startTimer(){
+  clearInterval(timerId);
+  timerId = setInterval(()=>{
+    timeLeft--;
+    $("time").textContent = timeLeft;
+    if(timeLeft <= 0){
+      clearInterval(timerId);
+      handleWrong(true);
+    }
+  }, 1000);
+}
+function lockButtons(lock){
+  document.querySelectorAll(".opt").forEach(b=>{
+    b.disabled = lock;
+    b.style.opacity = lock ? 0.75 : 1;
+  });
+}
+function loadQuestion(){
+  if(idx >= pool.length) resetPool();
+  const q = pool[idx];
+  $("word").textContent = q.w;
+  timeLeft = currentLimitTime();
+  updateHUD();
+  startTimer();
+}
+function nextStep(){
+  idx++;
+  inLevel++;
+  if(inLevel > Q_PER_LEVEL){
+    level++;
+    inLevel = 1;
+    showToast("🎉 ਲੈਵਲ " + level + " ਸ਼ੁਰੂ!", true);
+    sfxLevelUp();
+  }
+  loadQuestion();
+}
+function handleCorrect(){
+  score++;
+  updateHUD();
+  showToast("ਸਹੀ ✅", true);
+  sfxCorrect();
+  lockButtons(true);
+  setTimeout(()=>{ lockButtons(false); nextStep(); }, 350);
+}
+function handleWrong(fromTimeout=false){
+  lives--;
+  updateHUD();
+  showToast(fromTimeout ? "ਟਾਈਮ ਖ਼ਤਮ ⏱️ (ਗਲਤ) ❌" : "ਗਲਤ ❌", false);
+  sfxWrong();
+
+  if(lives <= 0){
+    clearInterval(timerId);
+    lockButtons(true);
+    setTimeout(()=>{
+      alert("ਖੇਡ ਖਤਮ ਹੋ ਗਈ!\n\nਸਕੋਰ: " + score + "\nਲੈਵਲ: " + level);
+      restartGame();
+    }, 120);
+    return;
+  }
+  lockButtons(true);
+  setTimeout(()=>{ lockButtons(false); nextStep(); }, 450);
+}
+function restartGame(){
+  clearInterval(timerId);
+  score = 0; lives = 3; level = 1; inLevel = 1;
+  resetPool();
+  loadQuestion();
+  lockButtons(false);
+}
+
+document.querySelectorAll(".opt").forEach(btn=>{
+  btn.addEventListener("click", (e)=>{
+    if(!audioUnlocked) { try{ ensureAudio(); }catch{} }
+    const ans = e.currentTarget.dataset.ans;
+    const q = pool[idx];
+    if(ans === q.t) handleCorrect();
+    else handleWrong(false);
+  });
+});
+$("muteBtn").addEventListener("click", ()=>{
+  if(!audioUnlocked) { try{ ensureAudio(); }catch{} }
+  soundOn = !soundOn;
+  $("muteBtn").textContent = soundOn ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+});
+$("resetBtn").addEventListener("click", ()=>{
+  if(!audioUnlocked) { try{ ensureAudio(); }catch{} }
+  restartGame();
+});
+
+restartGame();
+</script>
+</body>
+</html>
