@@ -25,7 +25,6 @@
     padding:10px;
   }
 
-  /* draggable names */
   .name{
     padding:10px 14px;
     border-radius:14px;
@@ -37,11 +36,9 @@
     -webkit-user-select:none;
     touch-action:none;
     position:relative;
-    z-index:2;
   }
   .name:active{ cursor:grabbing; }
 
-  /* multicolor names */
   .name:nth-child(1){background:#e17055}
   .name:nth-child(2){background:#6c5ce7}
   .name:nth-child(3){background:#00b894}
@@ -53,13 +50,11 @@
   .name:nth-child(9){background:#00cec9}
   .name:nth-child(10){background:#fd79a8}
   .name:nth-child(11){background:#636e72}
-  .name:nth-child(12){background:#fab1a0}
+  .name:nth-child(12){background:#fab1a0;color:#000}
   .name:nth-child(13){background:#74b9ff}
 
-  /* star boxes */
   .star{
-    width:90px;
-    height:90px;
+    width:90px;height:90px;
     clip-path:polygon(
       50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,
       50% 70%,21% 91%,32% 57%,2% 35%,39% 35%
@@ -75,26 +70,23 @@
     user-select:none;
     -webkit-user-select:none;
     position:relative;
-    z-index:1;
   }
 
-  /* multicolor stars */
   .star:nth-child(1){background:#ff7675}
   .star:nth-child(2){background:#a29bfe}
-  .star:nth-child(3){background:#55efc4}
+  .star:nth-child(3){background:#55efc4;color:#000}
   .star:nth-child(4){background:#ffeaa7;color:#000}
   .star:nth-child(5){background:#74b9ff}
   .star:nth-child(6){background:#fd79a8}
   .star:nth-child(7){background:#00b894}
   .star:nth-child(8){background:#e17055}
-  .star:nth-child(9){background:#00cec9}
-  .star:nth-child(10){background:#fab1a0}
+  .star:nth-child(9){background:#00cec9;color:#000}
+  .star:nth-child(10){background:#fab1a0;color:#000}
   .star:nth-child(11){background:#636e72}
   .star:nth-child(12){background:#fdcb6e;color:#000}
   .star:nth-child(13){background:#6c5ce7}
 
   .correct{background:#00b894!important;}
-
   footer{font-size:12px;margin:8px;color:#333;}
 </style>
 </head>
@@ -104,7 +96,6 @@
 <h1>⭐ ਵਿਸਰਾਮ-ਚਿੰਨ੍ਹ Drag & Drop ⭐</h1>
 <div class="instructions">ਨਾਂਵ ਨੂੰ ਸਹੀ ਚਿੰਨ੍ਹ ਵਾਲੇ ਸਟਾਰ ਤੇ ਛੱਡੋ (iPhone/Android/PC)</div>
 
-<!-- Names -->
 <div class="container" id="names">
   <div class="name" data-match="।">ਡੰਡੀ</div>
   <div class="name" data-match="?">ਪ੍ਰਸ਼ਨ-ਚਿੰਨ੍ਹ</div>
@@ -121,7 +112,6 @@
   <div class="name" data-match="( )">ਬਰੈਕਟ</div>
 </div>
 
-<!-- Symbols -->
 <div class="container" id="symbols">
   <div class="star" data-symbol="।">।</div>
   <div class="star" data-symbol="?">?</div>
@@ -140,7 +130,6 @@
 
 <footer>📱 iPhone · Android · PC · Projector</footer>
 
-<!-- Sounds -->
 <audio id="correctSound" preload="auto">
   <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_6d7a28c16c.mp3">
 </audio>
@@ -149,81 +138,81 @@
 </audio>
 
 <script>
-  /* shuffle */
+  // shuffle
   function shuffle(c){
     [...c.children].sort(()=>Math.random()-0.5).forEach(e=>c.appendChild(e));
   }
   shuffle(document.getElementById("names"));
   shuffle(document.getElementById("symbols"));
 
-  /* sound unlock (iPhone needs a tap first) */
+  // unlock sound (iPhone needs a tap)
   const correctSound=document.getElementById("correctSound");
   const wrongSound=document.getElementById("wrongSound");
-  function unlock(){
+  const unlock=()=>{
     correctSound.play().then(()=>{correctSound.pause(); correctSound.currentTime=0;}).catch(()=>{});
-  }
+  };
   document.addEventListener("touchstart", unlock, {once:true});
   document.addEventListener("click", unlock, {once:true});
 
-  /* Mobile-safe drag using Pointer Events + DROP FIX */
-  document.querySelectorAll(".name").forEach(item=>{
-    let startX=0, startY=0, dx=0, dy=0, dragging=false;
+  let active=null;
 
-    item.addEventListener("pointerdown", e=>{
-      dragging=true;
-      item.setPointerCapture(e.pointerId);
-      startX=e.clientX;
-      startY=e.clientY;
-      item.style.zIndex=9999;
+  function onMove(e){
+    if(!active) return;
+    const dx = e.clientX - active.startX;
+    const dy = e.clientY - active.startY;
+    active.el.style.transform = `translate(${dx}px, ${dy}px)`;
+    e.preventDefault();
+  }
 
-      // ✅ KEY FIX: allow detecting star under the finger
-      item.style.pointerEvents = "none";
+  function onUp(e){
+    if(!active) return;
+
+    // ✅ KEY FIX: hide the dragged item for hit-test (so we can detect star under it)
+    const el = active.el;
+    el.style.visibility = "hidden";
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    el.style.visibility = "visible";
+
+    const star = target ? target.closest(".star") : null;
+
+    if(star && star.dataset.symbol === el.dataset.match){
+      star.classList.add("correct");
+      star.textContent = el.textContent;
+      el.style.display = "none";
+      correctSound.currentTime = 0;
+      correctSound.play().catch(()=>{});
+    }else{
+      el.style.transform = "";
+      wrongSound.currentTime = 0;
+      wrongSound.play().catch(()=>{});
+    }
+
+    el.style.zIndex = "";
+    active = null;
+
+    window.removeEventListener("pointermove", onMove, {passive:false});
+    window.removeEventListener("pointerup", onUp, {passive:false});
+    window.removeEventListener("pointercancel", onUp, {passive:false});
+
+    e.preventDefault();
+  }
+
+  document.querySelectorAll(".name").forEach(el=>{
+    el.addEventListener("pointerdown", (e)=>{
+      active = {
+        el,
+        startX: e.clientX,
+        startY: e.clientY
+      };
+      el.style.zIndex = 9999;
+
+      // track move/up on window (more reliable on iPhone)
+      window.addEventListener("pointermove", onMove, {passive:false});
+      window.addEventListener("pointerup", onUp, {passive:false});
+      window.addEventListener("pointercancel", onUp, {passive:false});
 
       e.preventDefault();
-    });
-
-    item.addEventListener("pointermove", e=>{
-      if(!dragging) return;
-      dx = e.clientX - startX;
-      dy = e.clientY - startY;
-      item.style.transform = `translate(${dx}px, ${dy}px)`;
-      e.preventDefault();
-    });
-
-    item.addEventListener("pointerup", e=>{
-      if(!dragging) return;
-      dragging=false;
-      try{ item.releasePointerCapture(e.pointerId); }catch(_){}
-
-      // ✅ restore click/tap on the item
-      item.style.pointerEvents = "auto";
-
-      const target = document.elementFromPoint(e.clientX, e.clientY);
-      const star = target ? target.closest(".star") : null;
-
-      if(star && star.dataset.symbol === item.dataset.match){
-        star.classList.add("correct");
-        star.textContent = item.textContent; // show name inside star
-        item.style.display="none";           // hide word after correct
-
-        correctSound.currentTime=0;
-        correctSound.play().catch(()=>{});
-      }else{
-        item.style.transform=""; // reset position
-        wrongSound.currentTime=0;
-        wrongSound.play().catch(()=>{});
-      }
-
-      item.style.zIndex="";
-      e.preventDefault();
-    });
-
-    item.addEventListener("pointercancel", ()=>{
-      dragging=false;
-      item.style.pointerEvents="auto";
-      item.style.transform="";
-      item.style.zIndex="";
-    });
+    }, {passive:false});
   });
 </script>
 
