@@ -8,107 +8,101 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@500;700&display=swap" rel="stylesheet">
 
 <style>
-body{
-  margin:0;
-  font-family:"Noto Sans Gurmukhi", Arial;
-  background:linear-gradient(135deg,#c3ecf7,#f5f7fa);
-  text-align:center;
-}
+  body{
+    margin:0;
+    font-family:"Noto Sans Gurmukhi", Arial, sans-serif;
+    background:linear-gradient(135deg,#c3ecf7,#f5f7fa);
+    text-align:center;
+  }
+  h1{margin:10px 0;color:#2d3436;font-size:26px;}
+  .instructions{font-size:14px;color:#333;margin-bottom:10px;}
 
-h1{margin:10px 0;color:#2d3436;font-size:26px;}
-.instructions{font-size:14px;color:#333;margin-bottom:10px;}
+  .container{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:14px;
+    padding:10px;
+  }
 
-.container{
-  display:flex;
-  flex-wrap:wrap;
-  justify-content:center;
-  gap:14px;
-  padding:10px;
-}
+  /* draggable names */
+  .name{
+    padding:10px 14px;
+    border-radius:14px;
+    cursor:grab;
+    font-weight:700;
+    color:#fff;
+    box-shadow:0 4px 10px rgba(0,0,0,.25);
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;
+    position:relative;
+    z-index:2;
+  }
+  .name:active{ cursor:grabbing; }
 
-/* draggable names */
-.name{
-  padding:10px 14px;
-  border-radius:14px;
-  cursor:grab;
-  font-weight:bold;
-  color:#fff;
-  box-shadow:0 4px 10px rgba(0,0,0,.25);
-  user-select:none;
-  -webkit-user-select:none;
-  touch-action:none;
-  position:relative;
-}
+  /* multicolor names */
+  .name:nth-child(1){background:#e17055}
+  .name:nth-child(2){background:#6c5ce7}
+  .name:nth-child(3){background:#00b894}
+  .name:nth-child(4){background:#fdcb6e;color:#000}
+  .name:nth-child(5){background:#0984e3}
+  .name:nth-child(6){background:#e84393}
+  .name:nth-child(7){background:#2ecc71}
+  .name:nth-child(8){background:#d63031}
+  .name:nth-child(9){background:#00cec9}
+  .name:nth-child(10){background:#fd79a8}
+  .name:nth-child(11){background:#636e72}
+  .name:nth-child(12){background:#fab1a0}
+  .name:nth-child(13){background:#74b9ff}
 
-/* multicolor names */
-.name:nth-child(1){background:#e17055}
-.name:nth-child(2){background:#6c5ce7}
-.name:nth-child(3){background:#00b894}
-.name:nth-child(4){background:#fdcb6e;color:#000}
-.name:nth-child(5){background:#0984e3}
-.name:nth-child(6){background:#e84393}
-.name:nth-child(7){background:#2ecc71}
-.name:nth-child(8){background:#d63031}
-.name:nth-child(9){background:#00cec9}
-.name:nth-child(10){background:#fd79a8}
-.name:nth-child(11){background:#636e72}
-.name:nth-child(12){background:#fab1a0}
-.name:nth-child(13){background:#74b9ff}
+  /* star boxes */
+  .star{
+    width:90px;
+    height:90px;
+    clip-path:polygon(
+      50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,
+      50% 70%,21% 91%,32% 57%,2% 35%,39% 35%
+    );
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    font-weight:800;
+    color:#fff;
+    box-shadow:0 6px 14px rgba(0,0,0,.3);
+    touch-action:none;
+    user-select:none;
+    -webkit-user-select:none;
+    position:relative;
+    z-index:1;
+  }
 
-/* star boxes */
-.star{
-  width:90px;
-  height:90px;
-  clip-path:polygon(
-    50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,
-    50% 70%,21% 91%,32% 57%,2% 35%,39% 35%
-  );
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:24px;
-  font-weight:bold;
-  color:#fff;
-  box-shadow:0 6px 14px rgba(0,0,0,.3);
-  touch-action:none;
-  user-select:none;
-  -webkit-user-select:none;
-}
+  /* multicolor stars */
+  .star:nth-child(1){background:#ff7675}
+  .star:nth-child(2){background:#a29bfe}
+  .star:nth-child(3){background:#55efc4}
+  .star:nth-child(4){background:#ffeaa7;color:#000}
+  .star:nth-child(5){background:#74b9ff}
+  .star:nth-child(6){background:#fd79a8}
+  .star:nth-child(7){background:#00b894}
+  .star:nth-child(8){background:#e17055}
+  .star:nth-child(9){background:#00cec9}
+  .star:nth-child(10){background:#fab1a0}
+  .star:nth-child(11){background:#636e72}
+  .star:nth-child(12){background:#fdcb6e;color:#000}
+  .star:nth-child(13){background:#6c5ce7}
 
-/* multicolor stars */
-.star:nth-child(1){background:#ff7675}
-.star:nth-child(2){background:#a29bfe}
-.star:nth-child(3){background:#55efc4}
-.star:nth-child(4){background:#ffeaa7;color:#000}
-.star:nth-child(5){background:#74b9ff}
-.star:nth-child(6){background:#fd79a8}
-.star:nth-child(7){background:#00b894}
-.star:nth-child(8){background:#e17055}
-.star:nth-child(9){background:#00cec9}
-.star:nth-child(10){background:#fab1a0}
-.star:nth-child(11){background:#636e72}
-.star:nth-child(12){background:#fdcb6e;color:#000}
-.star:nth-child(13){background:#6c5ce7}
+  .correct{background:#00b894!important;}
 
-.correct{background:#00b894!important;}
-.wrong{animation:shake .3s;}
-
-@keyframes shake{
-  0%{transform:translateX(0)}
-  25%{transform:translateX(-5px)}
-  50%{transform:translateX(5px)}
-  75%{transform:translateX(-5px)}
-  100%{transform:translateX(0)}
-}
-
-footer{font-size:12px;margin:8px;color:#333;}
+  footer{font-size:12px;margin:8px;color:#333;}
 </style>
 </head>
 
 <body>
 
 <h1>⭐ ਵਿਸਰਾਮ-ਚਿੰਨ੍ਹ Drag & Drop ⭐</h1>
-<div class="instructions">ਫੋਨ ਜਾਂ ਕੰਪਿਊਟਰ ਦੋਵਾਂ 'ਤੇ ਕੰਮ ਕਰਦੀ ਗੇਮ</div>
+<div class="instructions">ਨਾਂਵ ਨੂੰ ਸਹੀ ਚਿੰਨ੍ਹ ਵਾਲੇ ਸਟਾਰ ਤੇ ਛੱਡੋ (iPhone/Android/PC)</div>
 
 <!-- Names -->
 <div class="container" id="names">
@@ -155,60 +149,83 @@ footer{font-size:12px;margin:8px;color:#333;}
 </audio>
 
 <script>
-/* shuffle */
-function shuffle(c){
-  [...c.children].sort(()=>Math.random()-0.5).forEach(e=>c.appendChild(e));
-}
-shuffle(names); shuffle(symbols);
+  /* shuffle */
+  function shuffle(c){
+    [...c.children].sort(()=>Math.random()-0.5).forEach(e=>c.appendChild(e));
+  }
+  shuffle(document.getElementById("names"));
+  shuffle(document.getElementById("symbols"));
 
-/* sound unlock */
-const correctSound=document.getElementById("correctSound");
-const wrongSound=document.getElementById("wrongSound");
-document.addEventListener("touchstart",()=>correctSound.play().then(()=>{correctSound.pause();correctSound.currentTime=0;}),{once:true});
+  /* sound unlock (iPhone needs a tap first) */
+  const correctSound=document.getElementById("correctSound");
+  const wrongSound=document.getElementById("wrongSound");
+  function unlock(){
+    correctSound.play().then(()=>{correctSound.pause(); correctSound.currentTime=0;}).catch(()=>{});
+  }
+  document.addEventListener("touchstart", unlock, {once:true});
+  document.addEventListener("click", unlock, {once:true});
 
-/* MOBILE SAFE DRAG */
-document.querySelectorAll(".name").forEach(item=>{
-  let startX=0,startY=0,dx=0,dy=0,drag=false;
+  /* Mobile-safe drag using Pointer Events + DROP FIX */
+  document.querySelectorAll(".name").forEach(item=>{
+    let startX=0, startY=0, dx=0, dy=0, dragging=false;
 
-  item.addEventListener("pointerdown",e=>{
-    drag=true;
-    item.setPointerCapture(e.pointerId);
-    startX=e.clientX;
-    startY=e.clientY;
-    item.style.zIndex=999;
-  });
+    item.addEventListener("pointerdown", e=>{
+      dragging=true;
+      item.setPointerCapture(e.pointerId);
+      startX=e.clientX;
+      startY=e.clientY;
+      item.style.zIndex=9999;
 
-  item.addEventListener("pointermove",e=>{
-    if(!drag) return;
-    dx=e.clientX-startX;
-    dy=e.clientY-startY;
-    item.style.transform=`translate(${dx}px,${dy}px)`;
-  });
+      // ✅ KEY FIX: allow detecting star under the finger
+      item.style.pointerEvents = "none";
 
-  item.addEventListener("pointerup",e=>{
-    drag=false;
-    item.releasePointerCapture(e.pointerId);
+      e.preventDefault();
+    });
 
-    const target=document.elementFromPoint(e.clientX,e.clientY);
-    const star=target?.closest(".star");
+    item.addEventListener("pointermove", e=>{
+      if(!dragging) return;
+      dx = e.clientX - startX;
+      dy = e.clientY - startY;
+      item.style.transform = `translate(${dx}px, ${dy}px)`;
+      e.preventDefault();
+    });
 
-    if(star && star.dataset.symbol===item.dataset.match){
-      star.classList.add("correct");
-      star.textContent=item.textContent;
-      item.style.display="none";
-      correctSound.currentTime=0;
-      correctSound.play();
-    }else{
+    item.addEventListener("pointerup", e=>{
+      if(!dragging) return;
+      dragging=false;
+      try{ item.releasePointerCapture(e.pointerId); }catch(_){}
+
+      // ✅ restore click/tap on the item
+      item.style.pointerEvents = "auto";
+
+      const target = document.elementFromPoint(e.clientX, e.clientY);
+      const star = target ? target.closest(".star") : null;
+
+      if(star && star.dataset.symbol === item.dataset.match){
+        star.classList.add("correct");
+        star.textContent = item.textContent; // show name inside star
+        item.style.display="none";           // hide word after correct
+
+        correctSound.currentTime=0;
+        correctSound.play().catch(()=>{});
+      }else{
+        item.style.transform=""; // reset position
+        wrongSound.currentTime=0;
+        wrongSound.play().catch(()=>{});
+      }
+
+      item.style.zIndex="";
+      e.preventDefault();
+    });
+
+    item.addEventListener("pointercancel", ()=>{
+      dragging=false;
+      item.style.pointerEvents="auto";
       item.style.transform="";
-      wrongSound.currentTime=0;
-      wrongSound.play();
-    }
-
-    item.style.zIndex="";
+      item.style.zIndex="";
+    });
   });
-});
 </script>
 
 </body>
 </html>
-  
