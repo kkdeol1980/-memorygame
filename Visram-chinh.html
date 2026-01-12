@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ਵਿਸਰਾਮ-ਚਿੰਨ੍ਹ Drag Drop ਗੇਮ</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  font-family:"Noto Sans Gurmukhi", Arial;
+  background:linear-gradient(135deg,#c3ecf7,#f5f7fa);
+  text-align:center;
+}
+
+h1{margin:10px 0;color:#2d3436;font-size:26px;}
+.instructions{font-size:14px;color:#333;margin-bottom:10px;}
+
+.container{
+  display:flex;flex-wrap:wrap;justify-content:center;
+  gap:14px;padding:10px;
+}
+
+.name{
+  padding:10px 14px;border-radius:14px;
+  cursor:grab;font-weight:bold;color:#fff;
+  box-shadow:0 4px 10px rgba(0,0,0,.25);
+  user-select:none;
+}
+
+/* multicolor names */
+.name:nth-child(1){background:#e17055}
+.name:nth-child(2){background:#6c5ce7}
+.name:nth-child(3){background:#00b894}
+.name:nth-child(4){background:#fdcb6e;color:#000}
+.name:nth-child(5){background:#0984e3}
+.name:nth-child(6){background:#e84393}
+.name:nth-child(7){background:#2ecc71}
+.name:nth-child(8){background:#d63031}
+.name:nth-child(9){background:#00cec9}
+.name:nth-child(10){background:#fd79a8}
+.name:nth-child(11){background:#636e72}
+.name:nth-child(12){background:#fab1a0}
+.name:nth-child(13){background:#74b9ff}
+
+/* star boxes */
+.star{
+  width:90px;height:90px;
+  clip-path:polygon(
+    50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,
+    50% 70%,21% 91%,32% 57%,2% 35%,39% 35%
+  );
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:bold;color:#fff;
+  box-shadow:0 6px 14px rgba(0,0,0,.3);
+}
+
+/* multicolor stars */
+.star:nth-child(1){background:#ff7675}
+.star:nth-child(2){background:#a29bfe}
+.star:nth-child(3){background:#55efc4}
+.star:nth-child(4){background:#ffeaa7;color:#000}
+.star:nth-child(5){background:#74b9ff}
+.star:nth-child(6){background:#fd79a8}
+.star:nth-child(7){background:#00b894}
+.star:nth-child(8){background:#e17055}
+.star:nth-child(9){background:#00cec9}
+.star:nth-child(10){background:#fab1a0}
+.star:nth-child(11){background:#636e72}
+.star:nth-child(12){background:#fdcb6e;color:#000}
+.star:nth-child(13){background:#6c5ce7}
+
+.correct{background:#00b894!important;}
+.wrong{animation:shake .3s;}
+
+@keyframes shake{
+  0%{transform:translateX(0)}
+  25%{transform:translateX(-5px)}
+  50%{transform:translateX(5px)}
+  75%{transform:translateX(-5px)}
+  100%{transform:translateX(0)}
+}
+footer{font-size:12px;margin:8px;color:#333;}
+</style>
+</head>
+
+<body>
+
+<h1>⭐ ਵਿਸਰਾਮ-ਚਿੰਨ੍ਹ Drag & Drop ⭐</h1>
+<div class="instructions">ਪਹਿਲਾਂ ਸਕ੍ਰੀਨ ’ਤੇ tap ਕਰੋ → ਫਿਰ ਖੇਡੋ</div>
+
+<!-- Names -->
+<div class="container" id="names">
+  <div class="name" draggable="true" data-match="।">ਡੰਡੀ</div>
+  <div class="name" draggable="true" data-match="?">ਪ੍ਰਸ਼ਨ-ਚਿੰਨ੍ਹ</div>
+  <div class="name" draggable="true" data-match="!">ਵਿਸਮਕ-ਚਿੰਨ੍ਹ</div>
+  <div class="name" draggable="true" data-match=",">ਕਾਮਾ</div>
+  <div class="name" draggable="true" data-match=";">ਬਿੰਦੀ-ਕਾਮਾ</div>
+  <div class="name" draggable="true" data-match="&quot; &quot;">ਪੁੱਠੇ ਕਾਮੇ</div>
+  <div class="name" draggable="true" data-match=":">ਦੁਬਿੰਦੀ</div>
+  <div class="name" draggable="true" data-match=":-">ਦੁਬਿੰਦੀ ਡੈਸ਼</div>
+  <div class="name" draggable="true" data-match="-">ਜੋੜਨੀ</div>
+  <div class="name" draggable="true" data-match="'">ਛੁੱਟ-ਮਰੋੜੀ</div>
+  <div class="name" draggable="true" data-match="—">ਡੈਸ਼</div>
+  <div class="name" draggable="true" data-match=".">ਬਿੰਦੀ</div>
+  <div class="name" draggable="true" data-match="( )">ਬਰੈਕਟ</div>
+</div>
+
+<!-- Symbols -->
+<div class="container" id="symbols">
+  <div class="star" data-symbol="।">।</div>
+  <div class="star" data-symbol="?">?</div>
+  <div class="star" data-symbol="!">!</div>
+  <div class="star" data-symbol=",">,</div>
+  <div class="star" data-symbol=";">;</div>
+  <div class="star" data-symbol="&quot; &quot;">" "</div>
+  <div class="star" data-symbol=":">:</div>
+  <div class="star" data-symbol=":-">:-</div>
+  <div class="star" data-symbol="-">-</div>
+  <div class="star" data-symbol="'">'</div>
+  <div class="star" data-symbol="—">—</div>
+  <div class="star" data-symbol=".">.</div>
+  <div class="star" data-symbol="( )">( )</div>
+</div>
+
+<footer>🎵 Sound fixed for mobile</footer>
+
+<!-- Sounds -->
+<audio id="correctSound" preload="auto">
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_6d7a28c16c.mp3" type="audio/mpeg">
+</audio>
+<audio id="wrongSound" preload="auto">
+  <source src="https://cdn.pixabay.com/audio/2022/03/10/audio_0c3b88a5c4.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+/* shuffle */
+function shuffle(c){
+  [...c.children].sort(()=>Math.random()-0.5).forEach(e=>c.appendChild(e));
+}
+shuffle(names); shuffle(symbols);
+
+const correctSound=document.getElementById("correctSound");
+const wrongSound=document.getElementById("wrongSound");
+
+/* 🔓 unlock sound on first user interaction */
+let unlocked=false;
+function unlockSound(){
+  if(unlocked) return;
+  correctSound.play().then(()=>{
+    correctSound.pause(); correctSound.currentTime=0;
+  });
+  unlocked=true;
+  document.removeEventListener("touchstart",unlockSound);
+  document.removeEventListener("click",unlockSound);
+}
+document.addEventListener("touchstart",unlockSound);
+document.addEventListener("click",unlockSound);
+
+let dragged=null;
+
+document.querySelectorAll(".name").forEach(n=>{
+  n.addEventListener("dragstart",()=>dragged=n);
+});
+
+document.querySelectorAll(".star").forEach(s=>{
+  s.addEventListener("dragover",e=>e.preventDefault());
+  s.addEventListener("drop",()=>{
+    if(!dragged) return;
+    if(dragged.dataset.match===s.dataset.symbol){
+      s.classList.add("correct");
+      s.textContent=dragged.textContent;
+      dragged.style.display="none";
+      correctSound.currentTime=0;
+      correctSound.play();
+    }else{
+      s.classList.add("wrong");
+      wrongSound.currentTime=0;
+      wrongSound.play();
+      setTimeout(()=>s.classList.remove("wrong"),300);
+    }
+  });
+});
+</script>
+
+</body>
+</html>
