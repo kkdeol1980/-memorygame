@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ਵਿਸਰਾਮ-ਚਿੰਨ੍ਹ Drag Drop ਗੇਮ</title>
+<title>ਵਿਸਰਾਮ-ਚਿੰਨ੍ਹ Drag & Drop ਗੇਮ</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@500;700&display=swap" rel="stylesheet">
 
@@ -19,15 +19,25 @@ h1{margin:10px 0;color:#2d3436;font-size:26px;}
 .instructions{font-size:14px;color:#333;margin-bottom:10px;}
 
 .container{
-  display:flex;flex-wrap:wrap;justify-content:center;
-  gap:14px;padding:10px;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:14px;
+  padding:10px;
 }
 
+/* draggable names */
 .name{
-  padding:10px 14px;border-radius:14px;
-  cursor:grab;font-weight:bold;color:#fff;
+  padding:10px 14px;
+  border-radius:14px;
+  cursor:grab;
+  font-weight:bold;
+  color:#fff;
   box-shadow:0 4px 10px rgba(0,0,0,.25);
   user-select:none;
+  -webkit-user-select:none;
+  touch-action:none;
+  position:relative;
 }
 
 /* multicolor names */
@@ -47,14 +57,22 @@ h1{margin:10px 0;color:#2d3436;font-size:26px;}
 
 /* star boxes */
 .star{
-  width:90px;height:90px;
+  width:90px;
+  height:90px;
   clip-path:polygon(
     50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,
     50% 70%,21% 91%,32% 57%,2% 35%,39% 35%
   );
-  display:flex;align-items:center;justify-content:center;
-  font-size:24px;font-weight:bold;color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:24px;
+  font-weight:bold;
+  color:#fff;
   box-shadow:0 6px 14px rgba(0,0,0,.3);
+  touch-action:none;
+  user-select:none;
+  -webkit-user-select:none;
 }
 
 /* multicolor stars */
@@ -82,6 +100,7 @@ h1{margin:10px 0;color:#2d3436;font-size:26px;}
   75%{transform:translateX(-5px)}
   100%{transform:translateX(0)}
 }
+
 footer{font-size:12px;margin:8px;color:#333;}
 </style>
 </head>
@@ -89,23 +108,23 @@ footer{font-size:12px;margin:8px;color:#333;}
 <body>
 
 <h1>⭐ ਵਿਸਰਾਮ-ਚਿੰਨ੍ਹ Drag & Drop ⭐</h1>
-<div class="instructions">ਪਹਿਲਾਂ ਸਕ੍ਰੀਨ ’ਤੇ tap ਕਰੋ → ਫਿਰ ਖੇਡੋ</div>
+<div class="instructions">ਫੋਨ ਜਾਂ ਕੰਪਿਊਟਰ ਦੋਵਾਂ 'ਤੇ ਕੰਮ ਕਰਦੀ ਗੇਮ</div>
 
 <!-- Names -->
 <div class="container" id="names">
-  <div class="name" draggable="true" data-match="।">ਡੰਡੀ</div>
-  <div class="name" draggable="true" data-match="?">ਪ੍ਰਸ਼ਨ-ਚਿੰਨ੍ਹ</div>
-  <div class="name" draggable="true" data-match="!">ਵਿਸਮਕ-ਚਿੰਨ੍ਹ</div>
-  <div class="name" draggable="true" data-match=",">ਕਾਮਾ</div>
-  <div class="name" draggable="true" data-match=";">ਬਿੰਦੀ-ਕਾਮਾ</div>
-  <div class="name" draggable="true" data-match="&quot; &quot;">ਪੁੱਠੇ ਕਾਮੇ</div>
-  <div class="name" draggable="true" data-match=":">ਦੁਬਿੰਦੀ</div>
-  <div class="name" draggable="true" data-match=":-">ਦੁਬਿੰਦੀ ਡੈਸ਼</div>
-  <div class="name" draggable="true" data-match="-">ਜੋੜਨੀ</div>
-  <div class="name" draggable="true" data-match="'">ਛੁੱਟ-ਮਰੋੜੀ</div>
-  <div class="name" draggable="true" data-match="—">ਡੈਸ਼</div>
-  <div class="name" draggable="true" data-match=".">ਬਿੰਦੀ</div>
-  <div class="name" draggable="true" data-match="( )">ਬਰੈਕਟ</div>
+  <div class="name" data-match="।">ਡੰਡੀ</div>
+  <div class="name" data-match="?">ਪ੍ਰਸ਼ਨ-ਚਿੰਨ੍ਹ</div>
+  <div class="name" data-match="!">ਵਿਸਮਕ-ਚਿੰਨ੍ਹ</div>
+  <div class="name" data-match=",">ਕਾਮਾ</div>
+  <div class="name" data-match=";">ਬਿੰਦੀ-ਕਾਮਾ</div>
+  <div class="name" data-match="&quot; &quot;">ਪੁੱਠੇ ਕਾਮੇ</div>
+  <div class="name" data-match=":">ਦੁਬਿੰਦੀ</div>
+  <div class="name" data-match=":-">ਦੁਬਿੰਦੀ ਡੈਸ਼</div>
+  <div class="name" data-match="-">ਜੋੜਨੀ</div>
+  <div class="name" data-match="'">ਛੁੱਟ-ਮਰੋੜੀ</div>
+  <div class="name" data-match="—">ਡੈਸ਼</div>
+  <div class="name" data-match=".">ਬਿੰਦੀ</div>
+  <div class="name" data-match="( )">ਬਰੈਕਟ</div>
 </div>
 
 <!-- Symbols -->
@@ -125,14 +144,14 @@ footer{font-size:12px;margin:8px;color:#333;}
   <div class="star" data-symbol="( )">( )</div>
 </div>
 
-<footer>🎵 Sound fixed for mobile</footer>
+<footer>📱 iPhone · Android · PC · Projector</footer>
 
 <!-- Sounds -->
 <audio id="correctSound" preload="auto">
-  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_6d7a28c16c.mp3" type="audio/mpeg">
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_6d7a28c16c.mp3">
 </audio>
 <audio id="wrongSound" preload="auto">
-  <source src="https://cdn.pixabay.com/audio/2022/03/10/audio_0c3b88a5c4.mp3" type="audio/mpeg">
+  <source src="https://cdn.pixabay.com/audio/2022/03/10/audio_0c3b88a5c4.mp3">
 </audio>
 
 <script>
@@ -142,48 +161,54 @@ function shuffle(c){
 }
 shuffle(names); shuffle(symbols);
 
+/* sound unlock */
 const correctSound=document.getElementById("correctSound");
 const wrongSound=document.getElementById("wrongSound");
+document.addEventListener("touchstart",()=>correctSound.play().then(()=>{correctSound.pause();correctSound.currentTime=0;}),{once:true});
 
-/* 🔓 unlock sound on first user interaction */
-let unlocked=false;
-function unlockSound(){
-  if(unlocked) return;
-  correctSound.play().then(()=>{
-    correctSound.pause(); correctSound.currentTime=0;
+/* MOBILE SAFE DRAG */
+document.querySelectorAll(".name").forEach(item=>{
+  let startX=0,startY=0,dx=0,dy=0,drag=false;
+
+  item.addEventListener("pointerdown",e=>{
+    drag=true;
+    item.setPointerCapture(e.pointerId);
+    startX=e.clientX;
+    startY=e.clientY;
+    item.style.zIndex=999;
   });
-  unlocked=true;
-  document.removeEventListener("touchstart",unlockSound);
-  document.removeEventListener("click",unlockSound);
-}
-document.addEventListener("touchstart",unlockSound);
-document.addEventListener("click",unlockSound);
 
-let dragged=null;
+  item.addEventListener("pointermove",e=>{
+    if(!drag) return;
+    dx=e.clientX-startX;
+    dy=e.clientY-startY;
+    item.style.transform=`translate(${dx}px,${dy}px)`;
+  });
 
-document.querySelectorAll(".name").forEach(n=>{
-  n.addEventListener("dragstart",()=>dragged=n);
-});
+  item.addEventListener("pointerup",e=>{
+    drag=false;
+    item.releasePointerCapture(e.pointerId);
 
-document.querySelectorAll(".star").forEach(s=>{
-  s.addEventListener("dragover",e=>e.preventDefault());
-  s.addEventListener("drop",()=>{
-    if(!dragged) return;
-    if(dragged.dataset.match===s.dataset.symbol){
-      s.classList.add("correct");
-      s.textContent=dragged.textContent;
-      dragged.style.display="none";
+    const target=document.elementFromPoint(e.clientX,e.clientY);
+    const star=target?.closest(".star");
+
+    if(star && star.dataset.symbol===item.dataset.match){
+      star.classList.add("correct");
+      star.textContent=item.textContent;
+      item.style.display="none";
       correctSound.currentTime=0;
       correctSound.play();
     }else{
-      s.classList.add("wrong");
+      item.style.transform="";
       wrongSound.currentTime=0;
       wrongSound.play();
-      setTimeout(()=>s.classList.remove("wrong"),300);
     }
+
+    item.style.zIndex="";
   });
 });
 </script>
 
 </body>
 </html>
+  
