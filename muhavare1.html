@@ -4,9 +4,10 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ਮੁਹਾਵਰਾ ਮਾਹਿਰ — Full Game</title>
+
   <style>
     :root{
-      --bg1:#e3f2fd; --bg2:#fff;
+      --bg1:#e3f2fd; --bg2:#ffffff;
       --card:#ffffff; --ink:#0b1b2a;
       --primary:#0d47a1; --primary2:#1565c0;
       --good:#1b5e20; --bad:#b71c1c;
@@ -22,13 +23,15 @@
     }
     header{padding:18px 12px 8px}
     h1{margin:0; font-size:26px; color:var(--primary)}
-    .sub{margin:6px 0 0; opacity:.8}
+    .sub{margin:6px 0 0; opacity:.82; font-size:13px; line-height:1.35}
     .wrap{max-width:1100px; margin:0 auto; padding:12px}
+
     .panel{
       background:var(--card); border-radius:var(--r);
       box-shadow:var(--shadow);
       padding:14px; margin:12px 0;
     }
+
     .topbar{
       display:flex; flex-wrap:wrap; gap:10px;
       justify-content:space-between; align-items:center;
@@ -41,6 +44,7 @@
       font-size:14px; display:flex; gap:10px; align-items:center;
       justify-content:center; flex-wrap:wrap;
     }
+
     .btnrow{display:flex; gap:10px; flex-wrap:wrap; justify-content:center}
     button{
       border:0; border-radius:14px; padding:10px 14px;
@@ -71,38 +75,74 @@
     .opt.good{border-color:rgba(27,94,32,.5); background:#e8f5e9}
     .opt.bad{border-color:rgba(183,28,28,.5); background:#ffebee}
 
-    /* Level 2 Drag & Drop (Mobile-safe) */
-    .dd-wrap{display:grid; grid-template-columns:1fr; gap:12px;}
+    /* ===================== Level 2 Drag & Drop (COMPACT + COLORFUL) ===================== */
+    .dd-wrap{
+      display:grid; grid-template-columns:1fr; gap:12px;
+      max-height:68vh;              /* ✅ no long page */
+      overflow:hidden;
+    }
     @media(min-width:900px){ .dd-wrap{grid-template-columns:1fr 1fr;} }
+
     .dd-col{
-      background:var(--soft2); border-radius:18px; padding:12px;
-      box-shadow:0 8px 20px rgba(0,0,0,.08); min-height:240px;
+      border-radius:18px; padding:12px;
+      box-shadow:0 8px 20px rgba(0,0,0,.08);
+      max-height:68vh;              /* ✅ internal scroll */
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      border:2px solid rgba(13,71,161,.12);
+      background:linear-gradient(135deg, rgba(255,255,255,.92), rgba(227,242,253,.92));
     }
     .dd-title{margin:4px 0 10px; color:var(--primary)}
+
     .pill{
-      background:#fff; border:2px solid #d8ecff; border-radius:999px;
-      padding:12px 14px; margin:10px 0;
-      cursor:grab; user-select:none; text-align:left;
-      box-shadow:0 6px 16px rgba(0,0,0,.06); font-size:16px;
-      touch-action:none; -webkit-user-select:none;
+      border-radius:999px;
+      padding:10px 12px;
+      margin:10px 0;
+      cursor:grab;
+      user-select:none; -webkit-user-select:none;
+      touch-action:none;
       position:relative;
+      text-align:left;
+      font-size:15px;
+      font-weight:900;
+      box-shadow:0 8px 18px rgba(0,0,0,.10);
+      border:2px solid rgba(13,71,161,.14);
+      background:linear-gradient(135deg,#ffffff,#f7fbff);
     }
     .pill:active{cursor:grabbing}
+    .pill:nth-child(6n+1){ background: linear-gradient(135deg,#ffebee,#ffffff); }
+    .pill:nth-child(6n+2){ background: linear-gradient(135deg,#e8f5e9,#ffffff); }
+    .pill:nth-child(6n+3){ background: linear-gradient(135deg,#e3f2fd,#ffffff); }
+    .pill:nth-child(6n+4){ background: linear-gradient(135deg,#fff3e0,#ffffff); }
+    .pill:nth-child(6n+5){ background: linear-gradient(135deg,#f3e5f5,#ffffff); }
+    .pill:nth-child(6n+0){ background: linear-gradient(135deg,#e0f7fa,#ffffff); }
+
     .drop{
-      background:#fff; border:2px dashed #b7d9ff; border-radius:16px;
-      padding:10px; margin:10px 0; text-align:left; min-height:62px;
-      display:flex; align-items:center; gap:10px;
+      border-radius:16px;
+      padding:10px;
+      margin:10px 0;
+      text-align:left;
+      min-height:66px;
+      display:flex; align-items:flex-start; gap:10px;
       touch-action:none; -webkit-user-select:none;
       position:relative;
+      border:2px dashed rgba(13,71,161,.35);
+      background:linear-gradient(135deg,#ffffff,#f2f7ff);
+      box-shadow:0 8px 18px rgba(0,0,0,.08);
     }
     .drop strong{color:#223}
-    .drop.filled{border-style:solid}
-    .badge{
-      font-size:12px; padding:6px 10px; border-radius:999px;
-      background:#eef; margin-left:auto;
+    .drop .mini{font-size:12px; opacity:.75; margin-top:2px}
+    .drop.correctPair{display:none;} /* ✅ vanish on correct */
+    .drop.flashBad{ animation: shake .25s; border-color: rgba(183,28,28,.65); }
+    .drop.flashOk{ border-style:solid; border-color: rgba(27,94,32,.55); }
+
+    @keyframes shake{
+      0%{transform:translateX(0)}
+      25%{transform:translateX(-6px)}
+      50%{transform:translateX(6px)}
+      75%{transform:translateX(-6px)}
+      100%{transform:translateX(0)}
     }
-    .badge.ok{background:#e8f5e9; color:var(--good)}
-    .badge.no{background:#ffebee; color:var(--bad)}
 
     /* Level 3 Bubble */
     .bubbleWrap{
@@ -174,17 +214,19 @@
     .toast.show{opacity:1; transform:translateX(-50%) translateY(-4px)}
   </style>
 </head>
+
 <body>
 <header>
   <h1>🎮 ਮੁਹਾਵਰਾ ਮਾਹਿਰ</h1>
-  <div class="sub">Level 1 (MCQ) • Level 2 (Drag & Drop) • Level 3 (FAST Bubble: 4 bubbles only) • Sound ✅</div>
+  <div class="sub">
+    Level 1 (MCQ) • Level 2 (Drag & Drop iPhone ✅, correct pair vanish ✅, compact ✅, colorful ✅) • Level 3 (Bubble)
+  </div>
 </header>
 
 <div class="wrap">
   <div class="panel">
     <div class="topbar">
       <div class="chip">🏁 ਲੈਵਲ: <b id="lvlName">—</b></div>
-      <div class="chip">📌 ਪ੍ਰਸ਼ਨ: <b id="progress">0/0</b></div>
       <div class="chip">⭐ ਸਕੋਰ: <b id="score">0</b></div>
       <div class="chip">
         🔊 Sound: <b id="soundState">ON</b>
@@ -204,7 +246,6 @@
 
     <div class="btnrow" style="margin-top:14px">
       <button class="secondary" onclick="goMenu()">🏠 Menu</button>
-      <button onclick="next()">ਅਗਲਾ ➡️</button>
     </div>
   </div>
 </div>
@@ -275,12 +316,7 @@ const L1 = [
   { idiom:"ਨੱਕ ਕੱਟਣਾ", q:"'ਨੱਕ ਕੱਟਣਾ' ਦਾ ਕੀ ਅਰਥ ਹੈ?", opts:["ਇੱਜ਼ਤ ਘਟਾਉਣਾ","ਸਮਝਾਉਣਾ","ਹੱਸਣਾ","ਮਾਫ਼ ਕਰਨਾ"], ans:0 },
   { idiom:"ਪਾਣੀ ਫਿਰ ਜਾਣਾ", q:"'ਪਾਣੀ ਫਿਰ ਜਾਣਾ' ਦਾ ਮਤਲਬ?", opts:["ਯੋਜਨਾ ਫੇਲ ਹੋ ਜਾਣਾ","ਨਹਾਉਣਾ","ਖਾਣਾ ਖਾਣਾ","ਖੁਸ਼ ਹੋਣਾ"], ans:0 },
   { idiom:"ਕੰਨ ਖੜੇ ਹੋਣਾ", q:"'ਕੰਨ ਖੜੇ ਹੋਣਾ' ਦਾ ਅਰਥ?", opts:["ਸਾਵਧਾਨ ਹੋ ਜਾਣਾ","ਸੌਣਾ","ਰੋਣਾ","ਗੁੱਸਾ ਕਰਨਾ"], ans:0 },
-  { idiom:"ਮੂੰਹ ਦੀ ਖਾਣਾ", q:"'ਮੂੰਹ ਦੀ ਖਾਣਾ' ਦਾ ਅਰਥ?", opts:["ਹਾਰ ਜਾਣਾ","ਭੁੱਖ ਲੱਗਣਾ","ਬੋਲਣਾ","ਜਿੱਤ ਜਾਣਾ"], ans:0 },
-  { idiom:"ਦੰਦ ਖੱਟੇ ਕਰਨਾ", q:"'ਦੰਦ ਖੱਟੇ ਕਰਨਾ' ਦਾ ਕੀ ਮਤਲਬ?", opts:["ਹਰਾ ਦੇਣਾ","ਦੰਦ ਸਾਫ਼ ਕਰਨਾ","ਭੱਜ ਜਾਣਾ","ਸੋਚਣਾ"], ans:0 },
-  { idiom:"ਹੱਥ ਪੈਰ ਫੁੱਲ ਜਾਣਾ", q:"'ਹੱਥ ਪੈਰ ਫੁੱਲ ਜਾਣਾ' ਦਾ ਅਰਥ?", opts:["ਘਬਰਾ ਜਾਣਾ","ਦੌੜ ਲਗਾਣਾ","ਖੁਸ਼ ਹੋਣਾ","ਥੱਕ ਜਾਣਾ"], ans:0 },
-  { idiom:"ਰਾਈ ਦਾ ਪਹਾੜ ਬਣਾਉਣਾ", q:"'ਰਾਈ ਦਾ ਪਹਾੜ ਬਣਾਉਣਾ' ਦਾ ਅਰਥ?", opts:["ਛੋਟੀ ਗੱਲ ਨੂੰ ਵੱਡਾ ਕਰ ਦੇਣਾ","ਪਹਾੜ ਤੇ ਚੜ੍ਹਨਾ","ਰਾਈ ਖਾਣੀ","ਚੁੱਪ ਰਹਿਣਾ"], ans:0 },
-  { idiom:"ਚੁੱਪ ਦੀ ਚਾਦਰ ਤਾਣ ਲੈਣਾ", q:"'ਚੁੱਪ ਦੀ ਚਾਦਰ ਤਾਣ ਲੈਣਾ' ਦਾ ਅਰਥ?", opts:["ਬਿਲਕੁਲ ਚੁੱਪ ਹੋ ਜਾਣਾ","ਸੋ ਜਾਣਾ","ਗੱਲ ਕਰਨੀ","ਗੁੱਸਾ ਕਰਨਾ"], ans:0 },
-  { idiom:"ਆਕਾਸ਼ ਪਾਤਾਲ ਇੱਕ ਕਰਨਾ", q:"'ਆਕਾਸ਼ ਪਾਤਾਲ ਇੱਕ ਕਰਨਾ' ਦਾ ਅਰਥ?", opts:["ਬਹੁਤ ਕੋਸ਼ਿਸ਼ ਕਰਨੀ","ਅਸਮਾਨ ਵੇਖਣਾ","ਘਰ ਜਾਣਾ","ਚੁੱਪ ਰਹਿਣਾ"], ans:0 }
+  { idiom:"ਮੂੰਹ ਦੀ ਖਾਣਾ", q:"'ਮੂੰਹ ਦੀ ਖਾਣਾ' ਦਾ ਅਰਥ?", opts:["ਹਾਰ ਜਾਣਾ","ਭੁੱਖ ਲੱਗਣਾ","ਬੋਲਣਾ","ਜਿੱਤ ਜਾਣਾ"], ans:0 }
 ];
 
 const L2_PAIRS = [
@@ -291,9 +327,7 @@ const L2_PAIRS = [
   { idiom:"ਬਾਂਹ ਫੜਨਾ", meaning:"ਸਹਾਰਾ ਦੇਣਾ / ਮਦਦ ਕਰਨੀ" },
   { idiom:"ਖੂਨ ਪਸੀਨਾ ਇੱਕ ਕਰਨਾ", meaning:"ਬਹੁਤ ਮਿਹਨਤ ਕਰਨੀ" },
   { idiom:"ਅੱਗ ਬਗੂਲਾ ਹੋਣਾ", meaning:"ਬਹੁਤ ਗੁੱਸੇ ਵਿੱਚ ਆ ਜਾਣਾ" },
-  { idiom:"ਮੂੰਹ ਲੁਕਾਉਣਾ", meaning:"ਸ਼ਰਮਿੰਦਾ ਹੋ ਜਾਣਾ / ਸਾਹਮਣੇ ਨਾ ਆ ਸਕਣਾ" },
-  { idiom:"ਪੈਰ ਉਖੜ ਜਾਣਾ", meaning:"ਘਬਰਾ ਜਾਣਾ / ਹੌਸਲਾ ਟੁੱਟ ਜਾਣਾ" },
-  { idiom:"ਆਪਣੀ ਧੁਨ ਵਿੱਚ ਰਹਿਣਾ", meaning:"ਦੂਜਿਆਂ ਦੀ ਪਰਵਾਹ ਨਾ ਕਰਨੀ" }
+  { idiom:"ਮੂੰਹ ਲੁਕਾਉਣਾ", meaning:"ਸ਼ਰਮਿੰਦਾ ਹੋ ਜਾਣਾ / ਸਾਹਮਣੇ ਨਾ ਆ ਸਕਣਾ" }
 ];
 
 const L3 = [
@@ -302,16 +336,11 @@ const L3 = [
   { idiom:"ਕੰਨ ਖੜੇ ਹੋਣਾ", meaning:"ਸਾਵਧਾਨ ਹੋ ਜਾਣਾ" },
   { idiom:"ਦੰਦ ਖੱਟੇ ਕਰਨਾ", meaning:"ਹਰਾ ਦੇਣਾ" },
   { idiom:"ਹੱਥ ਪੈਰ ਫੁੱਲ ਜਾਣਾ", meaning:"ਘਬਰਾ ਜਾਣਾ" },
-  { idiom:"ਰਾਈ ਦਾ ਪਹਾੜ ਬਣਾਉਣਾ", meaning:"ਛੋਟੀ ਗੱਲ ਵੱਡੀ ਕਰਨੀ" },
-  { idiom:"ਚੁੱਪ ਦੀ ਚਾਦਰ ਤਾਣ ਲੈਣਾ", meaning:"ਬਿਲਕੁਲ ਚੁੱਪ ਹੋ ਜਾਣਾ" },
-  { idiom:"ਆਕਾਸ਼ ਪਾਤਾਲ ਇੱਕ ਕਰਨਾ", meaning:"ਬਹੁਤ ਕੋਸ਼ਿਸ਼ ਕਰਨੀ" },
-  { idiom:"ਅੱਗ ਬਗੂਲਾ ਹੋਣਾ", meaning:"ਬਹੁਤ ਗੁੱਸੇ ਵਿੱਚ ਆ ਜਾਣਾ" },
-  { idiom:"ਖੂਨ ਪਸੀਨਾ ਇੱਕ ਕਰਨਾ", meaning:"ਬਹੁਤ ਮਿਹਨਤ ਕਰਨੀ" }
+  { idiom:"ਰਾਈ ਦਾ ਪਹਾੜ ਬਣਾਉਣਾ", meaning:"ਛੋਟੀ ਗੱਲ ਵੱਡੀ ਕਰਨੀ" }
 ];
 
 /* ===================== Game State ===================== */
 let currentLevel = 0;
-let idx = 0;
 let score = 0;
 let answered = false;
 let currentMCQCorrectIndex = -1;
@@ -320,16 +349,11 @@ let L1Q = shuffle(L1);
 let L2Q = shuffle(L2_PAIRS);
 let L3Q = shuffle(L3);
 
-function setTop(levelName, total){
-  el('lvlName').textContent = levelName;
-  el('progress').textContent = `${Math.min(idx+1,total)}/${total}`;
-  el('score').textContent = score;
-}
-
+/* ===================== Menu + Reset ===================== */
 function goMenu(){
-  currentLevel = 0; idx=0; answered=false;
+  currentLevel = 0;
+  answered = false;
   el('lvlName').textContent="—";
-  el('progress').textContent="0/0";
   el('stage').innerHTML = `
     <div class="panel" style="background:#fff; box-shadow:none; padding:8px; margin:0">
       <div style="font-size:18px; margin:4px 0 10px">ਕੋਈ ਇੱਕ ਲੈਵਲ ਚੁਣੋ 👇</div>
@@ -339,49 +363,24 @@ function goMenu(){
         <button onclick="startLevel(3)">Level 3 (Bubble)</button>
       </div>
       <div style="margin-top:10px; font-size:13px; opacity:.75">
-        ✅ Sound ਲਈ ਪਹਿਲਾਂ “Start/Test” ਦਬਾਓ।
+        ✅ iPhone sound ਲਈ ਪਹਿਲਾਂ “Start/Test” ਦਬਾਓ।
       </div>
     </div>
   `;
 }
-
 function resetAll(){
   playClick();
   score = 0;
-  idx = 0;
-  answered = false;
   el('score').textContent = score;
-  toast("Reset ਹੋ ਗਿਆ ✅");
+  toast("Reset ✅");
   goMenu();
 }
 
-function startLevel(lvl){
-  playClick();
-  stopBubbleLoop();
-  currentLevel = lvl;
-  idx = 0;
-  answered = false;
-
-  if(lvl===1){
-    L1Q = shuffle(L1);
-    toast("Level 1 ਸ਼ੁਰੂ ✅");
-    renderL1();
-  }else if(lvl===2){
-    L2Q = shuffle(L2_PAIRS);
-    toast("Level 2 ਸ਼ੁਰੂ ✅");
-    renderL2();
-  }else if(lvl===3){
-    L3Q = shuffle(L3);
-    toast("Level 3 Bubble ਸ਼ੁਰੂ ✅");
-    startBubbleLevel();
-  }
-}
-
-/* ===================== Level 1: MCQ ===================== */
+/* ===================== Level 1 (MCQ) ===================== */
+let l1Index = 0;
 function renderL1(){
-  const total = L1Q.length;
-  const q = L1Q[idx];
-  setTop("Level 1 (MCQ)", total);
+  el('lvlName').textContent = "Level 1 (MCQ)";
+  const q = L1Q[l1Index];
 
   const correctText = q.opts[q.ans];
   const shuffledOpts = shuffle(q.opts);
@@ -392,13 +391,15 @@ function renderL1(){
   )).join("");
 
   el('stage').innerHTML = `
-    <div class="qtitle">Q${idx+1}. ${q.q}</div>
+    <div class="qtitle">Q${l1Index+1}. ${q.q}</div>
     <div class="hint">ਮੁਹਾਵਰਾ: <b>${q.idiom}</b></div>
     <div class="grid2">${optsHTML}</div>
+    <div class="btnrow" style="margin-top:12px">
+      <button onclick="nextL1()">ਅਗਲਾ ➡️</button>
+    </div>
   `;
   answered=false;
 }
-
 function pickMCQ(i){
   playClick();
   if(answered) return;
@@ -417,18 +418,32 @@ function pickMCQ(i){
     playWrong(); toast("ਗਲਤ ❌");
   }
   el('score').textContent = score;
-  setTop("Level 1 (MCQ)", L1Q.length);
+}
+function nextL1(){
+  playClick();
+  l1Index++;
+  if(l1Index>=L1Q.length){
+    playWin();
+    el('stage').innerHTML = `
+      <div class="qtitle">🎉 Level 1 Completed!</div>
+      <div style="font-size:18px;margin:10px 0">ਸਕੋਰ: <b>${score}</b></div>
+      <div class="btnrow">
+        <button onclick="startLevel(2)">ਹੁਣ Level 2 ➡️</button>
+        <button class="secondary" onclick="goMenu()">Menu</button>
+      </div>`;
+    return;
+  }
+  renderL1();
 }
 
-/* ===================== Level 2: Drag & Drop (MOBILE SAFE) ===================== */
-let ddState = [];
-let ddPillHome = new Map(); // pillEl -> {parent, nextSibling}
-
+/* ===================== Level 2 (Drag & Drop) ===================== */
+let ddState = []; // {meaning, correct, done}
 function renderL2(){
-  setTop("Level 2 (Drag & Drop)", L2Q.length);
+  el('lvlName').textContent = "Level 2 (Drag & Drop)";
+  L2Q = shuffle(L2_PAIRS);
 
   const idioms = shuffle(L2Q.map(p=>p.idiom));
-  ddState = L2Q.map(p=>({ meaning:p.meaning, correct:p.idiom, dropped:null, checked:false }));
+  ddState = L2Q.map(p=>({ meaning:p.meaning, correct:p.idiom, done:false }));
 
   const left = idioms.map((id)=>`
     <div class="pill" data-idiom="${escapeHtml(id)}">🧩 ${id}</div>
@@ -439,50 +454,38 @@ function renderL2(){
       <div style="min-width:22px">🎯</div>
       <div>
         <div><strong>ਅਰਥ:</strong> ${s.meaning}</div>
-        <div style="font-size:13px;opacity:.75">ਇਥੇ ਮੁਹਾਵਰਾ ਡਰੌਪ ਕਰੋ</div>
+        <div class="mini">ਇਥੇ ਸਹੀ ਮੁਹਾਵਰਾ ਛੱਡੋ ✅</div>
       </div>
-      <span class="badge" id="b${slot}">—</span>
     </div>
   `).join("");
 
   el('stage').innerHTML = `
-    <div class="qtitle">Level 2 — ਮੁਹਾਵਰਾ → ਅਰਥ ਨਾਲ ਮਿਲਾਓ (10)</div>
-    <div class="hint">ਖੱਬੇ ਤੋਂ ਮੁਹਾਵਰਾ ਡਰੈਗ ਕਰੋ ਅਤੇ ਸਹੀ ਅਰਥ ਵਾਲੇ ਬਾਕਸ ‘ਚ ਡਰੌਪ ਕਰੋ। (iPhone safe ✅)</div>
+    <div class="qtitle">Level 2 — Drag & Drop (Correct pair vanish ✅)</div>
+    <div class="hint">ਸਹੀ ਡਰੌਪ ਕਰਦੇ ਹੀ ਮੁਹਾਵਰਾ ਅਤੇ ਅਰਥ ਵਾਲਾ ਬਾਕਸ ਦੋਵੇਂ ਗਾਇਬ ਹੋ ਜਾਣਗੇ ✅</div>
 
     <div class="dd-wrap">
       <div class="dd-col">
-        <div class="dd-title">🧩 ਮੁਹਾਵਰੇ (Drag)</div>
+        <div class="dd-title">🧩 ਮੁਹਾਵਰੇ</div>
         <div id="idiomPile">${left}</div>
       </div>
 
       <div class="dd-col">
-        <div class="dd-title">🎯 ਅਰਥ (Drop)</div>
+        <div class="dd-title">🎯 ਅਰਥ</div>
         <div id="dropZone">${right}</div>
         <div class="btnrow" style="margin-top:10px">
-          <button onclick="checkDragAnswers()">Check ✅</button>
-          <button class="secondary" onclick="clearDrops()">Clear</button>
+          <button class="ghost" onclick="startLevel(2)">Shuffle/Restart</button>
+          <button class="secondary" onclick="goMenu()">Menu</button>
         </div>
       </div>
     </div>
   `;
 
-  initMobileDragDrop(); // ✅ attach pointer-drag handlers
+  initMobileDragDrop(); // iPhone safe
 }
 
-function clearDrops(){ playClick(); toast("Clear ✅"); renderL2(); }
-
 function initMobileDragDrop(){
-  const pile = el("idiomPile");
-  const drops = Array.from(document.querySelectorAll(".drop"));
-
-  // store original homes (for safety reset)
-  ddPillHome.clear();
-  document.querySelectorAll(".pill").forEach(p=>{
-    ddPillHome.set(p, { parent: p.parentElement, next: p.nextSibling });
-    p.style.touchAction = "none";
-  });
-
-  let active = null; // {el, startX, startY}
+  const pills = Array.from(document.querySelectorAll(".pill"));
+  let active = null; // {el,startX,startY}
 
   function onMove(e){
     if(!active) return;
@@ -497,12 +500,30 @@ function initMobileDragDrop(){
     p.style.zIndex = "";
   }
 
+  function markDoneIfAll(){
+    const remainingDrops = document.querySelectorAll(".drop:not(.correctPair)").length;
+    if(remainingDrops===0){
+      playWin();
+      toast("Level 2 Completed 🏆");
+      el('stage').insertAdjacentHTML("beforeend", `
+        <div class="panel" style="margin-top:12px;background:#fff;box-shadow:none">
+          <div class="qtitle">🎉 Level 2 Completed!</div>
+          <div style="font-size:18px;margin:10px 0">ਸਕੋਰ: <b>${score}</b></div>
+          <div class="btnrow">
+            <button onclick="startLevel(3)">ਹੁਣ Level 3 ➡️</button>
+            <button class="secondary" onclick="goMenu()">Menu</button>
+          </div>
+        </div>
+      `);
+    }
+  }
+
   function onUp(e){
     if(!active) return;
 
     const pill = active.el;
 
-    // ✅ iPhone-safe hit test: hide the pill for a moment
+    // iPhone hit-test: hide for a moment
     pill.style.visibility = "hidden";
     const target = document.elementFromPoint(e.clientX, e.clientY);
     pill.style.visibility = "visible";
@@ -511,35 +532,45 @@ function initMobileDragDrop(){
 
     if(drop){
       const slot = Number(drop.dataset.slot);
+      if(ddState[slot].done){
+        resetPill(pill);
+        active = null;
+        window.removeEventListener("pointermove", onMove, {passive:false});
+        window.removeEventListener("pointerup", onUp, {passive:false});
+        window.removeEventListener("pointercancel", onUp, {passive:false});
+        return;
+      }
+
       const idiom = pill.getAttribute("data-idiom");
 
-      // update state
-      ddState[slot].dropped = idiom;
-      ddState[slot].checked = false;
+      // Check correctness instantly
+      if(idiom === ddState[slot].correct){
+        ddState[slot].done = true;
+        score += 10;
+        el('score').textContent = score;
 
-      drop.classList.add("filled");
+        playCorrect();
+        toast("+10 ✅ ਸਹੀ");
 
-      // remove old chosen
-      const old = drop.querySelector(".chosen");
-      if(old) old.remove();
+        // vanish: pill + meaning box
+        pill.style.display = "none";
+        drop.classList.add("flashOk");
+        setTimeout(()=>{
+          drop.classList.add("correctPair");
+          markDoneIfAll();
+        }, 280);
 
-      drop.insertAdjacentHTML("beforeend",
-        `<div class="chosen" style="margin-left:32px;margin-top:6px;width:100%"><b>ਮੁਹਾਵਰਾ:</b> ${idiom}</div>`
-      );
-
-      // move pill into pile removed (hide pill)
-      pill.style.display = "none";
-      resetPill(pill);
-
-      const b = el("b"+slot);
-      b.textContent = "—"; b.className = "badge";
-
-      playPop();
-      toast("Drop ✅");
+      }else{
+        playWrong();
+        toast("ਗਲਤ ❌");
+        drop.classList.add("flashBad");
+        setTimeout(()=>drop.classList.remove("flashBad"), 260);
+        resetPill(pill);
+      }
     }else{
-      resetPill(pill);
       playWrong();
       toast("ਇਥੇ ਨਹੀਂ ❌");
+      resetPill(pill);
     }
 
     active = null;
@@ -549,13 +580,11 @@ function initMobileDragDrop(){
     e.preventDefault();
   }
 
-  document.querySelectorAll(".pill").forEach(pill=>{
+  pills.forEach(pill=>{
     pill.addEventListener("pointerdown",(e)=>{
       active = { el: pill, startX: e.clientX, startY: e.clientY };
       pill.style.zIndex = 9999;
-
       playClick();
-
       window.addEventListener("pointermove", onMove, {passive:false});
       window.addEventListener("pointerup", onUp, {passive:false});
       window.addEventListener("pointercancel", onUp, {passive:false});
@@ -564,36 +593,7 @@ function initMobileDragDrop(){
   });
 }
 
-function checkDragAnswers(){
-  playClick();
-  let gained = 0;
-  let allFilled = true;
-
-  ddState.forEach((s,slot)=>{
-    const b = el("b"+slot);
-    if(!s.dropped){ allFilled=false; return; }
-    if(s.checked) return;
-
-    if(s.dropped === s.correct){
-      b.textContent = "ਸਹੀ ✅"; b.classList.add("ok");
-      gained += 10;
-    }else{
-      b.textContent = "ਗਲਤ ❌"; b.classList.add("no");
-    }
-    s.checked = true;
-  });
-
-  if(!allFilled){ playWrong(); toast("ਪਹਿਲਾਂ ਸਾਰੇ ਭਰੋ 👆"); return; }
-
-  if(gained>0){
-    score += gained; playCorrect(); toast(`+${gained} ✅`);
-    el('score').textContent = score;
-  }else{
-    playWrong(); toast("ਕੁਝ ਗਲਤ ਹੈ ❌");
-  }
-}
-
-/* ===================== Level 3 Bubble (unchanged) ===================== */
+/* ===================== Level 3 Bubble (same as before, short set) ===================== */
 let bubbleIndex = 0;
 let bubbleRunning = false;
 let bubbleTimer = null;
@@ -609,11 +609,11 @@ function startBubbleLevel(){
   bubbleObjs = [];
   currentChoices = [];
 
-  setTop("Level 3 (Bubble)", L3Q.length);
+  el('lvlName').textContent = "Level 3 (Bubble)";
 
   el('stage').innerHTML = `
-    <div class="qtitle">Level 3 — FAST Bubble (4 ਬੁਬਲਾਂ ਹੀ)</div>
-    <div class="hint">ਹਮੇਸ਼ਾ 4 ਬੁਬਲਾਂ: <b>1 ਸਹੀ</b> + <b>3 ਗਲਤ</b> ✅ (ਤੇਜ਼ ਮੂਵਮੈਂਟ)</div>
+    <div class="qtitle">Level 3 — Bubble</div>
+    <div class="hint">ਸਹੀ ਅਰਥ ਵਾਲੀ ਬੁਬਲ ਟੈਪ ਕਰੋ ✅</div>
 
     <div class="bubbleWrap">
       <div class="bubbleHeader">
@@ -623,8 +623,7 @@ function startBubbleLevel(){
         </div>
         <div class="timerBox">
           ⏱️ Time: <b id="timeLeft">45</b>s<br/>
-          ✅ Done: <b id="doneCount">0</b>/10
-          <div style="font-size:12px;opacity:.75;margin-top:4px">Wrong ਤੇ ਬੁਬਲ replace ਹੋ ਜਾਏਗੀ (4 ਹੀ ਰਹਿਣਗੀਆਂ)</div>
+          ✅ Done: <b id="doneCount">0</b>/${L3Q.length}
         </div>
       </div>
 
@@ -632,14 +631,14 @@ function startBubbleLevel(){
     </div>
 
     <div class="btnrow" style="margin-top:12px">
-      <button onclick="restartBubble()">Restart Bubble</button>
-      <button class="secondary" onclick="endBubble(false,false)">End Level</button>
+      <button onclick="restartBubble()">Restart</button>
+      <button class="secondary" onclick="goMenu()">Menu</button>
     </div>
   `;
 
   setBubbleTarget();
   startBubbleTimer();
-  render4FastBubbles();
+  render4Bubbles();
   rafId = requestAnimationFrame(moveLoop);
 }
 
@@ -661,7 +660,7 @@ function pickChoices4(){
   const correct = L3Q[bubbleIndex].meaning;
   const allMeanings = L3.map(x=>x.meaning);
   const wrongPool = shuffle(allMeanings.filter(m=>m!==correct));
-  currentChoices = shuffle([correct, wrongPool[0], wrongPool[1], wrongPool[2]]);
+  currentChoices = shuffle([correct, wrongPool[0], wrongPool[1], wrongPool[2] || wrongPool[0]]);
 }
 function colorFor(i){
   const base = 190 + i*18;
@@ -689,7 +688,7 @@ function nonOverlappingStartPositions(pf, size){
   }
   return spots;
 }
-function render4FastBubbles(){
+function render4Bubbles(){
   if(!bubbleRunning) return;
   const pf = el("playfield");
   if(!pf) return;
@@ -711,27 +710,14 @@ function render4FastBubbles(){
     b.style.left = x + "px";
     b.style.top  = y + "px";
 
-    const vx = rand(-1.7, 1.7);
-    const vy = rand(-1.7, 1.7);
+    const vx = rand(-1.6, 1.6);
+    const vy = rand(-1.6, 1.6);
 
     b.onclick = ()=>bubblePick(b, text);
 
     pf.appendChild(b);
     bubbleObjs.push({ el:b, x, y, vx, vy, text, size });
   });
-}
-function replaceWrongBubble(node){
-  const correct = L3Q[bubbleIndex].meaning;
-  const pool = shuffle(L3.map(x=>x.meaning).filter(m => m!==correct && !currentChoices.includes(m)));
-  const newWrong = pool[0] || shuffle(L3.map(x=>x.meaning).filter(m=>m!==correct))[0];
-
-  const oldText = node.textContent;
-  const idxChoice = currentChoices.indexOf(oldText);
-  if(idxChoice >= 0) currentChoices[idxChoice] = newWrong;
-
-  node.textContent = newWrong;
-  const obj = bubbleObjs.find(o=>o.el===node);
-  if(obj) obj.text = newWrong;
 }
 function bubblePick(node, text){
   if(!bubbleRunning) return;
@@ -754,8 +740,7 @@ function bubblePick(node, text){
         return;
       }
       setBubbleTarget();
-      render4FastBubbles();
-      setTop("Level 3 (Bubble)", L3Q.length);
+      render4Bubbles();
     }, 220);
 
   }else{
@@ -763,9 +748,7 @@ function bubblePick(node, text){
     toast("ਗਲਤ ❌");
     setTimeout(()=>{
       node.classList.remove("pop");
-      node.style.opacity = "1";
-      node.style.transform = "scale(1)";
-      replaceWrongBubble(node);
+      render4Bubbles();
     }, 220);
   }
 }
@@ -808,69 +791,39 @@ function restartBubble(){
 }
 function endBubble(timeout=false, completed=false){
   stopBubbleLoop();
-
   if(completed){ playWin(); toast("Completed 🏆"); }
   else if(timeout){ playWrong(); toast("Time Up ⏱️"); }
-  else { playClick(); toast("Level End"); }
 
-  const done = bubbleIndex;
   el('stage').innerHTML = `
     <div class="qtitle">${completed ? "🏆 Level 3 Completed!" : (timeout ? "⏱️ Time Up!" : "✅ Level 3 Ended")}</div>
-    <div style="font-size:18px;margin:10px 0">
-      Done: <b>${done}</b> / 10 &nbsp; | &nbsp; Score: <b>${score}</b>
-    </div>
+    <div style="font-size:18px;margin:10px 0">Score: <b>${score}</b></div>
     <div class="btnrow">
-      <button onclick="startLevel(3)">Play Level 3 Again</button>
+      <button onclick="startLevel(3)">Play Again</button>
       <button class="secondary" onclick="goMenu()">Menu</button>
     </div>
   `;
 }
 
-/* ===================== Next button ===================== */
-function next(){
+/* ===================== Level switch ===================== */
+function startLevel(lvl){
   playClick();
+  stopBubbleLoop();
 
-  if(currentLevel===0){ toast("Menu ਤੋਂ ਲੈਵਲ ਚੁਣੋ 👇"); return; }
+  currentLevel = lvl;
 
-  if(currentLevel===1){
-    idx++;
-    if(idx>=L1Q.length){
-      playWin();
-      el('stage').innerHTML = `
-        <div class="qtitle">🎉 Level 1 Completed!</div>
-        <div style="font-size:18px;margin:10px 0">ਸਕੋਰ: <b>${score}</b></div>
-        <div class="btnrow">
-          <button onclick="startLevel(2)">ਹੁਣ Level 2 ➡️</button>
-          <button class="secondary" onclick="goMenu()">Menu</button>
-        </div>`;
-      return;
-    }
+  if(lvl===1){
+    L1Q = shuffle(L1);
+    l1Index = 0;
     renderL1();
-  }
-
-  if(currentLevel===2){
-    const anyEmpty = ddState.some(s=>!s.dropped);
-    const anyUnchecked = ddState.some(s=>s.dropped && !s.checked);
-    if(anyEmpty){ playWrong(); toast("ਹਰ ਬਾਕਸ ਭਰੋ 👆"); return; }
-    if(anyUnchecked){ playWrong(); toast("ਪਹਿਲਾਂ Check ✅ ਦਬਾਓ"); return; }
-
-    playWin();
-    el('stage').innerHTML = `
-      <div class="qtitle">🎉 Level 2 Completed!</div>
-      <div style="font-size:18px;margin:10px 0">ਸਕੋਰ: <b>${score}</b></div>
-      <div class="btnrow">
-        <button onclick="startLevel(3)">ਹੁਣ Level 3 (Bubble) ➡️</button>
-        <button class="secondary" onclick="goMenu()">Menu</button>
-      </div>`;
-    return;
-  }
-
-  if(currentLevel===3){
-    toast("Level 3 ਵਿੱਚ Next ਨਹੀਂ — ਬੁਬਲ ਟੈਪ ਕਰੋ ✅");
+  }else if(lvl===2){
+    renderL2();
+  }else if(lvl===3){
+    L3Q = shuffle(L3);
+    startBubbleLevel();
   }
 }
 
-/* ===================== Start on Menu ===================== */
+/* ===================== Start ===================== */
 goMenu();
 </script>
 </body>
