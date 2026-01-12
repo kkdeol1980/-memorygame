@@ -71,7 +71,7 @@
     .opt.good{border-color:rgba(27,94,32,.5); background:#e8f5e9}
     .opt.bad{border-color:rgba(183,28,28,.5); background:#ffebee}
 
-    /* Level 2 Drag & Drop */
+    /* Level 2 Drag & Drop (Mobile-safe) */
     .dd-wrap{display:grid; grid-template-columns:1fr; gap:12px;}
     @media(min-width:900px){ .dd-wrap{grid-template-columns:1fr 1fr;} }
     .dd-col{
@@ -84,12 +84,16 @@
       padding:12px 14px; margin:10px 0;
       cursor:grab; user-select:none; text-align:left;
       box-shadow:0 6px 16px rgba(0,0,0,.06); font-size:16px;
+      touch-action:none; -webkit-user-select:none;
+      position:relative;
     }
     .pill:active{cursor:grabbing}
     .drop{
       background:#fff; border:2px dashed #b7d9ff; border-radius:16px;
       padding:10px; margin:10px 0; text-align:left; min-height:62px;
       display:flex; align-items:center; gap:10px;
+      touch-action:none; -webkit-user-select:none;
+      position:relative;
     }
     .drop strong{color:#223}
     .drop.filled{border-style:solid}
@@ -100,7 +104,7 @@
     .badge.ok{background:#e8f5e9; color:var(--good)}
     .badge.no{background:#ffebee; color:var(--bad)}
 
-    /* Level 3 Bubble (FAST) */
+    /* Level 3 Bubble */
     .bubbleWrap{
       background:linear-gradient(135deg,#ffffff,#f1f8ff);
       border-radius:22px; padding:12px;
@@ -137,7 +141,7 @@
     }
     .bubble{
       position:absolute;
-      width:160px; height:160px;   /* smaller for clarity */
+      width:160px; height:160px;
       border-radius:50%;
       display:flex; align-items:center; justify-content:center;
       text-align:center;
@@ -266,7 +270,6 @@ function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
 function rand(min,max){ return Math.random()*(max-min)+min; }
 
 /* ===================== DATA ===================== */
-/* Level 1: 10 MCQ */
 const L1 = [
   { idiom:"ਅੱਖਾਂ ਵਿੱਚ ਧੂੜ ਪਾਉਣਾ", q:"'ਅੱਖਾਂ ਵਿੱਚ ਧੂੜ ਪਾਉਣਾ' ਦਾ ਅਰਥ ਕੀ ਹੈ?", opts:["ਧੋਖਾ ਦੇਣਾ","ਮਦਦ ਕਰਨਾ","ਸੱਚ ਬੋਲਣਾ","ਡਰ ਜਾਣਾ"], ans:0 },
   { idiom:"ਨੱਕ ਕੱਟਣਾ", q:"'ਨੱਕ ਕੱਟਣਾ' ਦਾ ਕੀ ਅਰਥ ਹੈ?", opts:["ਇੱਜ਼ਤ ਘਟਾਉਣਾ","ਸਮਝਾਉਣਾ","ਹੱਸਣਾ","ਮਾਫ਼ ਕਰਨਾ"], ans:0 },
@@ -280,7 +283,6 @@ const L1 = [
   { idiom:"ਆਕਾਸ਼ ਪਾਤਾਲ ਇੱਕ ਕਰਨਾ", q:"'ਆਕਾਸ਼ ਪਾਤਾਲ ਇੱਕ ਕਰਨਾ' ਦਾ ਅਰਥ?", opts:["ਬਹੁਤ ਕੋਸ਼ਿਸ਼ ਕਰਨੀ","ਅਸਮਾਨ ਵੇਖਣਾ","ਘਰ ਜਾਣਾ","ਚੁੱਪ ਰਹਿਣਾ"], ans:0 }
 ];
 
-/* Level 2: 10 drag/drop pairs */
 const L2_PAIRS = [
   { idiom:"ਦਿਲ ਤੇ ਲੈਣਾ", meaning:"ਗੱਲ ਨੂੰ ਬਹੁਤ ਗੰਭੀਰਤਾ ਨਾਲ ਲੈ ਲੈਣਾ" },
   { idiom:"ਹੱਥ ਖੜੇ ਕਰ ਦੇਣਾ", meaning:"ਹਾਰ ਮੰਨ ਲੈਣਾ / ਅਸਮਰੱਥ ਹੋ ਜਾਣਾ" },
@@ -294,7 +296,6 @@ const L2_PAIRS = [
   { idiom:"ਆਪਣੀ ਧੁਨ ਵਿੱਚ ਰਹਿਣਾ", meaning:"ਦੂਜਿਆਂ ਦੀ ਪਰਵਾਹ ਨਾ ਕਰਨੀ" }
 ];
 
-/* Level 3: bubble questions (10) */
 const L3 = [
   { idiom:"ਅੱਖਾਂ ਵਿੱਚ ਧੂੜ ਪਾਉਣਾ", meaning:"ਧੋਖਾ ਦੇਣਾ" },
   { idiom:"ਨੱਕ ਕੱਟਣਾ", meaning:"ਇੱਜ਼ਤ ਘਟਾਉਣਾ" },
@@ -313,11 +314,8 @@ let currentLevel = 0;
 let idx = 0;
 let score = 0;
 let answered = false;
-
-/* For Level 1 shuffled correct index */
 let currentMCQCorrectIndex = -1;
 
-/* Level lists per run */
 let L1Q = shuffle(L1);
 let L2Q = shuffle(L2_PAIRS);
 let L3Q = shuffle(L3);
@@ -359,7 +357,7 @@ function resetAll(){
 
 function startLevel(lvl){
   playClick();
-  stopBubbleLoop(); // if switching from level 3
+  stopBubbleLoop();
   currentLevel = lvl;
   idx = 0;
   answered = false;
@@ -379,7 +377,7 @@ function startLevel(lvl){
   }
 }
 
-/* ===================== Level 1: MCQ (OPTIONS SHUFFLE) ===================== */
+/* ===================== Level 1: MCQ ===================== */
 function renderL1(){
   const total = L1Q.length;
   const q = L1Q[idx];
@@ -422,9 +420,9 @@ function pickMCQ(i){
   setTop("Level 1 (MCQ)", L1Q.length);
 }
 
-/* ===================== Level 2: Drag & Drop ===================== */
+/* ===================== Level 2: Drag & Drop (MOBILE SAFE) ===================== */
 let ddState = [];
-let dragIdiom = null;
+let ddPillHome = new Map(); // pillEl -> {parent, nextSibling}
 
 function renderL2(){
   setTop("Level 2 (Drag & Drop)", L2Q.length);
@@ -433,13 +431,11 @@ function renderL2(){
   ddState = L2Q.map(p=>({ meaning:p.meaning, correct:p.idiom, dropped:null, checked:false }));
 
   const left = idioms.map((id)=>`
-    <div class="pill" draggable="true" ondragstart="dragStart(event)" data-idiom="${escapeHtml(id)}">
-      🧩 ${id}
-    </div>
+    <div class="pill" data-idiom="${escapeHtml(id)}">🧩 ${id}</div>
   `).join("");
 
   const right = ddState.map((s,slot)=>`
-    <div class="drop" ondragover="allowDrop(event)" ondrop="dropHere(event, ${slot})">
+    <div class="drop" data-slot="${slot}">
       <div style="min-width:22px">🎯</div>
       <div>
         <div><strong>ਅਰਥ:</strong> ${s.meaning}</div>
@@ -451,7 +447,7 @@ function renderL2(){
 
   el('stage').innerHTML = `
     <div class="qtitle">Level 2 — ਮੁਹਾਵਰਾ → ਅਰਥ ਨਾਲ ਮਿਲਾਓ (10)</div>
-    <div class="hint">ਖੱਬੇ ਤੋਂ ਮੁਹਾਵਰਾ ਡਰੈਗ ਕਰੋ ਅਤੇ ਸਹੀ ਅਰਥ ਵਾਲੇ ਬਾਕਸ ‘ਚ ਡਰੌਪ ਕਰੋ।</div>
+    <div class="hint">ਖੱਬੇ ਤੋਂ ਮੁਹਾਵਰਾ ਡਰੈਗ ਕਰੋ ਅਤੇ ਸਹੀ ਅਰਥ ਵਾਲੇ ਬਾਕਸ ‘ਚ ਡਰੌਪ ਕਰੋ। (iPhone safe ✅)</div>
 
     <div class="dd-wrap">
       <div class="dd-col">
@@ -469,41 +465,104 @@ function renderL2(){
       </div>
     </div>
   `;
-}
 
-function dragStart(e){ playClick(); dragIdiom = e.target.getAttribute("data-idiom"); }
-function allowDrop(e){ e.preventDefault(); }
-
-function dropHere(e, slot){
-  e.preventDefault();
-  playPop();
-  if(!dragIdiom) return;
-
-  ddState[slot].dropped = dragIdiom;
-  ddState[slot].checked = false;
-
-  const drop = document.querySelectorAll(".drop")[slot];
-  drop.classList.add("filled");
-
-  const old = drop.querySelector(".chosen");
-  if(old) old.remove();
-
-  drop.insertAdjacentHTML("beforeend",
-    `<div class="chosen" style="margin-left:32px;margin-top:6px;width:100%"><b>ਮੁਹਾਵਰਾ:</b> ${dragIdiom}</div>`
-  );
-
-  const pile = el("idiomPile");
-  const pills = Array.from(pile.querySelectorAll(".pill"));
-  const found = pills.find(p => p.getAttribute("data-idiom")===dragIdiom);
-  if(found) found.remove();
-
-  const b = el("b"+slot);
-  b.textContent = "—"; b.className = "badge";
-  toast("Drop ✅");
-  dragIdiom = null;
+  initMobileDragDrop(); // ✅ attach pointer-drag handlers
 }
 
 function clearDrops(){ playClick(); toast("Clear ✅"); renderL2(); }
+
+function initMobileDragDrop(){
+  const pile = el("idiomPile");
+  const drops = Array.from(document.querySelectorAll(".drop"));
+
+  // store original homes (for safety reset)
+  ddPillHome.clear();
+  document.querySelectorAll(".pill").forEach(p=>{
+    ddPillHome.set(p, { parent: p.parentElement, next: p.nextSibling });
+    p.style.touchAction = "none";
+  });
+
+  let active = null; // {el, startX, startY}
+
+  function onMove(e){
+    if(!active) return;
+    const dx = e.clientX - active.startX;
+    const dy = e.clientY - active.startY;
+    active.el.style.transform = `translate(${dx}px, ${dy}px)`;
+    e.preventDefault();
+  }
+
+  function resetPill(p){
+    p.style.transform = "";
+    p.style.zIndex = "";
+  }
+
+  function onUp(e){
+    if(!active) return;
+
+    const pill = active.el;
+
+    // ✅ iPhone-safe hit test: hide the pill for a moment
+    pill.style.visibility = "hidden";
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    pill.style.visibility = "visible";
+
+    const drop = target ? target.closest(".drop") : null;
+
+    if(drop){
+      const slot = Number(drop.dataset.slot);
+      const idiom = pill.getAttribute("data-idiom");
+
+      // update state
+      ddState[slot].dropped = idiom;
+      ddState[slot].checked = false;
+
+      drop.classList.add("filled");
+
+      // remove old chosen
+      const old = drop.querySelector(".chosen");
+      if(old) old.remove();
+
+      drop.insertAdjacentHTML("beforeend",
+        `<div class="chosen" style="margin-left:32px;margin-top:6px;width:100%"><b>ਮੁਹਾਵਰਾ:</b> ${idiom}</div>`
+      );
+
+      // move pill into pile removed (hide pill)
+      pill.style.display = "none";
+      resetPill(pill);
+
+      const b = el("b"+slot);
+      b.textContent = "—"; b.className = "badge";
+
+      playPop();
+      toast("Drop ✅");
+    }else{
+      resetPill(pill);
+      playWrong();
+      toast("ਇਥੇ ਨਹੀਂ ❌");
+    }
+
+    active = null;
+    window.removeEventListener("pointermove", onMove, {passive:false});
+    window.removeEventListener("pointerup", onUp, {passive:false});
+    window.removeEventListener("pointercancel", onUp, {passive:false});
+    e.preventDefault();
+  }
+
+  document.querySelectorAll(".pill").forEach(pill=>{
+    pill.addEventListener("pointerdown",(e)=>{
+      active = { el: pill, startX: e.clientX, startY: e.clientY };
+      pill.style.zIndex = 9999;
+
+      playClick();
+
+      window.addEventListener("pointermove", onMove, {passive:false});
+      window.addEventListener("pointerup", onUp, {passive:false});
+      window.addEventListener("pointercancel", onUp, {passive:false});
+      e.preventDefault();
+    }, {passive:false});
+  });
+}
 
 function checkDragAnswers(){
   playClick();
@@ -534,13 +593,13 @@ function checkDragAnswers(){
   }
 }
 
-/* ===================== Level 3: FAST Bubble (4 bubbles only) ===================== */
+/* ===================== Level 3 Bubble (unchanged) ===================== */
 let bubbleIndex = 0;
 let bubbleRunning = false;
 let bubbleTimer = null;
 let timeLeft = 45;
-let bubbleObjs = []; // {el, x,y, vx,vy, text, size}
-let currentChoices = []; // meanings currently shown (length 4)
+let bubbleObjs = [];
+let currentChoices = [];
 let rafId = null;
 
 function startBubbleLevel(){
@@ -588,7 +647,6 @@ function setBubbleTarget(){
   el("targetIdiom").textContent = L3Q[bubbleIndex].idiom;
   el("doneCount").textContent = bubbleIndex;
 }
-
 function startBubbleTimer(){
   clearInterval(bubbleTimer);
   el("timeLeft").textContent = timeLeft;
@@ -599,19 +657,16 @@ function startBubbleTimer(){
     if(timeLeft<=0) endBubble(true,false);
   }, 1000);
 }
-
 function pickChoices4(){
   const correct = L3Q[bubbleIndex].meaning;
   const allMeanings = L3.map(x=>x.meaning);
   const wrongPool = shuffle(allMeanings.filter(m=>m!==correct));
   currentChoices = shuffle([correct, wrongPool[0], wrongPool[1], wrongPool[2]]);
 }
-
 function colorFor(i){
   const base = 190 + i*18;
   return `radial-gradient(circle at 30% 30%, hsla(${base},85%,92%,1), hsla(${base+12},90%,66%,.96))`;
 }
-
 function nonOverlappingStartPositions(pf, size){
   const W = pf.clientWidth, H = pf.clientHeight;
   const margin = 10;
@@ -622,7 +677,6 @@ function nonOverlappingStartPositions(pf, size){
     tries++;
     const x = rand(margin, Math.max(margin, W - size - margin));
     const y = rand(margin, Math.max(margin, H - size - margin));
-
     let ok = true;
     for(const s of spots){
       const dx = (x - s.x), dy = (y - s.y);
@@ -630,13 +684,11 @@ function nonOverlappingStartPositions(pf, size){
     }
     if(ok) spots.push({x,y});
   }
-
   while(spots.length < 4){
     spots.push({x: margin + (spots.length%2)*(size+14), y: margin + Math.floor(spots.length/2)*(size+14)});
   }
   return spots;
 }
-
 function render4FastBubbles(){
   if(!bubbleRunning) return;
   const pf = el("playfield");
@@ -646,7 +698,6 @@ function render4FastBubbles(){
   bubbleObjs = [];
 
   pickChoices4();
-
   const size = 160;
   const starts = nonOverlappingStartPositions(pf, size);
 
@@ -660,7 +711,6 @@ function render4FastBubbles(){
     b.style.left = x + "px";
     b.style.top  = y + "px";
 
-    // FAST SPEED (you asked)
     const vx = rand(-1.7, 1.7);
     const vy = rand(-1.7, 1.7);
 
@@ -670,11 +720,8 @@ function render4FastBubbles(){
     bubbleObjs.push({ el:b, x, y, vx, vy, text, size });
   });
 }
-
 function replaceWrongBubble(node){
   const correct = L3Q[bubbleIndex].meaning;
-
-  // pick a new wrong meaning NOT currently shown
   const pool = shuffle(L3.map(x=>x.meaning).filter(m => m!==correct && !currentChoices.includes(m)));
   const newWrong = pool[0] || shuffle(L3.map(x=>x.meaning).filter(m=>m!==correct))[0];
 
@@ -683,12 +730,9 @@ function replaceWrongBubble(node){
   if(idxChoice >= 0) currentChoices[idxChoice] = newWrong;
 
   node.textContent = newWrong;
-
-  // also update object text
   const obj = bubbleObjs.find(o=>o.el===node);
   if(obj) obj.text = newWrong;
 }
-
 function bubblePick(node, text){
   if(!bubbleRunning) return;
 
@@ -710,7 +754,7 @@ function bubblePick(node, text){
         return;
       }
       setBubbleTarget();
-      render4FastBubbles(); // next question => new 4 bubbles
+      render4FastBubbles();
       setTop("Level 3 (Bubble)", L3Q.length);
     }, 220);
 
@@ -721,11 +765,10 @@ function bubblePick(node, text){
       node.classList.remove("pop");
       node.style.opacity = "1";
       node.style.transform = "scale(1)";
-      replaceWrongBubble(node); // still 4 bubbles
+      replaceWrongBubble(node);
     }, 220);
   }
 }
-
 function moveLoop(){
   if(!bubbleRunning) return;
   const pf = el("playfield");
@@ -738,7 +781,6 @@ function moveLoop(){
     o.x += o.vx;
     o.y += o.vy;
 
-    // bounce
     if(o.x <= 0 || o.x >= W - o.size){
       o.vx *= -1;
       o.x = clamp(o.x, 0, W - o.size);
@@ -751,23 +793,19 @@ function moveLoop(){
     o.el.style.left = o.x + "px";
     o.el.style.top  = o.y + "px";
   }
-
   rafId = requestAnimationFrame(moveLoop);
 }
-
 function stopBubbleLoop(){
   bubbleRunning = false;
   clearInterval(bubbleTimer);
   if(rafId) cancelAnimationFrame(rafId);
   rafId = null;
 }
-
 function restartBubble(){
   playClick();
   stopBubbleLoop();
   startLevel(3);
 }
-
 function endBubble(timeout=false, completed=false){
   stopBubbleLoop();
 
@@ -811,10 +849,8 @@ function next(){
   }
 
   if(currentLevel===2){
-    // Require all filled + checked
     const anyEmpty = ddState.some(s=>!s.dropped);
     const anyUnchecked = ddState.some(s=>s.dropped && !s.checked);
-
     if(anyEmpty){ playWrong(); toast("ਹਰ ਬਾਕਸ ਭਰੋ 👆"); return; }
     if(anyUnchecked){ playWrong(); toast("ਪਹਿਲਾਂ Check ✅ ਦਬਾਓ"); return; }
 
