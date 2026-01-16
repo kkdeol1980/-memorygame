@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ਲਗਾਂ ਅਤੇ ਲਗਾਖਰ Drag & Drop ਗੇਮ</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gurmukhi:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  body{
+    margin:0;
+    font-family:"Noto Sans Gurmukhi", Arial, sans-serif;
+    background:linear-gradient(135deg,#c3ecf7,#f5f7fa);
+    text-align:center;
+    color:#2d3436;
+  }
+
+  h1{margin:10px 0;color:#2d3436;font-size:26px;}
+  .instructions{font-size:14px;color:#333;margin-bottom:10px;}
+
+  /* ✅ One page like Visram-chinh (compact + no scrolling needed) */
+  .container{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:12px;              /* little tighter */
+    padding:10px;
+  }
+
+  /* draggable names */
+  .name{
+    padding:10px 14px;
+    border-radius:14px;
+    cursor:grab;
+    font-weight:800;
+    color:#fff;
+    box-shadow:0 4px 10px rgba(0,0,0,.25);
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;
+    position:relative;
+    font-size:15px;
+  }
+  .name:active{ cursor:grabbing; }
+
+  .name:nth-child(1){background:#e17055}
+  .name:nth-child(2){background:#6c5ce7}
+  .name:nth-child(3){background:#00b894}
+  .name:nth-child(4){background:#fdcb6e;color:#000}
+  .name:nth-child(5){background:#0984e3}
+  .name:nth-child(6){background:#e84393}
+  .name:nth-child(7){background:#2ecc71}
+  .name:nth-child(8){background:#d63031}
+  .name:nth-child(9){background:#00cec9}
+  .name:nth-child(10){background:#fd79a8}
+  .name:nth-child(11){background:#636e72}
+  .name:nth-child(12){background:#fab1a0;color:#000}
+
+  /* ✅ stars: smaller + more collective (tight) */
+  .star{
+    width:72px;height:72px;   /* smaller */
+    clip-path:polygon(
+      50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,
+      50% 70%,21% 91%,32% 57%,2% 35%,39% 35%
+    );
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:24px;
+    font-weight:900;
+    color:#fff;
+    box-shadow:0 6px 14px rgba(0,0,0,.3);
+    touch-action:none;
+    user-select:none;
+    -webkit-user-select:none;
+    position:relative;
+  }
+
+  .star:nth-child(1){background:#ff7675}
+  .star:nth-child(2){background:#a29bfe}
+  .star:nth-child(3){background:#55efc4;color:#000}
+  .star:nth-child(4){background:#ffeaa7;color:#000}
+  .star:nth-child(5){background:#74b9ff}
+  .star:nth-child(6){background:#fd79a8}
+  .star:nth-child(7){background:#00b894}
+  .star:nth-child(8){background:#e17055}
+  .star:nth-child(9){background:#00cec9;color:#000}
+  .star:nth-child(10){background:#fab1a0;color:#000}
+  .star:nth-child(11){background:#636e72}
+  .star:nth-child(12){background:#fdcb6e;color:#000}
+
+  .correct{background:#00b894!important;color:#fff!important;}
+  footer{font-size:12px;margin:8px;color:#333;}
+</style>
+</head>
+
+<body>
+
+<h1>⭐ ਲਗਾਂ ਅਤੇ ਲਗਾਖਰ Drag & Drop ⭐</h1>
+<div class="instructions">ਨਾਂਵ ਨੂੰ ਸਹੀ ਚਿੰਨ੍ਹ ਵਾਲੇ ਸਟਾਰ ਤੇ ਛੱਡੋ (iPhone/Android/PC)</div>
+
+<!-- ✅ Names -->
+<div class="container" id="names">
+  <div class="name" data-match="ਾ">ਕੰਨਾ</div>
+  <div class="name" data-match="ਿ">ਸਿਹਾਰੀ</div>
+  <div class="name" data-match="ੀ">ਬਿਹਾਰੀ</div>
+  <div class="name" data-match="ੁ">ਔਂਕੜ</div>
+  <div class="name" data-match="ੂ">ਦੂਲੈਂਕੜ</div>
+  <div class="name" data-match="ੇ">ਲਾਵਾਂ</div>
+  <div class="name" data-match="ੈ">ਦੁਲਾਵਾਂ</div>
+  <div class="name" data-match="ੋ">ਹੋੜਾ</div>
+  <div class="name" data-match="ੌ">ਕਨੌੜਾ</div>
+  <div class="name" data-match="ਂ">ਬਿੰਦੀ</div>
+  <div class="name" data-match="ੰ">ਟਿੱਪੀ</div>
+  <div class="name" data-match="ੱ">ਅੱਧਕ</div>
+</div>
+
+<!-- ✅ Stars (collective + small like Visram) -->
+<div class="container" id="symbols">
+  <div class="star" data-symbol="ਾ">ਾ</div>
+  <div class="star" data-symbol="ਿ">ਿ</div>
+  <div class="star" data-symbol="ੀ">ੀ</div>
+  <div class="star" data-symbol="ੁ">ੁ</div>
+  <div class="star" data-symbol="ੂ">ੂ</div>
+  <div class="star" data-symbol="ੇ">ੇ</div>
+  <div class="star" data-symbol="ੈ">ੈ</div>
+  <div class="star" data-symbol="ੋ">ੋ</div>
+  <div class="star" data-symbol="ੌ">ੌ</div>
+  <div class="star" data-symbol="ਂ">ਂ</div>
+  <div class="star" data-symbol="ੰ">ੰ</div>
+  <div class="star" data-symbol="ੱ">ੱ</div>
+</div>
+
+<footer>📱 iPhone · Android · PC · Projector</footer>
+
+<!-- ✅ Sound -->
+<audio id="correctSound" preload="auto">
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_6d7a28c16c.mp3">
+</audio>
+<audio id="wrongSound" preload="auto">
+  <source src="https://cdn.pixabay.com/audio/2022/03/10/audio_0c3b88a5c4.mp3">
+</audio>
+
+<script>
+  // shuffle
+  function shuffle(c){
+    [...c.children].sort(()=>Math.random()-0.5).forEach(e=>c.appendChild(e));
+  }
+  shuffle(document.getElementById("names"));
+  shuffle(document.getElementById("symbols"));
+
+  // unlock sound (iPhone needs a tap)
+  const correctSound=document.getElementById("correctSound");
+  const wrongSound=document.getElementById("wrongSound");
+  const unlock=()=>{
+    correctSound.play().then(()=>{correctSound.pause(); correctSound.currentTime=0;}).catch(()=>{});
+  };
+  document.addEventListener("touchstart", unlock, {once:true});
+  document.addEventListener("click", unlock, {once:true});
+
+  let active=null;
+
+  function onMove(e){
+    if(!active) return;
+    const dx = e.clientX - active.startX;
+    const dy = e.clientY - active.startY;
+    active.el.style.transform = `translate(${dx}px, ${dy}px)`;
+    e.preventDefault();
+  }
+
+  function onUp(e){
+    if(!active) return;
+
+    // ✅ iPhone hit-test fix
+    const el = active.el;
+    el.style.visibility = "hidden";
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    el.style.visibility = "visible";
+
+    const star = target ? target.closest(".star") : null;
+
+    if(star && star.dataset.symbol === el.dataset.match){
+      star.classList.add("correct");
+      star.textContent = el.textContent;
+      el.style.display = "none";
+      correctSound.currentTime = 0;
+      correctSound.play().catch(()=>{});
+    }else{
+      el.style.transform = "";
+      wrongSound.currentTime = 0;
+      wrongSound.play().catch(()=>{});
+    }
+
+    el.style.zIndex = "";
+    active = null;
+
+    window.removeEventListener("pointermove", onMove, {passive:false});
+    window.removeEventListener("pointerup", onUp, {passive:false});
+    window.removeEventListener("pointercancel", onUp, {passive:false});
+
+    e.preventDefault();
+  }
+
+  document.querySelectorAll(".name").forEach(el=>{
+    el.addEventListener("pointerdown", (e)=>{
+      active = { el, startX: e.clientX, startY: e.clientY };
+      el.style.zIndex = 9999;
+
+      window.addEventListener("pointermove", onMove, {passive:false});
+      window.addEventListener("pointerup", onUp, {passive:false});
+      window.addEventListener("pointercancel", onUp, {passive:false});
+
+      e.preventDefault();
+    }, {passive:false});
+  });
+</script>
+
+</body>
+</html>
