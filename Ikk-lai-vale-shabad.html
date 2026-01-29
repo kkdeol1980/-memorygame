@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ਇੱਕੋ ਲੈਅ ਵਾਲੇ ਸ਼ਬਦਾਂ ਦਾ ਮਿਲਾਨ • Sticker Pop Cards (135×70)</title>
+<style>
+  *{box-sizing:border-box}
+  body{
+    margin:0;height:100vh;overflow:hidden;
+    font-family:"Noto Sans Gurmukhi",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    background:
+      radial-gradient(900px 700px at 20% 15%, rgba(255,220,170,.55), transparent 60%),
+      radial-gradient(900px 700px at 80% 20%, rgba(180,240,255,.50), transparent 62%),
+      radial-gradient(900px 700px at 50% 90%, rgba(220,180,255,.45), transparent 62%),
+      linear-gradient(180deg,#fff6f2 0%, #f3fbff 50%, #f7f2ff 100%);
+  }
+
+  .dot{
+    position:fixed;
+    width:10px;height:10px;border-radius:50%;
+    opacity:.16;
+    pointer-events:none;
+    filter: blur(.1px);
+  }
+
+  #stage{position:fixed; inset:0; overflow:hidden;}
+  #lines{position:fixed; inset:0; pointer-events:none;}
+
+  #scorePill{
+    position:fixed; left:10px; top:10px;
+    padding:8px 12px; border-radius:999px;
+    background:rgba(255,255,255,.68);
+    border:2px solid rgba(0,0,0,.06);
+    box-shadow:0 10px 25px rgba(0,0,0,.10);
+    color:#111; font-size:12px; font-weight:1000;
+    user-select:none;
+    z-index:10;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  #levelSticker{
+    position:fixed; right:10px; top:10px;
+    width:74px; height:40px;
+    border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:1000; font-size:13px;
+    color:#111;
+    user-select:none;
+    cursor:pointer;
+    background:rgba(255,255,255,.72);
+    border:2px dashed rgba(0,0,0,.18);
+    box-shadow:0 10px 25px rgba(0,0,0,.10);
+    -webkit-tap-highlight-color:transparent;
+    z-index:11;
+  }
+
+  #toast{
+    position:fixed; left:50%; bottom:10px;
+    transform:translateX(-50%);
+    padding:9px 14px; border-radius:999px;
+    background:rgba(255,255,255,.72);
+    border:2px solid rgba(0,0,0,.07);
+    box-shadow:0 10px 25px rgba(0,0,0,.10);
+    color:#111; font-size:12px; font-weight:1000;
+    opacity:0; transition:opacity .18s ease, transform .18s ease;
+    user-select:none; z-index:12; pointer-events:none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(-2px);}
+
+  /* Sticker Pop Card */
+  .card{
+    position:absolute;
+    border-radius:18px;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    padding:8px 10px;
+    font-weight:1000;
+    color:#121212;
+    background:rgba(255,255,255,.86);
+    border:3px solid rgba(0,0,0,.10);
+    box-shadow:0 18px 38px rgba(0,0,0,.16);
+    user-select:none;
+    cursor:pointer;
+    -webkit-tap-highlight-color:transparent;
+    transform: translateZ(0);
+  }
+
+  .card::before{
+    content:"";
+    position:absolute;
+    inset:-6px;
+    border-radius:22px;
+    background:conic-gradient(from 90deg,
+      rgba(255,255,255,.0), rgba(255,255,255,.0),
+      rgba(0,0,0,.05), rgba(255,255,255,.0));
+    filter: blur(.1px);
+    z-index:-1;
+  }
+
+  .badge{
+    position:absolute;
+    left:-10px; top:-10px;
+    width:30px;height:30px;border-radius:14px;
+    background:rgba(255,255,255,.85);
+    border:2px solid rgba(0,0,0,.10);
+    box-shadow:0 10px 20px rgba(0,0,0,.12);
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;
+    transform: rotate(-12deg);
+    pointer-events:none;
+  }
+
+  .card.floating{ animation: floaty 2.8s ease-in-out infinite; }
+  @keyframes floaty{50%{transform:translateY(-4px)}}
+
+  .selected{ outline:4px solid rgba(0,0,0,.85); transform: scale(1.03); }
+  .ok{ outline:4px solid rgba(0,190,120,.95); }
+  .bad{ outline:4px solid rgba(255,70,120,.95); }
+
+  .wobble{ animation: wobble .45s ease-in-out 1; }
+  @keyframes wobble{
+    0%{transform:scale(1)}
+    25%{transform:scale(1.03) rotate(2deg)}
+    55%{transform:scale(1.03) rotate(-2deg)}
+    100%{transform:scale(1) rotate(0deg)}
+  }
+
+  .popOut{ animation: popOut .28s ease-out forwards; }
+  @keyframes popOut{ to{ transform:scale(.25) rotate(6deg); opacity:0; } }
+
+  .spark{
+    position:absolute;
+    width:10px;height:10px;border-radius:50%;
+    background:rgba(255,255,255,.95);
+    box-shadow:0 0 18px rgba(0,0,0,.18);
+    pointer-events:none;
+  }
+</style>
+</head>
+<body>
+<canvas id="lines"></canvas>
+<div id="stage"></div>
+<div id="scorePill">ਸਕੋਰ: 0</div>
+<div id="levelSticker">Level 1</div>
+<div id="toast">2 ਕਾਰਡ ਚੁਣੋ ਜੋ ਇੱਕੋ ਲੈਅ ਵਾਲੇ ਹਨ</div>
+
+<script>
+/* confetti dots */
+for(let i=0;i<40;i++){
+  const d=document.createElement("div");
+  d.className="dot";
+  d.style.left=(Math.random()*100)+"vw";
+  d.style.top=(Math.random()*100)+"vh";
+  d.style.background=`hsl(${Math.floor(Math.random()*360)} 90% 60%)`;
+  d.style.width=(6+Math.random()*14)+"px";
+  d.style.height=d.style.width;
+  d.style.opacity=(0.10+Math.random()*0.16);
+  document.body.appendChild(d);
+}
+
+/* sound (better) */
+let audioCtx=null;
+function ensureAudio(){
+  if(!audioCtx){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    audioCtx=new AC();
+  }
+  if(audioCtx.state==="suspended") audioCtx.resume().catch(()=>{});
+}
+function tone({freq=440,dur=0.12,vol=0.08,type="sine",slideTo=null}){
+  ensureAudio();
+  const t0=audioCtx.currentTime;
+  const o=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+  o.type=type; o.frequency.setValueAtTime(freq,t0);
+  if(slideTo!==null) o.frequency.exponentialRampToValueAtTime(Math.max(30,slideTo), t0+dur);
+  g.gain.setValueAtTime(0.0001,t0);
+  g.gain.exponentialRampToValueAtTime(vol,t0+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(t0); o.stop(t0+dur);
+}
+function noiseBurst({dur=0.08,vol=0.02}){
+  ensureAudio();
+  const t0=audioCtx.currentTime;
+  const size=Math.floor(audioCtx.sampleRate*dur);
+  const buf=audioCtx.createBuffer(1,size,audioCtx.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<size;i++) d[i]=(Math.random()*2-1)*(1-(i/size));
+  const src=audioCtx.createBufferSource(); src.buffer=buf;
+  const hp=audioCtx.createBiquadFilter(); hp.type="highpass"; hp.frequency.value=1300;
+  const g=audioCtx.createGain(); g.gain.value=vol;
+  src.connect(hp); hp.connect(g); g.connect(audioCtx.destination);
+  src.start(t0); src.stop(t0+dur);
+}
+function correctSound(){
+  tone({freq:740,dur:0.10,vol:0.08});
+  setTimeout(()=>tone({freq:980,dur:0.10,vol:0.08}),55);
+  setTimeout(()=>tone({freq:1320,dur:0.10,vol:0.06,type:"triangle"}),110);
+  setTimeout(()=>noiseBurst({dur:0.06,vol:0.015}),90);
+}
+function wrongSound(){
+  tone({freq:240,dur:0.14,vol:0.09});
+  setTimeout(()=>tone({freq:180,dur:0.20,vol:0.07,type:"triangle",slideTo:120}),45);
+  setTimeout(()=>noiseBurst({dur:0.10,vol:0.02}),60);
+}
+
+/* DATA */
+const LEVELS = [
+  [ ["ਰਾਤ","ਬਾਤ"],["ਚਾਹ","ਰਾਹ"],["ਘਰ","ਡਰ"],["ਫੁੱਲ","ਭੁੱਲ"],["ਗੱਲ","ਹੱਲ"],["ਧੁੱਪ","ਚੁੱਪ"],["ਪਾਣੀ","ਕਹਾਣੀ"],["ਖੇਡ","ਭੇਡ"] ],
+  [ ["ਪਿਆਰ","ਇਕਰਾਰ"],["ਗਿਆਨ","ਧਿਆਨ"],["ਨੀਲਾ","ਪੀਲ਼ਾ"],["ਦਿਲ","ਮਿਲ"],["ਬੱਚਾ","ਕੱਚਾ"],["ਸਾਫ਼","ਮਾਫ਼"],["ਸੋਨਾ","ਮੋਨਾ"],["ਮਕਾਨ","ਦੁਕਾਨ"] ],
+  [ ["ਪ੍ਰੀਤ","ਜੀਤ"],["ਗੀਤ","ਮੀਤ"],["ਬਾਰੀ","ਸਾਰੀ"],["ਸ਼ਿਕਾਰੀ","ਖਿਡਾਰੀ"],["ਸਵੇਰ","ਦੇਰ"],["ਚੋਟੀ","ਮੋਟੀ"],["ਕੜੀ","ਘੜੀ"],["ਦਰਬਾਰ","ਸਰਕਾਰ"] ],
+  [ ["ਰੱਸੀ","ਲੱਸੀ"],["ਬੱਚੇ","ਸੱਚੇ"],["ਹਵਾ","ਦਵਾ"],["ਫਿਕਰ","ਜ਼ਿਕਰ"],["ਤਸਵੀਰ","ਤਕਦੀਰ"],["ਕਲਮ","ਭਰਮ"],["ਮੋੜ","ਜੋੜ"],["ਲੜਾਈ","ਕਮਾਈ"] ],
+  [ ["ਸਵਾਲ","ਕਮਾਲ"],["ਦੋਸਤ","ਪੋਸਤ"],["ਇਨਾਮ","ਅਰਾਮ"],["ਉਮੀਦ","ਰਸੀਦ"],["ਚਮਕ","ਧਮਕ"],["ਜਹਾਜ਼","ਨਮਾਜ਼"],["ਲਿਖਾਈ","ਪੜ੍ਹਾਈ"],["ਅੰਨ","ਧੰਨ"] ],
+];
+
+/* canvas (line flash) */
+const canvas=document.getElementById("lines");
+const ctx=canvas.getContext("2d");
+function resizeCanvas(){ canvas.width=innerWidth; canvas.height=innerHeight; }
+resizeCanvas();
+
+/* UI */
+const stage=document.getElementById("stage");
+const scorePill=document.getElementById("scorePill");
+const levelSticker=document.getElementById("levelSticker");
+const toast=document.getElementById("toast");
+
+/* helpers */
+function showToast(msg){
+  toast.textContent=msg;
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"), 900);
+}
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+function drawLine(x1,y1,x2,y2,good){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.lineWidth=7; ctx.lineCap="round";
+  ctx.strokeStyle = good ? "rgba(0,190,120,.80)" : "rgba(255,70,120,.80)";
+  ctx.shadowColor = ctx.strokeStyle; ctx.shadowBlur=14;
+  ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  ctx.shadowBlur=0;
+  setTimeout(()=>ctx.clearRect(0,0,canvas.width,canvas.height), 240);
+}
+function sparkleAt(x,y){
+  const n=14;
+  for(let i=0;i<n;i++){
+    const p=document.createElement("div");
+    p.className="spark";
+    stage.appendChild(p);
+    const ang=Math.random()*Math.PI*2;
+    const dist=12+Math.random()*58;
+    const px=x+Math.cos(ang)*dist;
+    const py=y+Math.sin(ang)*dist;
+    const size=6+Math.random()*8;
+    p.style.width=size+"px";
+    p.style.height=size+"px";
+    p.style.left=(x-size/2)+"px";
+    p.style.top=(y-size/2)+"px";
+    p.style.background=`hsl(${Math.floor(Math.random()*360)} 90% 65%)`;
+    p.animate(
+      [{transform:`translate(0,0) scale(1)`,opacity:1},
+       {transform:`translate(${px-x}px,${py-y}px) scale(.35)`,opacity:0}],
+      {duration:520+Math.random()*260,easing:"cubic-bezier(.2,.8,.2,1)"}
+    );
+    setTimeout(()=>p.remove(), 900);
+  }
+}
+function bounds(){
+  const w=innerWidth, h=innerHeight;
+  return {w,h, pad:10, topSafe:70};
+}
+
+/* ===== GAME STATE ===== */
+let level=1, score=0;
+let cards=[];              // {el,x,y,vx,vy,w,h,word,pairId,alive}
+let selected=null;         // card
+let locked=false;
+let solved=0;
+
+/* FIXED SMALL SIZE */
+let CARD_W = 135;
+let CARD_H = 70;
+const SPEED = 150;
+
+/* style per card */
+function randomCardStyle(el){
+  const hue=Math.floor(Math.random()*360);
+  const hue2=(hue+40+Math.floor(Math.random()*60))%360;
+  el.style.background =
+    `linear-gradient(135deg,
+      hsla(${hue2},95%,92%,.95),
+      hsla(${hue},95%,86%,.85))`;
+  el.style.borderColor = `hsla(${hue}, 55%, 30%, .15)`;
+  el.style.boxShadow = `0 18px 38px rgba(0,0,0,.16), 0 0 0 4px hsla(${hue2}, 90%, 70%, .12)`;
+
+  const badge = document.createElement("div");
+  badge.className="badge";
+  const icons = ["⭐","🌈","🍭","🧸","🎈","✨","🚀","🎵","🪁","🎮"];
+  badge.textContent = icons[Math.floor(Math.random()*icons.length)];
+  el.appendChild(badge);
+
+  el.style.fontSize = "17px";
+}
+
+/* clear */
+function clearCards(){
+  cards.forEach(c=>c.el.remove());
+  cards=[];
+  selected=null;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+}
+
+/* place without overlap */
+function placeNoOverlap(w,h){
+  const {w:W,h:H,pad,topSafe}=bounds();
+  const minX=pad, maxX=W-w-pad;
+  const minY=topSafe, maxY=H-h-pad;
+
+  // scaled safe distance for 135x70
+  const safeDist = Math.max(88, Math.min(118, Math.round(w*0.78)));
+
+  for(let t=0;t<2200;t++){
+    const x=minX+Math.random()*(maxX-minX);
+    const y=minY+Math.random()*(maxY-minY);
+    let ok=true;
+    for(const c of cards){
+      if(!c.alive) continue;
+      const dx = (c.x + c.w/2) - (x + w/2);
+      const dy = (c.y + c.h/2) - (y + h/2);
+      const dist = Math.hypot(dx,dy);
+      if(dist < safeDist){ ok=false; break; }
+    }
+    if(ok) return {x,y};
+  }
+  return {x:(minX+maxX)/2, y:(minY+maxY)/2};
+}
+
+function center(c){ return {x:c.x+c.w/2, y:c.y+c.h/2}; }
+
+/* build */
+function buildRound(){
+  locked=false; solved=0;
+  scorePill.textContent="ਸਕੋਰ: "+score;
+  clearCards();
+
+  const pairs = LEVELS[level-1];
+
+  // robust pairing by pairId
+  let items=[];
+  pairs.forEach((p, pairId)=>{
+    items.push({word:p[0], pairId});
+    items.push({word:p[1], pairId});
+  });
+  shuffle(items);
+
+  items.forEach((it)=>{
+    const el=document.createElement("div");
+    el.className="card floating";
+    el.textContent=it.word;
+    el.style.width = CARD_W+"px";
+    el.style.height = CARD_H+"px";
+    randomCardStyle(el);
+
+    const p=placeNoOverlap(CARD_W, CARD_H);
+
+    const ang=Math.random()*Math.PI*2;
+    const sp=(0.06+Math.random()*0.08)*(SPEED/100);
+
+    const card={
+      el, x:p.x, y:p.y,
+      vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp,
+      w:CARD_W, h:CARD_H,
+      word:it.word, pairId:it.pairId,
+      alive:true
+    };
+
+    el.style.left=card.x+"px";
+    el.style.top =card.y+"px";
+
+    el.addEventListener("click", ()=>pick(card));
+    stage.appendChild(el);
+    cards.push(card);
+  });
+
+  showToast("2 ਕਾਰਡ ਚੁਣੋ ਜੋ ਇੱਕੋ ਲੈਅ ਵਾਲੇ ਹਨ");
+}
+
+function pick(c){
+  if(locked || !c.alive) return;
+  ensureAudio();
+
+  if(!selected){
+    selected=c;
+    c.el.classList.add("selected");
+    return;
+  }
+
+  if(selected===c){
+    selected.el.classList.remove("selected");
+    selected=null;
+    return;
+  }
+
+  locked=true;
+  const a=selected, b=c;
+  a.el.classList.remove("selected");
+  selected=null;
+
+  const A=center(a), B=center(b);
+  const match = (a.pairId === b.pairId);
+  drawLine(A.x,A.y,B.x,B.y,match);
+
+  if(match){
+    score += 10;
+    scorePill.textContent="ਸਕੋਰ: "+score;
+
+    a.el.classList.add("ok");
+    b.el.classList.add("ok");
+    correctSound();
+    sparkleAt((A.x+B.x)/2,(A.y+B.y)/2);
+
+    setTimeout(()=>{
+      a.alive=false; b.alive=false;
+      a.el.classList.add("popOut");
+      b.el.classList.add("popOut");
+      setTimeout(()=>{ a.el.remove(); b.el.remove(); }, 280);
+
+      solved++;
+      locked=false;
+
+      if(solved >= LEVELS[level-1].length){
+        showToast("Level Complete!");
+        setTimeout(()=>buildRound(), 900);
+      }
+    }, 220);
+  }else{
+    score -= 5;
+    scorePill.textContent="ਸਕੋਰ: "+score;
+
+    a.el.classList.add("bad","wobble");
+    b.el.classList.add("bad","wobble");
+    wrongSound();
+
+    setTimeout(()=>{
+      a.el.classList.remove("bad","wobble");
+      b.el.classList.remove("bad","wobble");
+      locked=false;
+    }, 430);
+  }
+}
+
+/* physics: float + bounce + no overlap */
+function step(dt){
+  const {w:W,h:H,pad,topSafe}=bounds();
+
+  for(const c of cards){
+    if(!c.alive) continue;
+    c.x += c.vx * dt;
+    c.y += c.vy * dt;
+
+    const minX=pad, maxX=W-c.w-pad;
+    const minY=topSafe, maxY=H-c.h-pad;
+
+    if(c.x < minX){ c.x=minX; c.vx=Math.abs(c.vx); }
+    if(c.x > maxX){ c.x=maxX; c.vx=-Math.abs(c.vx); }
+    if(c.y < minY){ c.y=minY; c.vy=Math.abs(c.vy); }
+    if(c.y > maxY){ c.y=maxY; c.vy=-Math.abs(c.vy); }
+  }
+
+  // scaled separation distance
+  const minDist = Math.max(86, Math.min(116, Math.round(CARD_W*0.78)));
+
+  for(let i=0;i<cards.length;i++){
+    for(let j=i+1;j<cards.length;j++){
+      const a=cards[i], b=cards[j];
+      if(!a.alive || !b.alive) continue;
+
+      const ax=a.x+a.w/2, ay=a.y+a.h/2;
+      const bx=b.x+b.w/2, by=b.y+b.h/2;
+
+      const dx=bx-ax, dy=by-ay;
+      const dist=Math.hypot(dx,dy);
+
+      if(dist>0 && dist<minDist){
+        const nx=dx/dist, ny=dy/dist;
+        const overlap=minDist-dist;
+
+        a.x -= nx*overlap*0.5; a.y -= ny*overlap*0.5;
+        b.x += nx*overlap*0.5; b.y += ny*overlap*0.5;
+
+        const av=a.vx*nx + a.vy*ny;
+        const bv=b.vx*nx + b.vy*ny;
+        const diff=bv-av;
+        a.vx += diff*nx; a.vy += diff*ny;
+        b.vx -= diff*nx; b.vy -= diff*ny;
+      }
+    }
+  }
+
+  for(const c of cards){
+    if(!c.alive) continue;
+    c.el.style.left=c.x+"px";
+    c.el.style.top =c.y+"px";
+  }
+}
+
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(32, now-last);
+  last=now;
+  step(dt);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* level sticker */
+levelSticker.addEventListener("click", ()=>{
+  ensureAudio();
+  level = (level % 5) + 1;
+  levelSticker.textContent="Level " + level;
+  buildRound();
+});
+
+/* resize */
+addEventListener("resize", ()=>{
+  resizeCanvas();
+  buildRound();
+});
+
+/* start */
+buildRound();
+</script>
+</body>
+</html>

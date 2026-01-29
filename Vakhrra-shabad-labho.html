@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Space Orbs • Punjabi Grammar (5 Levels)</title>
+<style>
+  *{box-sizing:border-box}
+  body{
+    margin:0; height:100vh; overflow:hidden;
+    font-family:"Noto Sans Gurmukhi", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background:
+      radial-gradient(1100px 720px at 20% 18%, rgba(170,240,255,.55), transparent 60%),
+      radial-gradient(1000px 680px at 82% 22%, rgba(160,190,255,.45), transparent 62%),
+      radial-gradient(900px 650px at 50% 88%, rgba(120,140,255,.35), transparent 62%),
+      linear-gradient(180deg, #0b2a6f 0%, #103b9d 45%, #071a4f 100%);
+  }
+
+  /* subtle stars */
+  .star{
+    position:fixed;
+    width:3px;height:3px;border-radius:50%;
+    background:rgba(255,255,255,.95);
+    box-shadow:0 0 10px rgba(255,255,255,.55);
+    opacity:.75;
+    animation: twinkle 2.4s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes twinkle{50%{opacity:.25; transform:scale(.7)}}
+
+  #stage{position:fixed; inset:0; overflow:hidden;}
+
+  /* score (tiny) */
+  #scorePill{
+    position:fixed;
+    left:10px; top:10px;
+    padding:8px 10px;
+    border-radius:999px;
+    background:rgba(0,0,0,.28);
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;
+    font-size:12px;
+    font-weight:900;
+    user-select:none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index:5;
+  }
+
+  /* small level planet (tap to change level) */
+  #levelPlanet{
+    position:fixed;
+    right:10px; top:10px;
+    width:52px; height:52px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff;
+    font-weight:1000;
+    font-size:13px;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    cursor:pointer;
+    border:2px solid rgba(255,255,255,.22);
+    box-shadow: 0 14px 30px rgba(0,0,0,.25);
+    z-index:6;
+  }
+  #levelPlanet::before{
+    content:"";
+    position:absolute;
+    width:18px;height:18px;border-radius:50%;
+    left:10px; top:9px;
+    background:rgba(255,255,255,.55);
+    opacity:.6;
+  }
+  #levelPlanet::after{
+    content:"";
+    position:absolute;
+    width:10px;height:10px;border-radius:50%;
+    left:22px; top:21px;
+    background:rgba(255,255,255,.30);
+    opacity:.55;
+  }
+
+  /* planets/orbs (ONLY main UI) */
+  .orb{
+    position:absolute;
+    width:120px;height:120px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    padding:10px;
+    font-weight:1000;
+    font-size:18px;
+    line-height:1.15;
+    color:#fff;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    cursor:pointer;
+
+    border:2px solid rgba(255,255,255,.22);
+    box-shadow: 0 18px 45px rgba(0,0,0,.28);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transform: translateZ(0);
+  }
+  .orb::before{
+    content:"";
+    position:absolute;
+    width:42px;height:42px;border-radius:50%;
+    left:18px; top:14px;
+    background:rgba(255,255,255,.55);
+    opacity:.65;
+  }
+  .orb::after{
+    content:"";
+    position:absolute;
+    width:22px;height:22px;border-radius:50%;
+    left:50px; top:44px;
+    background:rgba(255,255,255,.30);
+    opacity:.55;
+  }
+
+  .ring{
+    position:absolute;
+    width:150px;height:52px;
+    border-radius:50%;
+    border:3px solid rgba(255,255,255,.28);
+    transform: rotate(-18deg);
+    opacity:.75;
+    pointer-events:none;
+    filter: blur(.15px);
+  }
+
+  .floaty{ animation: floaty 2.7s ease-in-out infinite; }
+  @keyframes floaty{50%{transform:translateY(-4px)}}
+
+  .ok{ outline:4px solid rgba(0,255,170,.92); }
+  .bad{ outline:4px solid rgba(255,90,130,.92); }
+
+  .wobble{ animation: wobble .45s ease-in-out 1; }
+  @keyframes wobble{
+    0%{transform:scale(1)}
+    25%{transform:scale(1.02) rotate(4deg)}
+    55%{transform:scale(1.02) rotate(-4deg)}
+    100%{transform:scale(1) rotate(0deg)}
+  }
+
+  .spark{
+    position:absolute;
+    width:8px;height:8px;border-radius:50%;
+    background:rgba(255,255,255,.95);
+    box-shadow:0 0 14px rgba(255,255,255,.75);
+    pointer-events:none;
+  }
+
+  /* tiny toast */
+  #toast{
+    position:fixed;
+    left:50%; top:10px;
+    transform:translateX(-50%);
+    padding:8px 12px;
+    border-radius:999px;
+    background:rgba(0,0,0,.28);
+    border:1px solid rgba(255,255,255,.18);
+    color:#fff;
+    font-size:12px;
+    font-weight:900;
+    opacity:0;
+    transition:opacity .18s ease, transform .18s ease;
+    user-select:none;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index:7;
+    pointer-events:none;
+  }
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(2px);}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="scorePill">ਸਕੋਰ: 0</div>
+<div id="levelPlanet" title="Tap to change level">L1</div>
+<div id="toast">Level 1</div>
+
+<script>
+/* ========= stars ========= */
+for(let i=0;i<28;i++){
+  const s=document.createElement("div");
+  s.className="star";
+  s.style.left=(Math.random()*100)+"vw";
+  s.style.top=(Math.random()*70)+"vh";
+  s.style.animationDelay=(Math.random()*2)+"s";
+  s.style.width=(2+Math.random()*3)+"px";
+  s.style.height=s.style.width;
+  s.style.opacity=(0.45+Math.random()*0.4);
+  document.body.appendChild(s);
+}
+
+/* ========= sound ========= */
+let audioCtx=null;
+function ensureAudio(){
+  if(!audioCtx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    audioCtx = new AC();
+  }
+  if(audioCtx.state==="suspended") audioCtx.resume().catch(()=>{});
+}
+function tone({freq=440,dur=0.12,vol=0.08,type="sine",slideTo=null}){
+  ensureAudio();
+  const t0=audioCtx.currentTime;
+  const o=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+  o.type=type;
+  o.frequency.setValueAtTime(freq,t0);
+  if(slideTo!==null) o.frequency.exponentialRampToValueAtTime(Math.max(30,slideTo), t0+dur);
+  g.gain.setValueAtTime(0.0001,t0);
+  g.gain.exponentialRampToValueAtTime(vol,t0+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(t0); o.stop(t0+dur);
+}
+function noiseBurst({dur=0.08,vol=0.02}){
+  ensureAudio();
+  const t0=audioCtx.currentTime;
+  const size=Math.floor(audioCtx.sampleRate*dur);
+  const buf=audioCtx.createBuffer(1,size,audioCtx.sampleRate);
+  const d=buf.getChannelData(0);
+  for(let i=0;i<size;i++){ d[i]=(Math.random()*2-1)*(1-(i/size)); }
+  const src=audioCtx.createBufferSource(); src.buffer=buf;
+  const hp=audioCtx.createBiquadFilter(); hp.type="highpass"; hp.frequency.value=1300;
+  const g=audioCtx.createGain(); g.gain.value=vol;
+  src.connect(hp); hp.connect(g); g.connect(audioCtx.destination);
+  src.start(t0); src.stop(t0+dur);
+}
+function correctSound(){
+  tone({freq:720,dur:0.10,vol:0.08});
+  setTimeout(()=>tone({freq:980,dur:0.10,vol:0.08}),55);
+  setTimeout(()=>tone({freq:1320,dur:0.10,vol:0.06,type:"triangle"}),110);
+  setTimeout(()=>noiseBurst({dur:0.06,vol:0.015}),90);
+}
+function wrongSound(){
+  tone({freq:240,dur:0.14,vol:0.09});
+  setTimeout(()=>tone({freq:180,dur:0.20,vol:0.07,type:"triangle",slideTo:120}),45);
+  setTimeout(()=>noiseBurst({dur:0.10,vol:0.02}),60);
+}
+
+/* ========= WORD BANKS (Punjabi) ========= */
+const BANK = {
+  noun: [
+    "ਘਰ","ਕਿਤਾਬ","ਸਕੂਲ","ਕਮਰਾ","ਕੁਰਸੀ","ਮੇਜ਼","ਬਾਜ਼ਾਰ","ਸ਼ਹਿਰ","ਪਿੰਡ","ਨਦੀ",
+    "ਪਹਾੜ","ਦਰਖ਼ਤ","ਪਾਣੀ","ਰੋਟੀ","ਦੁੱਧ","ਚਾਹ","ਕਾਪੀ","ਪੈਨਸਿਲ","ਰਬੜ","ਬਸਤਾ",
+    "ਨਾਸ਼ਪਤੀ","ਸੇਬ","ਕੇਲਾ","ਅੰਬ","ਅਧਿਆਪਕ","ਲੜਕਾ","ਲੜਕੀ","ਬੱਚਾ","ਘੜੀ","ਗੇਂਦ"
+  ],
+  pronoun: [
+    "ਮੈਂ","ਤੂੰ","ਉਹ","ਅਸੀਂ","ਤੁਸੀਂ","ਇਹ","ਉਹਨਾਂ","ਇਸ","ਉਸ","ਜਿਸ",
+    "ਕੌਣ","ਕਿਸ","ਮੇਰਾ","ਤੇਰਾ","ਉਸਦਾ","ਸਾਡਾ","ਤੁਹਾਡਾ","ਆਪਣਾ","ਇਨ੍ਹਾਂ","ਉਨ੍ਹਾਂ"
+  ],
+  adj: [
+    "ਚੰਗਾ","ਮੰਦਾ","ਵੱਡਾ","ਛੋਟਾ","ਲੰਮਾ","ਨੀਵਾਂ","ਉੱਚਾ","ਸੁੰਦਰ","ਸਾਫ਼","ਗੰਦਾ",
+    "ਗਰਮ","ਠੰਢਾ","ਮਿੱਠਾ","ਖੱਟਾ","ਕੌੜਾ","ਤਿੱਖਾ","ਧੀਮਾ","ਤੇਜ਼","ਨਰਮ","ਸਖ਼ਤ"
+  ],
+  verb: [
+    "ਚੱਲਦਾ", /* ✅ corrected */
+    "ਜਾਂਦਾ","ਆਉਂਦਾ","ਦੌੜਦਾ","ਬੈਠਦਾ","ਉੱਠਦਾ","ਖਾਂਦਾ","ਪੀਂਦਾ","ਪੜ੍ਹਦਾ","ਲਿਖਦਾ",
+    "ਸੁਣਦਾ","ਦੇਖਦਾ","ਸਮਝਦਾ","ਸਿੱਖਦਾ","ਖੇਡਦਾ","ਹੱਸਦਾ","ਰੋਂਦਾ","ਗਾਉਂਦਾ","ਬੋਲਦਾ","ਸੋਂਦਾ"
+  ]
+};
+
+/* ========= build 5 levels x 20 questions (100 total) =========
+   Pattern makes options relevant: 3 from one category + 1 odd from another.
+*/
+function buildLevel(seed){
+  // deterministic-ish shuffle based on seed
+  function pick4(a, start){ return [a[start%a.length], a[(start+1)%a.length], a[(start+2)%a.length], a[(start+3)%a.length]]; }
+
+  const order = [
+    ["noun","pronoun"], ["pronoun","adj"], ["adj","verb"], ["verb","noun"],
+    ["noun","adj"], ["adj","noun"], ["pronoun","verb"], ["verb","pronoun"],
+    ["noun","verb"], ["verb","adj"], ["adj","pronoun"], ["pronoun","noun"],
+    ["noun","pronoun"], ["pronoun","adj"], ["adj","verb"], ["verb","noun"],
+    ["noun","adj"], ["adj","noun"], ["pronoun","verb"], ["verb","pronoun"]
+  ];
+
+  const levelQs = [];
+  for(let i=0;i<20;i++){
+    const [sameType, oddType] = order[i];
+    const same = pick4(BANK[sameType], seed + i*3).slice(0,3);
+    const odd  = BANK[oddType][(seed + i*5 + 7) % BANK[oddType].length];
+    levelQs.push({ same, odd });
+  }
+  return levelQs;
+}
+
+const LEVELS = [
+  buildLevel(3),   // Level 1
+  buildLevel(11),  // Level 2
+  buildLevel(19),  // Level 3
+  buildLevel(27),  // Level 4
+  buildLevel(35)   // Level 5
+];
+
+/* ========= game state ========= */
+const stage = document.getElementById("stage");
+const scorePill = document.getElementById("scorePill");
+const levelPlanet = document.getElementById("levelPlanet");
+const toast = document.getElementById("toast");
+
+const ORB_SIZE = 120;
+const R = ORB_SIZE/2;
+const SPEED = 150; // fixed speed requested
+
+let level = 1;                 // 1..5
+let qIndexByLevel = [0,0,0,0,0];
+let score = 0;
+
+let orbs = [];                 // {el,x,y,vx,vy,r,isOdd,text}
+let locked = false;
+
+/* ========= helpers ========= */
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+function bounds(){
+  const w = innerWidth, h = innerHeight;
+  return {w,h, pad: 8, topSafe: 66}; // keep away from score/level
+}
+function clearOrbs(){
+  orbs.forEach(o=>o.el.remove());
+  orbs=[];
+}
+function randomPlanetStyle(el){
+  const hue = Math.floor(Math.random()*360);
+  const hue2 = (hue + 50 + Math.floor(Math.random()*60)) % 360;
+
+  el.style.background =
+    `radial-gradient(circle at 30% 25%,
+      hsla(${hue2}, 95%, 78%, .90),
+      hsla(${hue}, 95%, 58%, .32) 35%,
+      hsla(${hue}, 95%, 48%, .18) 55%,
+      rgba(255,255,255,.06) 70%)`;
+
+  el.style.borderColor = `hsla(${hue2}, 90%, 85%, .32)`;
+  el.style.boxShadow =
+    `0 18px 45px rgba(0,0,0,.28),
+     0 0 26px hsla(${hue2}, 90%, 65%, .25),
+     inset 0 0 18px rgba(255,255,255,.18)`;
+
+  if(Math.random() < 0.30){
+    const ring = document.createElement("div");
+    ring.className="ring";
+    ring.style.borderColor = `hsla(${hue2}, 90%, 88%, .25)`;
+    el.appendChild(ring);
+  }
+}
+function placeNoOverlap(r){
+  const {w,h,pad,topSafe} = bounds();
+  const minX=r+pad, maxX=w-r-pad;
+  const minY=r+topSafe, maxY=h-r-pad;
+
+  for(let t=0;t<1000;t++){
+    const x=minX+Math.random()*(maxX-minX);
+    const y=minY+Math.random()*(maxY-minY);
+    let ok=true;
+    for(const o of orbs){
+      if(Math.hypot(x-o.x,y-o.y) < (r+o.r+10)){ ok=false; break; }
+    }
+    if(ok) return {x,y};
+  }
+  return {x:(minX+maxX)/2, y:(minY+maxY)/2};
+}
+
+/* sparkles */
+function sparkleAt(x,y){
+  const n = 14;
+  for(let i=0;i<n;i++){
+    const p = document.createElement("div");
+    p.className="spark";
+    stage.appendChild(p);
+    const ang = Math.random()*Math.PI*2;
+    const dist = 10 + Math.random()*50;
+    const px = x + Math.cos(ang)*dist;
+    const py = y + Math.sin(ang)*dist;
+    const size = 4 + Math.random()*6;
+
+    p.style.width = size+"px";
+    p.style.height = size+"px";
+    p.style.left = (x - size/2) + "px";
+    p.style.top  = (y - size/2) + "px";
+
+    p.animate([
+      { transform:`translate(0,0) scale(1)`, opacity:1 },
+      { transform:`translate(${px-x}px, ${py-y}px) scale(.3)`, opacity:0 }
+    ], { duration: 520 + Math.random()*260, easing:"cubic-bezier(.2,.8,.2,1)" });
+
+    setTimeout(()=>p.remove(), 900);
+  }
+}
+
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(()=>toast.classList.remove("show"), 650);
+}
+
+/* ========= round ========= */
+function newRound(){
+  locked=false;
+  clearOrbs();
+
+  const L = level - 1;
+  const qIndex = qIndexByLevel[L];
+  const item = LEVELS[L][qIndex];
+
+  scorePill.textContent = "ਸਕੋਰ: " + score;
+
+  const opts = shuffle([item.odd, ...item.same]).map(t=>({text:t, isOdd:(t===item.odd)}));
+
+  opts.forEach(o=>{
+    const el = document.createElement("div");
+    el.className="orb floaty";
+    el.textContent = o.text; // word center
+    randomPlanetStyle(el);
+
+    const p = placeNoOverlap(R);
+
+    const ang = Math.random()*Math.PI*2;
+    const sp = (0.06 + Math.random()*0.08) * (SPEED/100);
+
+    const orb = {
+      el, x:p.x, y:p.y,
+      vx:Math.cos(ang)*sp, vy:Math.sin(ang)*sp,
+      r:R, isOdd:o.isOdd
+    };
+
+    el.style.left = (orb.x - R) + "px";
+    el.style.top  = (orb.y - R) + "px";
+
+    el.addEventListener("click", ()=>pick(orb));
+    stage.appendChild(el);
+    orbs.push(orb);
+  });
+}
+
+function pick(orb){
+  if(locked) return;
+  locked=true;
+  ensureAudio();
+
+  if(orb.isOdd){
+    score += 10;
+    orb.el.classList.add("ok");
+    correctSound();
+    sparkleAt(orb.x, orb.y);
+    orb.el.animate([{transform:"scale(1)"},{transform:"scale(1.08)"}],{duration:180,fill:"forwards"});
+  }else{
+    score -= 5;
+    orb.el.classList.add("bad","wobble");
+    wrongSound();
+    orbs.forEach(o=>{ if(o.isOdd) o.el.classList.add("ok"); });
+  }
+
+  scorePill.textContent = "ਸਕੋਰ: " + score;
+
+  setTimeout(()=>{
+    const L = level - 1;
+    qIndexByLevel[L] = (qIndexByLevel[L] + 1) % 20; // 20 questions per level
+    newRound();
+  }, 800);
+}
+
+/* ========= level planet (tap to change level) ========= */
+function styleLevelPlanet(){
+  const hue = Math.floor(Math.random()*360);
+  const hue2 = (hue + 60) % 360;
+  levelPlanet.style.background =
+    `radial-gradient(circle at 30% 25%,
+      hsla(${hue2}, 95%, 78%, .90),
+      hsla(${hue}, 95%, 55%, .30) 40%,
+      rgba(255,255,255,.06) 70%)`;
+  levelPlanet.style.boxShadow =
+    `0 14px 30px rgba(0,0,0,.25),
+     0 0 18px hsla(${hue2}, 90%, 70%, .25)`;
+}
+levelPlanet.addEventListener("click", ()=>{
+  ensureAudio(); // unlock on iPhone
+  level = (level % 5) + 1;
+  levelPlanet.textContent = "L" + level;
+  styleLevelPlanet();
+  showToast("Level " + level);
+  // start that level from its current progress (or reset here if you want)
+  newRound();
+});
+
+/* ========= physics: stay on screen + no overlap ========= */
+function step(dt){
+  const {w,h,pad,topSafe} = bounds();
+
+  // move + wall bounce
+  for(const o of orbs){
+    o.x += o.vx * dt;
+    o.y += o.vy * dt;
+
+    const minX=o.r+pad, maxX=w-o.r-pad;
+    const minY=o.r+topSafe, maxY=h-o.r-pad;
+
+    if(o.x < minX){ o.x=minX; o.vx=Math.abs(o.vx); }
+    if(o.x > maxX){ o.x=maxX; o.vx=-Math.abs(o.vx); }
+    if(o.y < minY){ o.y=minY; o.vy=Math.abs(o.vy); }
+    if(o.y > maxY){ o.y=maxY; o.vy=-Math.abs(o.vy); }
+  }
+
+  // orb-orb collision (push apart + bounce)
+  for(let i=0;i<orbs.length;i++){
+    for(let j=i+1;j<orbs.length;j++){
+      const a=orbs[i], b=orbs[j];
+      const dx=b.x-a.x, dy=b.y-a.y;
+      const dist=Math.hypot(dx,dy);
+      const minDist=a.r+b.r+10;
+      if(dist>0 && dist<minDist){
+        const nx=dx/dist, ny=dy/dist;
+        const overlap = (minDist - dist);
+
+        a.x -= nx * overlap * 0.5;
+        a.y -= ny * overlap * 0.5;
+        b.x += nx * overlap * 0.5;
+        b.y += ny * overlap * 0.5;
+
+        const av = a.vx*nx + a.vy*ny;
+        const bv = b.vx*nx + b.vy*ny;
+        const diff = bv - av;
+        a.vx += diff * nx;
+        a.vy += diff * ny;
+        b.vx -= diff * nx;
+        b.vy -= diff * ny;
+      }
+    }
+  }
+
+  // render
+  for(const o of orbs){
+    o.el.style.left = (o.x - o.r) + "px";
+    o.el.style.top  = (o.y - o.r) + "px";
+  }
+}
+
+let last=performance.now();
+function loop(now){
+  const dt = Math.min(32, now-last);
+  last=now;
+  step(dt);
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+addEventListener("resize", ()=>newRound());
+
+/* start */
+styleLevelPlanet();
+newRound();
+</script>
+</body>
+</html>

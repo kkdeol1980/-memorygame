@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="pa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>ਬਹੁਤੇ ਸ਼ਬਦਾਂ ਦੀ ਥਾਂ ਇੱਕ ਸ਼ਬਦ • Water Drops</title>
+<style>
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{
+    font-family:"Noto Sans Gurmukhi",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    overflow:hidden;color:#fff;
+    background:
+      radial-gradient(900px 650px at 12% 14%, rgba(0,255,255,.20), transparent 62%),
+      radial-gradient(1000px 700px at 88% 18%, rgba(255,0,200,.16), transparent 62%),
+      radial-gradient(1100px 800px at 30% 92%, rgba(0,255,150,.14), transparent 66%),
+      radial-gradient(950px 650px at 70% 70%, rgba(255,180,0,.10), transparent 70%),
+      linear-gradient(180deg,#030718 0%, #071a44 35%, #0a2c62 70%, #040a1f 100%);
+  }
+
+  .star{
+    position:fixed;width:2px;height:2px;border-radius:50%;
+    background:rgba(255,255,255,.95);
+    box-shadow:0 0 6px rgba(255,255,255,.35);
+    pointer-events:none;z-index:1;opacity:.8;
+    animation: tw 4.6s ease-in-out infinite;
+  }
+  @keyframes tw{0%,100%{opacity:.2;transform:scale(.9)}50%{opacity:1;transform:scale(1.35)}}
+
+  .wrap{
+    position:relative;z-index:5;
+    height:100svh;
+    padding:12px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+
+  header{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:18px;
+    padding:10px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow:0 18px 40px rgba(0,0,0,.35);
+  }
+  .brand .t{font-weight:1000;font-size:14px}
+  .brand .s{font-size:12px;opacity:.85;margin-top:2px}
+
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+  .pill{
+    border-radius:999px;padding:8px 12px;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.20);
+    box-shadow:0 12px 22px rgba(0,0,0,.25);
+    font-weight:1000;font-size:12px;user-select:none;white-space:nowrap;
+  }
+  .btn{
+    border:none;cursor:pointer;
+    padding:9px 12px;border-radius:14px;
+    font-weight:1000;font-size:12px;
+    color:#06163a;
+    background:linear-gradient(135deg,#ffffff,#c8f5ff,#ffd2ff);
+    box-shadow:0 16px 26px rgba(0,0,0,.25);
+    -webkit-tap-highlight-color:transparent;
+  }
+  .btn:active{transform:translateY(1px)}
+
+  .panel{
+    flex:1 1 auto;min-height:0;
+    border-radius:22px;
+    background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow:0 22px 55px rgba(0,0,0,.35);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow:hidden;
+    display:flex;flex-direction:column;
+  }
+
+  .questionBox{
+    padding:14px;
+    border-bottom:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.10);
+  }
+  .qTop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .qNo{
+    font-weight:1000;font-size:12px;padding:6px 10px;border-radius:999px;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.16);
+  }
+  .qText{margin-top:10px;font-size:18px;font-weight:1000;line-height:1.35}
+  .hint{margin-top:8px;font-size:12px;opacity:.82}
+
+  .arena{
+    position:relative;
+    flex:1 1 auto;
+    min-height:260px;
+    overflow:hidden;
+  }
+
+  .footerBar{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    padding:10px 12px;
+    border-top:1px solid rgba(255,255,255,.12);
+    background:rgba(0,0,0,.10);
+  }
+  .msg{
+    font-weight:1000;padding:8px 12px;border-radius:999px;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.16);
+  }
+
+  .drop{
+    position:absolute;
+    width:90px;height:90px;
+    display:flex;align-items:center;justify-content:center;
+    text-align:center;padding:10px;
+    border-radius:999px;
+    color:#041126;font-weight:1000;font-size:13px;
+    cursor:pointer;user-select:none;
+    -webkit-tap-highlight-color:transparent;
+    box-shadow: inset 0 0 0 3px rgba(255,255,255,.62), 0 14px 28px rgba(0,0,0,.35);
+    background:
+      radial-gradient(circle at 30% 25%, rgba(255,255,255,.96), rgba(255,255,255,.42) 35%, rgba(140,220,255,.28) 70%, rgba(100,190,255,.14) 100%),
+      linear-gradient(135deg, rgba(120,220,255,.92), rgba(120,150,255,.48));
+    transition:transform .08s, filter .12s;
+  }
+  .drop:active{transform:scale(.985)}
+  .drop.ok{filter:saturate(1.2) brightness(1.05)}
+  .drop.bad{filter:saturate(1.2) brightness(.98)}
+  .drop.locked{pointer-events:none;opacity:.92}
+
+  .overlay{
+    position:fixed;inset:0;
+    background:rgba(0,0,0,.55);
+    display:none;align-items:center;justify-content:center;
+    padding:14px;z-index:99;
+  }
+  .sheet{
+    width:min(540px, 100%);
+    background:rgba(255,255,255,.94);
+    border:1px solid rgba(0,0,0,.10);
+    border-radius:18px;
+    box-shadow:0 25px 60px rgba(0,0,0,.35);
+    padding:14px;color:#111;
+  }
+  .sheet h3{margin:0 0 10px;font-size:16px;font-weight:1000}
+  .lvlGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .lvlBtn{
+    border:none;cursor:pointer;
+    padding:12px 10px;border-radius:16px;
+    font-weight:1000;background:#fff;
+    border:2px solid rgba(0,0,0,.10);
+    box-shadow:0 10px 18px rgba(0,0,0,.10);
+  }
+  .lvlBtn.active{outline:4px solid rgba(4,10,31,.85)}
+</style>
+</head>
+
+<body>
+<script>
+/* stars */
+(function(){
+  const count=200;
+  for(let i=0;i<count;i++){
+    const s=document.createElement("div");
+    s.className="star";
+    const size=(Math.random()<0.85)?1:2;
+    s.style.width=size+"px"; s.style.height=size+"px";
+    s.style.left=(Math.random()*100)+"vw";
+    s.style.top=(Math.random()*100)+"vh";
+    const tint=Math.random();
+    if(tint<0.10) s.style.background="rgba(200,220,255,.95)";
+    else if(tint<0.18) s.style.background="rgba(255,220,200,.95)";
+    else if(tint<0.24) s.style.background="rgba(200,255,220,.95)";
+    else s.style.background="rgba(255,255,255,.95)";
+    s.style.opacity=(0.18+Math.random()*0.82).toFixed(2);
+    s.style.animationDuration=(3.0+Math.random()*6.0).toFixed(2)+"s";
+    document.body.appendChild(s);
+  }
+})();
+</script>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="t">ਬਹੁਤੇ ਸ਼ਬਦਾਂ ਦੀ ਥਾਂ ਇੱਕ ਸ਼ਬਦ</div>
+      <div class="s" id="levelLine">Level 1</div>
+    </div>
+    <div class="row">
+      <div class="pill" id="scorePill">Score: 0</div>
+      <div class="pill" id="progPill">0/0</div>
+      <button class="btn" id="levelsBtn">Levels</button>
+      <button class="btn" id="restartBtn">Restart Level</button>
+    </div>
+  </header>
+
+  <div class="panel">
+    <div class="questionBox">
+      <div class="qTop">
+        <div class="qNo" id="qNo">Q1</div>
+        <div class="pill" id="levelPill">Level 1</div>
+      </div>
+      <div class="qText" id="qText">…</div>
+      <div class="hint">ਸਹੀ water-drop tap ਕਰੋ ✅ (ਗਲਤ ‘ਤੇ ਵੀ sound)</div>
+    </div>
+
+    <div class="arena" id="arena"></div>
+
+    <div class="footerBar">
+      <div class="msg" id="msg">Ready ✅</div>
+      <div class="row">
+        <button class="btn" id="prevBtn">Prev</button>
+        <button class="btn" id="nextBtn">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="sheet">
+    <h3>Levels ਚੁਣੋ</h3>
+    <div class="lvlGrid" id="lvlGrid"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+      <button class="btn" id="closeOverlay">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====== sound ====== */
+let audioCtx=null;
+function ensureAudio(){
+  if(!audioCtx){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    audioCtx=new AC();
+  }
+  if(audioCtx.state==="suspended") audioCtx.resume().catch(()=>{});
+}
+function tone(freq, dur=0.14, vol=0.09, type="sine"){
+  ensureAudio();
+  const t0=audioCtx.currentTime;
+  const o=audioCtx.createOscillator();
+  const g=audioCtx.createGain();
+  o.type=type; o.frequency.setValueAtTime(freq,t0);
+  g.gain.setValueAtTime(0.0001,t0);
+  g.gain.exponentialRampToValueAtTime(vol,t0+0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(t0); o.stop(t0+dur);
+}
+function correctSound(){ tone(900,0.10,0.10); setTimeout(()=>tone(1200,0.12,0.09,"triangle"),70); }
+function wrongSound(){ tone(280,0.14,0.10,"sawtooth"); setTimeout(()=>tone(200,0.18,0.08,"triangle"),80); }
+addEventListener("pointerdown", ensureAudio, {once:true});
+
+/* ====== questions (with your correction: a:"ਵਾਰ") ====== */
+const ALL = [
+  {q:"ਉਹ ਪਾਠ ਜੋ ਸ਼ੁਰੂ ਤੋਂ ਲੈ ਕੇ ਅੰਤ ਤੱਕ ਅਰੁਕ ਕੀਤਾ ਜਾਵੇ", a:"ਅਖੰਡ-ਪਾਠ"},
+  {q:"ਉਹ ਥਾਂ ਜਿੱਥੇ ਪਹਿਲਵਾਨ ਘੋਲ ਕਰਦੇ ਹਨ", a:"ਅਖਾੜਾ"},
+  {q:"ਉਹ ਥਾਂ ਜੋ ਸਭ ਦੀ ਸਾਂਝੀ ਹੋਵੇ", a:"ਸ਼ਾਮਲਾਟ"},
+  {q:"ਉਹ ਪੁਸਤਕ ਜਿਸ ਵਿੱਚ ਲਿਖਾਰੀ ਵੱਲੋਂ ਆਪਣੀ ਜੀਵਨੀ ਲਿਖੀ ਹੋਵੇ", a:"ਸ੍ਵੈਜੀਵਨੀ"},
+  {q:"ਉਹ ਪੁਸਤਕ ਜਿਸ ਵਿੱਚ ਲਿਖਾਰੀ ਨੇ ਕਿਸੇ ਹੋਰ ਵਿਅਕਤੀ ਦੀ ਜੀਵਨੀ ਲਿਖੀ ਹੋਵੇ", a:"ਜੀਵਨੀ"},
+  {q:"ਉਹ ਅਖ਼ਬਾਰ ਜੋ ਹਫ਼ਤੇ ਬਾਅਦ ਨਿਕਲੇ", a:"ਸਪਤਾਹਿਕ"},
+  {q:"ਉਹ ਮੁੰਡਾ/ਕੁੜੀ ਜਿਸ ਦਾ ਵਿਆਹ ਨਾ ਹੋਇਆ ਹੋਵੇ", a:"ਕੁਆਰਾ/ਕੁਆਰੀ"},
+  {q:"ਉਹ ਵਿਅਕਤੀ ਜੋ ਹੱਥ ਨਾਲ਼ ਮੂਰਤਾਂ ਬਣਾਵੇ", a:"ਚਿੱਤਰਕਾਰ"},
+  {q:"ਉਹ ਥਾਂ ਜਿੱਥੋਂ ਚਾਰੇ ਪਾਸਿਆਂ ਵੱਲ ਰਸਤੇ ਨਿਕਲ਼ਦੇ ਹੋਣ", a:"ਚੁਰਸਤਾ"},
+  {q:"ਉਹ ਥਾਂ ਜਿੱਥੇ ਘੋੜੇ ਬੱਝਦੇ ਹੋਣ", a:"ਤਬੇਲਾ"},
+
+  {q:"ਉਹ ਧਰਤੀ ਜਿਸ ਵਿੱਚ ਕੋਈ ਫ਼ਸਲ ਨਾ ਉਗਾਈ ਜਾ ਸਕਦੀ ਹੋਵੇ", a:"ਬੰਜਰ"},
+  {q:"ਉਹ ਧਰਤੀ ਜਿੱਥੇ ਦੂਰ ਤੱਕ ਰੇਤ ਹੀ ਰੇਤ ਹੋਵੇ", a:"ਮਾਰੂਥਲ"},
+  {q:"ਉੱਚੇ ਤੇ ਸੁੱਚੇ ਆਚਾਰ ਵਾਲ਼ਾ", a:"ਸਦਾਚਾਰੀ"},
+  {q:"ਆਗਿਆ ਦਾ ਪਾਲਣ ਕਰਨ ਵਾਲ਼ਾ", a:"ਆਗਿਆਕਾਰੀ"},
+  {q:"ਆਪਣਾ ਉੱਲੂ ਸਿੱਧਾ ਕਰਨ ਵਾਲ਼ਾ", a:"ਸ੍ਵਾਰਥੀ"},
+  {q:"ਆਪਣੀ ਮਰਜ਼ੀ ਕਰਨ ਵਾਲਾ", a:"ਆਪਹੁਦਰਾ"},
+  {q:"ਸਾਹਿਤ ਦੀ ਰਚਨਾ ਕਰਨ ਵਾਲ਼ਾ", a:"ਸਾਹਿਤਕਾਰ"},
+  {q:"ਸੋਨੇ-ਚਾਂਦੀ ਦੇ ਗਹਿਣਿਆਂ ਦਾ ਵਪਾਰ ਕਰਨ ਵਾਲ਼ਾ", a:"ਸਰਾਫ਼"},
+  {q:"ਕੰਮ ਤੋਂ ਜੀਅ ਚੁਰਾਉਣ ਵਾਲਾ", a:"ਕੰਮ-ਚੋਰ"},
+  {q:"ਕਹਾਣੀਆਂ ਲਿਖਣ ਵਾਲਾ/ਵਾਲ਼ੀ", a:"ਕਹਾਣੀਕਾਰ"},
+
+  {q:"ਕਵਿਤਾ ਲਿਖਣ ਵਾਲਾ/ਵਾਲੀ", a:"ਕਵੀ/ਕਵਿਤਰੀ"},
+  {q:"ਚਰਖਾ ਕੱਤਣ ਵਾਲੀਆਂ ਕੁੜੀਆਂ ਦਾ ਇਕੱਠ", a:"ਤ੍ਰਿੰਞਣ"},
+  {q:"ਚਾਰ ਪੈਰਾਂ ਵਾਲ਼ਾ ਜਾਨਵਰ", a:"ਚੁਪਾਇਆ"},
+  {q:"ਜਿਹੜਾ ਪਰਮਾਤਮਾ ਨੂੰ ਮੰਨੇ", a:"ਆਸਤਕ"},
+  {q:"ਜਿਹੜਾ ਪਰਮਾਤਮਾ ਨੂੰ ਨਾ ਮੰਨੇ", a:"ਨਾਸਤਕ"},
+  {q:"ਜਿਹੜਾ ਕਿਸੇ ਦੀ ਕੀਤੀ ਨੇਕੀ ਨਾ ਜਾਣੇ", a:"ਨਾਸ਼ੁਕਰਾ / ਅਕ੍ਰਿਤਘਣ"},
+  {q:"ਜਿਹੜਾ ਕਦੇ ਨਾ ਥੱਕੇ", a:"ਅਣਥੱਕ"},
+  {q:"ਜਿਹੜਾ ਕਦੇ ਨਾ ਟੁੱਟੇ", a:"ਅਟੁੱਟ"},
+  {q:"ਜਿਹੜਾ ਬੋਲ ਨਾ ਸਕਦਾ ਹੋਵੇ", a:"ਗੂੰਗਾ"},
+  {q:"ਜਿਹੜਾ ਸਾਰੀਆਂ ਸ਼ਕਤੀਆਂ ਦਾ ਮਾਲਕ ਹੋਵੇ", a:"ਸਰਬ-ਸ਼ਕਤੀਮਾਨ"},
+
+  {q:"ਜਿਹੜਾ ਕੋਈ ਵੀ ਕੰਮ ਨਾ ਕਰੇ", a:"ਵਿਹਲੜ/ਨਿਕੰਮਾ"},
+  {q:"ਜਿਹੜਾ ਕਿਸੇ ਚੀਜ਼ ਦੀ ਖੋਜ ਕਰੇ", a:"ਖੋਜੀ"},
+  {q:"ਜਿਹੜਾ ਕੁਝ ਵੱਡਿਆਂ-ਵਡੇਰਿਆਂ ਕੋਲੋਂ ਮਿਲ਼ੇ", a:"ਵਿਰਸਾ/ ਵਿਰਾਸਤ"},
+  {q:"ਜਿਹੜਾ ਮਨੁੱਖ ਪੜ੍ਹਿਆ ਨਾ ਹੋਵੇ", a:"ਅਨਪੜ੍ਹ"},
+  {q:"ਜਿਹੜਾ ਮਨੁੱਖ ਕਿਸੇ ਨਾਲ ਪੱਖ-ਪਾਤ ਨਾ ਕਰੇ", a:"ਨਿਰਪੱਖ"},
+  {q:"ਜਿਹੜੇ ਮਨੁੱਖ ਇੱਕੋ ਸਮੇਂ ਹੋਏ ਹੋਣ", a:"ਸਮਕਾਲੀ"},
+  {q:"ਜਿਹੜਾ ਦੇਸ ਨਾਲ ਗ਼ੱਦਾਰੀ ਕਰੇ", a:"ਦੇਸ-ਧ੍ਰੋਹੀ/ਗ਼ੱਦਾਰ"},
+  {q:"ਜਿਹੜਾ ਬਹੁਤੀਆਂ ਗੱਲਾਂ ਕਰਦਾ ਹੋਵੇ", a:"ਗਾਲੜੀ"},
+  {q:"ਜਿਹੜੇ ਗੁਣ ਜਾਂ ਔਗਣ ਜਨਮ ਤੋਂ ਹੋਣ", a:"ਜਮਾਂਦਰੂ"},
+  {q:"ਜਿਹੜਾ ਬੱਚਾ ਘਰ ਵਿੱਚ ਸਭ ਬੱਚਿਆਂ ਤੋਂ ਪਹਿਲਾਂ ਪੈਦਾ ਹੋਇਆ ਹੋਵੇ", a:"ਜੇਠਾ/ ਪਲੇਠਾ"},
+
+  {q:"ਜਿਸ ਨੇ ਧਰਮ ਜਾਂ ਦੇਸ ਲਈ ਜਾਨ ਕੁਰਬਾਨ ਕੀਤੀ ਹੋਵੇ", a:"ਸ਼ਹੀਦ"},
+  {q:"ਜਿਸ ਨੂੰ ਸਾਰੇ ਪਿਆਰ ਕਰਨ", a:"ਹਰਮਨ-ਪਿਆਰਾ"},
+  {q:"ਜਿਸ ਸ਼ਬਦ ਦੇ ਅਰਥ ਹੋਣ", a:"ਸਾਰਥਕ"},
+  {q:"ਜਿਸ ਸ਼ਬਦ ਦੇ ਕੋਈ ਅਰਥ ਨਾ ਨਿਕਲਦੇ ਹੋਣ", a:"ਨਿਰਾਰਥਕ"},
+  {q:"ਜਿਸ ਨੂੰ ਕਿਹਾ ਜਾਂ ਬਿਆਨ ਨਾ ਕੀਤਾ ਜਾ ਸਕਦਾ ਹੋਵੇ", a:"ਅਕਹਿ"},
+  {q:"ਜਿਸ ਉੱਤੇ ਕਹੀ ਹੋਈ ਕਿਸੇ ਗੱਲ ਦਾ ਉੱਕਾ ਅਸਰ ਨਾ ਹੋਵੇ", a:"ਢੀਠ / ਬੇਅਸਰ"},
+  {q:"ਜਦੋਂ ਮੀਂਹ ਨਾ ਪਵੇ ਜਾਂ ਮੀਂਹ ਦੀ ਘਾਟ ਹੋਵੇ", a:"ਔੜ/ ਸੋਕਾ"},
+  {q:"ਜੋ ਦੂਸਰਿਆਂ ਦਾ ਭਲਾ ਕਰੇ", a:"ਪਰਉਪਕਾਰੀ"},
+  {q:"ਜਿੱਥੇ ਰੁਪਏ, ਪੈਸੇ ਜਾਂ ਸਿੱਕੇ ਬਣਾਏ ਜਾਣ", a:"ਟਕਸਾਲ"},
+  {q:"ਜੋ ਸਹਿਣ ਨਾ ਕੀਤਾ ਜਾ ਸਕਦਾ ਹੋਵੇ", a:"ਅਸਹਿ"},
+
+  {q:"ਜੋ ਪੈਸੇ ਕੋਲ ਹੁੰਦਿਆਂ ਹੋਇਆਂ ਵੀ ਜ਼ਰੂਰੀ ਖ਼ਰਚ ਨਾ ਕਰੇ", a:"ਕੰਜੂਸ"},
+  {q:"ਜੋ ਬੇਮਤਲਬ ਖ਼ਰਚ ਕਰੇ", a:"ਖ਼ਰਚੀਲਾ"},
+  {q:"ਜੋ ਆਪ ਨਾਲ ਬੀਤੀ ਹੋਵੇ", a:"ਹੱਡਬੀਤੀ"},
+  {q:"ਜੋ ਦੁਨੀਆਂ ਨਾਲ ਬੀਤੀ ਹੋਵੇ", a:"ਜੱਗਬੀਤੀ"},
+  {q:"ਪਿੰਡ ਦੇ ਝਗੜਿਆਂ ਦਾ ਫ਼ੈਸਲਾ ਕਰਨ ਵਾਲੀ ਸਭਾ", a:"ਪੰਚਾਇਤ"},
+  {q:"ਪੈਦਲ ਸਫ਼ਰ ਕਰਨ ਵਾਲ਼ਾ", a:"ਪਾਂਧੀ"},
+  {q:"ਪਿਉ-ਦਾਦੇ ਦੀ ਗੱਲ", a:"ਪਿਤਾ-ਪੁਰਖੀ"},
+  {q:"ਨਾਟਕ ਜਾਂ ਫ਼ਿਲਮ ਦੇਖਣ ਵਾਲ਼ਾ", a:"ਦਰਸ਼ਕ"},
+  {q:"ਭਾਸ਼ਣ ਜਾਂ ਗੀਤ-ਸੰਗੀਤ ਸੁਣਨ ਵਾਲਾ", a:"ਸ੍ਰੋਤਾ"},
+  {q:"ਨਾਟਕ ਲਿਖਣ ਵਾਲਾ", a:"ਨਾਟਕਕਾਰ"},
+
+  {q:"ਨਾਵਲ ਲਿਖਣ ਵਾਲ਼ਾ", a:"ਨਾਵਲਕਾਰ"},
+  {q:"ਯੋਧਿਆਂ ਦੀ ਮਹਿਮਾ ਵਿੱਚ ਲਿਖੀ ਗਈ ਬਿਰਤਾਂਤਿਕ ਕਵਿਤਾ", a:"ਵਾਰ"}, /* <-- corrected */
+  {q:"ਕਿਸੇ ਨੂੰ ਲਾ ਕੇ ਕਹੀ ਗੱਲ", a:"ਮਿਹਣਾ, ਟਕੋਰ"},
+  {q:"ਲੜਾਈ ਵਿੱਚ ਨਿਡਰਤਾ ਨਾਲ ਲੜਨ ਵਾਲ਼ਾ", a:"ਸੂਰਮਾ"},
+  {q:"ਲੋਕਾਂ ਨੂੰ ਵਿਆਜ ਉੱਤੇ ਰੁਪਈਏ ਦੇਣ ਵਾਲ਼ਾ ਵਿਅਕਤੀ", a:"ਸ਼ਾਹੂਕਾਰ"},
+  {q:"ਲੱਕੜਾਂ ਕੱਟਣ ਵਾਲ਼ਾ", a:"ਲੱਕੜਹਾਰਾ"},
+  {q:"ਲੋਕਾਂ ਦੇ ਪ੍ਰਤਿਨਿਧਾਂ ਦੀ ਕਨੂੰਨ ਬਣਾਉਣ ਵਾਲੀ ਸਭਾ", a:"ਲੋਕ-ਸਭਾ"},
+  {q:"ਸਾਰਿਆਂ ਦੀ ਸਾਂਝੀ ਰਾਏ", a:"ਸਰਬ-ਸੰਮਤੀ"},
+  {q:"ਭਾਰਤ ਦਾ ਵਸਨੀਕ", a:"ਭਾਰਤੀ"},
+  {q:"ਪੰਜਾਬ ਦਾ ਵਸਨੀਕ", a:"ਪੰਜਾਬੀ/ਪੰਜਾਬਣ"},
+];
+
+/* 7 levels × 10 */
+const PER_LEVEL=10;
+const LEVELS=[];
+for(let i=0;i<7;i++) LEVELS.push(ALL.slice(i*PER_LEVEL, i*PER_LEVEL+PER_LEVEL));
+
+/* options */
+const ALL_ANS=ALL.map(x=>x.a.trim()).filter(Boolean);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function candidatesFor(correct){
+  const c=correct.trim();
+  let pool=ALL_ANS.filter(a=>a!==c);
+  const rules=[];
+  if(c.includes("ਕਾਰ")) rules.push(a=>a.includes("ਕਾਰ"));
+  if(c.includes("ਕਾਰੀ")) rules.push(a=>a.includes("ਕਾਰੀ"));
+  if(c.includes("-")) rules.push(a=>a.includes("-"));
+  if(c.includes("/")) rules.push(a=>a.includes("/"));
+  if(c.includes("ਸਭਾ")) rules.push(a=>a.includes("ਸਭਾ"));
+  if(c.startsWith("ਅ")) rules.push(a=>a.startsWith("ਅ"));
+  for(const r of rules){
+    const f=pool.filter(r);
+    if(f.length>=3) pool=f;
+  }
+  return shuffle(pool);
+}
+function makeOptions(correct){
+  const c=correct.trim();
+  const pool=candidatesFor(c);
+  const opts=[c];
+  for(const x of pool){ if(opts.length>=4) break; if(!opts.includes(x)) opts.push(x); }
+  while(opts.length<4){
+    const r=ALL_ANS[Math.floor(Math.random()*ALL_ANS.length)];
+    if(r && r!==c && !opts.includes(r)) opts.push(r);
+  }
+  return shuffle(opts);
+}
+
+/* ====== UI refs ====== */
+const arena=document.getElementById("arena");
+const qText=document.getElementById("qText");
+const qNo=document.getElementById("qNo");
+const msg=document.getElementById("msg");
+const scorePill=document.getElementById("scorePill");
+const progPill=document.getElementById("progPill");
+const levelLine=document.getElementById("levelLine");
+const levelPill=document.getElementById("levelPill");
+
+const prevBtn=document.getElementById("prevBtn");
+const nextBtn=document.getElementById("nextBtn");
+const restartBtn=document.getElementById("restartBtn");
+
+const overlay=document.getElementById("overlay");
+const levelsBtn=document.getElementById("levelsBtn");
+const closeOverlay=document.getElementById("closeOverlay");
+const lvlGrid=document.getElementById("lvlGrid");
+
+let score=0, levelIndex=0, qIndex=0;
+let answered=new Set();
+let locked=false;
+
+/* ====== motion engine ====== */
+let drops=[], raf=null, lastT=0;
+
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function stopLoop(){ if(raf) cancelAnimationFrame(raf); raf=null; lastT=0; }
+function clearArena(){ stopLoop(); arena.innerHTML=""; drops=[]; }
+
+function paintDrop(el){
+  const h=Math.floor(Math.random()*360);
+  el.style.background =
+    `radial-gradient(circle at 30% 25%, rgba(255,255,255,.96), rgba(255,255,255,.42) 35%, hsla(${h},95%,70%,.28) 70%, hsla(${(h+30)%360},95%,60%,.14) 100%),
+     linear-gradient(135deg, hsla(${h},95%,72%,.92), hsla(${(h+35)%360},95%,62%,.48))`;
+}
+
+function startWhenArenaReady(fn){
+  let tries=0;
+  const tick=()=>{
+    const r=arena.getBoundingClientRect();
+    if(r.width>80 && r.height>120){ fn(); return; }
+    tries++;
+    if(tries<40) setTimeout(tick, 60);
+  };
+  tick();
+}
+
+function spawnDrops(options){
+  clearArena();
+  startWhenArenaReady(()=>{
+    const W=arena.clientWidth, H=arena.clientHeight;
+    const dia=90, r=dia/2, pad=10;
+
+    const starts=[
+      {x:W*0.22,y:H*0.34},
+      {x:W*0.78,y:H*0.34},
+      {x:W*0.28,y:H*0.76},
+      {x:W*0.72,y:H*0.76},
+    ];
+
+    options.forEach((opt,i)=>{
+      const el=document.createElement("div");
+      el.className="drop";
+      el.textContent=opt;
+      paintDrop(el);
+      arena.appendChild(el);
+
+      const s=starts[i]||{x:W/2,y:H/2};
+      drops.push({
+        el,opt,r,
+        x:clamp(s.x,r+pad,W-r-pad),
+        y:clamp(s.y,r+pad,H-r-pad),
+        vx:(Math.random()*2-1)*170,
+        vy:(Math.random()*2-1)*170
+      });
+
+      el.addEventListener("click", ()=>onPick(opt, el), {passive:true});
+      el.addEventListener("touchstart", ()=>onPick(opt, el), {passive:true});
+    });
+
+    raf=requestAnimationFrame(loop);
+  });
+}
+
+function loop(t){
+  if(!lastT) lastT=t;
+  const dt=Math.min(0.030,(t-lastT)/1000);
+  lastT=t;
+
+  const W=arena.clientWidth, H=arena.clientHeight;
+  const pad=10;
+
+  for(const d of drops){
+    d.vx += (Math.random()*2-1)*22*dt;
+    d.vy += (Math.random()*2-1)*22*dt;
+    d.vx *= (1 - 0.10*dt);
+    d.vy *= (1 - 0.10*dt);
+
+    d.x += d.vx*dt;
+    d.y += d.vy*dt;
+
+    if(d.x < d.r+pad){ d.x=d.r+pad; d.vx=Math.abs(d.vx); }
+    if(d.x > W-d.r-pad){ d.x=W-d.r-pad; d.vx=-Math.abs(d.vx); }
+    if(d.y < d.r+pad){ d.y=d.r+pad; d.vy=Math.abs(d.vy); }
+    if(d.y > H-d.r-pad){ d.y=H-d.r-pad; d.vy=-Math.abs(d.vy); }
+  }
+
+  for(let i=0;i<drops.length;i++){
+    for(let j=i+1;j<drops.length;j++){
+      const a=drops[i], b=drops[j];
+      const dx=b.x-a.x, dy=b.y-a.y;
+      const dist=Math.hypot(dx,dy) || 0.0001;
+      const min=a.r+b.r+12;
+      if(dist < min){
+        const overlap=min-dist;
+        const nx=dx/dist, ny=dy/dist;
+        a.x -= nx*overlap*0.5; a.y -= ny*overlap*0.5;
+        b.x += nx*overlap*0.5; b.y += ny*overlap*0.5;
+        a.x=clamp(a.x,a.r+pad,W-a.r-pad); a.y=clamp(a.y,a.r+pad,H-a.r-pad);
+        b.x=clamp(b.x,b.r+pad,W-b.r-pad); b.y=clamp(b.y,b.r+pad,H-b.r-pad);
+      }
+    }
+  }
+
+  for(const d of drops){
+    d.el.style.transform=`translate(${d.x-d.r}px,${d.y-d.r}px)`;
+  }
+  raf=requestAnimationFrame(loop);
+}
+
+/* ====== game flow ====== */
+function renderLevelButtons(){
+  lvlGrid.innerHTML="";
+  LEVELS.forEach((_,i)=>{
+    const b=document.createElement("button");
+    b.className="lvlBtn"+(i===levelIndex?" active":"");
+    b.textContent="Level "+(i+1);
+    b.onclick=()=>{
+      levelIndex=i; qIndex=0; answered=new Set(); locked=false;
+      overlay.style.display="none";
+      renderLevelButtons();
+      render();
+    };
+    lvlGrid.appendChild(b);
+  });
+}
+
+function render(){
+  const level=LEVELS[levelIndex];
+  const item=level[qIndex];
+
+  levelLine.textContent=`Level ${levelIndex+1} • ${level.length} Questions`;
+  levelPill.textContent=`Level ${levelIndex+1}`;
+  qNo.textContent=`Q${qIndex+1}`;
+  qText.textContent=item.q;
+
+  progPill.textContent=`${answered.size}/${level.length}`;
+  scorePill.textContent=`Score: ${score}`;
+  msg.textContent="Ready ✅";
+  locked=false;
+
+  spawnDrops(makeOptions(item.a));
+}
+
+function lockDrops(){
+  for(const d of drops){
+    d.el.classList.add("locked");
+  }
+}
+
+function onPick(option, el){
+  if(locked) return;
+  ensureAudio();
+
+  const item=LEVELS[levelIndex][qIndex];
+  if(option===item.a){
+    locked=true;
+    el.classList.add("ok");
+    correctSound();
+    msg.textContent="ਸਹੀ ✅";
+    if(!answered.has(qIndex)){ answered.add(qIndex); score+=10; }
+    scorePill.textContent=`Score: ${score}`;
+    progPill.textContent=`${answered.size}/${LEVELS[levelIndex].length}`;
+    lockDrops();
+
+    setTimeout(()=>{
+      const level=LEVELS[levelIndex];
+      if(qIndex < level.length-1){ qIndex++; render(); }
+      else msg.textContent="Level Complete 🎉";
+    }, 650);
+  }else{
+    el.classList.add("bad");
+    wrongSound();
+    msg.textContent="ਗਲਤ ❌";
+    score -= 5;
+    scorePill.textContent=`Score: ${score}`;
+    setTimeout(()=>el.classList.remove("bad"), 260);
+  }
+}
+
+/* buttons */
+prevBtn.onclick=()=>{ if(qIndex>0){ qIndex--; render(); } };
+nextBtn.onclick=()=>{ const level=LEVELS[levelIndex]; if(qIndex<level.length-1){ qIndex++; render(); } };
+restartBtn.onclick=()=>{ answered=new Set(); qIndex=0; render(); };
+
+levelsBtn.onclick=()=> overlay.style.display="flex";
+closeOverlay.onclick=()=> overlay.style.display="none";
+overlay.addEventListener("click",(e)=>{ if(e.target===overlay) overlay.style.display="none"; });
+
+let resizeTimer=null;
+addEventListener("resize", ()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{
+    const item=LEVELS[levelIndex][qIndex];
+    spawnDrops(makeOptions(item.a));
+  }, 250);
+});
+
+/* init */
+renderLevelButtons();
+render();
+</script>
+</body>
+</html>
