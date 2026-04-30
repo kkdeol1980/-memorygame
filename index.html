@@ -1,107 +1,140 @@
  <!DOCTYPE html>
 <html lang="pa">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ਪੰਜਾਬੀ ਲਰਨਿੰਗ ਗੇਮਾਂ</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ਪੰਜਾਬੀ ਲਰਨਿੰਗ ਗੇਮਾਂ</title>
 
-  <style>
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-      color:#fff;
-      text-align:center;
-    }
-    h1{
-      margin:16px 10px 6px;
-      font-size:26px;
-    }
-    .sub{
-      margin:0 12px 14px;
-      opacity:.9;
-      font-size:14px;
-      line-height:1.35;
-    }
-    .grid{
-      display:grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap:14px;
-      padding:16px;
-      max-width:1300px;
-      margin:0 auto;
-    }
-    a{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      min-height:72px;
-      padding:12px;
-      background:#ffffff;
-      color:#000;
-      text-decoration:none;
-      font-size:17px;
-      font-weight:700;
-      border-radius:16px;
-      box-shadow:0 6px 14px rgba(0,0,0,0.30);
-      transition: transform 0.15s ease;
-      line-height:1.25;
-    }
-    a:active{ transform: scale(0.97); }
-    footer{
-      font-size:13px;
-      opacity:0.85;
-      padding:10px 0 22px;
-    }
-  </style>
+<style>
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  color:#fff;
+  text-align:center;
+}
+
+/* MAIN TITLE */
+h1{
+  margin:16px 10px 4px;
+  font-size:26px;
+}
+
+/* YOUR NAME */
+.owner{
+  font-size:15px;
+  font-weight:900;
+  margin-bottom:10px;
+  background:linear-gradient(90deg,#ffeb3b,#ff80ab,#80d8ff,#b9f6ca);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+/* SUB TEXT */
+.sub{
+  margin:0 12px 14px;
+  opacity:.9;
+  font-size:14px;
+  line-height:1.35;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap:14px;
+  padding:16px;
+  max-width:1300px;
+  margin:auto;
+}
+
+/* BUTTONS */
+a{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:72px;
+  padding:12px;
+  background:#ffffff;
+  color:#000;
+  text-decoration:none;
+  font-size:17px;
+  font-weight:700;
+  border-radius:16px;
+  box-shadow:0 6px 14px rgba(0,0,0,0.30);
+  transition: transform 0.15s ease;
+}
+
+a:active{ transform: scale(0.97); }
+
+/* HIGHLIGHT GAME */
+.highlight{
+  background:linear-gradient(135deg,#ffeb3b,#ff80ab,#80d8ff,#b9f6ca);
+  color:#000;
+  font-size:18px;
+  box-shadow:0 10px 25px rgba(0,0,0,.35);
+}
+
+/* FOOTER */
+footer{
+  font-size:13px;
+  opacity:0.85;
+  padding:10px 0 22px;
+}
+</style>
 </head>
 
 <body>
-  <h1>📚 ਪੰਜਾਬੀ ਸਿੱਖਣ ਵਾਲੀਆਂ ਗੇਮਾਂ</h1>
-  <div class="sub">
-    ਇੱਕ ਲਿੰਕ — ਸਾਰੀਆਂ ਗੇਮਾਂ।<br/>
-    (iPhone · Android · Computer · Projector · WhatsApp)
-  </div>
 
-  <div class="grid">
+<h1>📚 ਪੰਜਾਬੀ ਸਿੱਖਣ ਵਾਲੀਆਂ ਗੇਮਾਂ</h1>
+<div class="owner">Kkdeol.GSSS,DALLA</div>
 
-    <!-- Fun games -->
-    <a href="Visram-chinh.html">✍️ ਵਿਸਰਾਮ-ਚਿੰਨ੍ਹ Game</a>
-    <a href="Viakaran100.html">📗 ਵਿਆਕਰਨ 100</a>
-    <a href="Muhavre200bubbles.html">💬 200 ਮੁਹਾਵਰੇ Bubble Game</a>
-    <a href="Bubble game.html">🫧 Bubble Game</a>
-    <a href="runner3.html">🏃 Runner Game</a>
+<div class="sub">
+ਇੱਕ ਲਿੰਕ — ਸਾਰੀਆਂ ਗੇਮਾਂ.<br>
+(iPhone · Android · Computer · Projector · WhatsApp)
+</div>
 
-    <!-- Vocabulary -->
-    <a href="Virodhishabad.html">🎴 ਵਿਰੋਧੀ ਸ਼ਬਦ</a>
-    <a href="Vakhrra-shabad-labho.html">🔍 ਵੱਖਰਾ ਸ਼ਬਦ ਲੱਭੋ</a>
-    <a href="Ikk-lai-vale-shabad.html">🧠 ਇੱਕ-ਲੈਅ-ਵਾਲੇ ਸ਼ਬਦ</a>
-    <a href="Bahute-shabad-ton-ik-shabad.html">🔁 ਬਹੁਤੇ ਸ਼ਬਦ ਤੋਂ ਇੱਕ ਸ਼ਬਦ</a>
-    <a href="Shabad-poore-kro.html">✏️ ਸ਼ਬਦ ਪੂਰੇ ਕਰੋ</a>
+<div class="grid">
 
-    <!-- Puzzles -->
-    <a href="ਪੰਜਾਬੀ ਸ਼ਬਦ puzzle2.html">🧩 ਪੰਜਾਬੀ ਸ਼ਬਦ Puzzle</a>
+<!-- ⭐ YOUR MAIN GAME -->
+<a href="Shabad-poore-kro.html" class="highlight">
+🌈 ਸ਼ਬਦ ਨੂੰ ਪੂਰਾ ਕਰੋ (New Game)
+</a>
 
-    <!-- Muhavare -->
+<!-- Fun games -->
+<a href="Visram-chinh.html">✍️ ਵਿਸਰਾਮ-ਚਿੰਨ੍ਹ Game</a>
+<a href="Viakaran100.html">📗 ਵਿਆਕਰਨ 100</a>
+<a href="Muhavre200bubbles.html">💬 200 ਮੁਹਾਵਰੇ</a>
+<a href="Bubble game.html">🫧 Bubble Game</a>
+<a href="runner3.html">🏃 Runner Game</a>
 
-    <a href="muhavare1.html">🎯 ਮੁਹਾਵਰੇ Match Game</a>
+<!-- Vocabulary -->
+<a href="Virodhishabad.html">🎴 ਵਿਰੋਧੀ ਸ਼ਬਦ</a>
+<a href="Vakhrra-shabad-labho.html">🔍 ਵੱਖਰਾ ਸ਼ਬਦ ਲੱਭੋ</a>
+<a href="Ikk-lai-vale-shabad.html">🧠 ਇੱਕ-ਲੈਅ ਵਾਲੇ ਸ਼ਬਦ</a>
+<a href="Bahute-shabad-ton-ik-shabad.html">🔁 ਬਹੁਤੇ → ਇੱਕ ਸ਼ਬਦ</a>
 
-    <!-- Grammar -->
-    <a href="mixviakaran.html">📘 Mix ਵਿਆਕਰਨ</a>
-    
-    <a href="lingbadlo.html">👫 ਲਿੰਗ ਬਦਲੋ</a>
-    <a href="visheshanfillintheblanks.html">📝 ਵਿਸ਼ੇਸ਼ਣ ਖਾਲੀ ਥਾਵਾਂ ਭਰੋ</a>
-    <a href="Naav-game.html">📕 ਨਾਂਵ Game</a>
+<!-- Puzzles -->
+<a href="ਪੰਜਾਬੀ ਸ਼ਬਦ puzzle2.html">🧩 ਸ਼ਬਦ Puzzle</a>
 
-    <!-- Matra & symbols -->
-    <a href="Lga-matra.html">⭐ ਲਗਾਂ ਅਤੇ ਲਗਾਖਰ</a>
-    
-  </div>
+<!-- Muhavare -->
+<a href="muhavare1.html">🎯 ਮੁਹਾਵਰੇ Match</a>
 
-  <footer>
-    Share this one link on WhatsApp:<br/>
-    https://kkdeol1980.github.io/-memorygame/
-  </footer>
+<!-- Grammar -->
+<a href="mixviakaran.html">📘 Mix ਵਿਆਕਰਨ</a>
+<a href="lingbadlo.html">👫 ਲਿੰਗ ਬਦਲੋ</a>
+<a href="visheshanfillintheblanks.html">📝 ਵਿਸ਼ੇਸ਼ਣ ਭਰੋ</a>
+<a href="Naav-game.html">📕 ਨਾਂਵ Game</a>
+
+<!-- Matra -->
+<a href="Lga-matra.html">⭐ ਲਗਾਂ ਅਤੇ ਲਗਾਖਰ</a>
+
+</div>
+
+<footer>
+Share this link on WhatsApp:<br>
+https://kkdeol1980.github.io/-memorygame/
+</footer>
 
 </body>
 </html>
